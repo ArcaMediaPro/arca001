@@ -1,0 +1,209 @@
+/* promo-style.css */
+:root {
+    --promo-primary-color: #ff8a65; /* Coral similar a tu app */
+    --promo-secondary-color: #ffb74d; /* Naranja similar a tu app */
+    --promo-dark-bg: #2c2a3f;
+    --promo-light-text: #e0e0e0;
+    --promo-dark-text: #333;
+    --promo-section-bg: #3d3b54;
+    --font-promo-body: 'Arial', sans-serif; /* Elige fuentes legibles */
+    --font-promo-headings: 'Georgia', serif; /* O alguna más distintiva */
+}
+
+body {
+    font-family: var(--font-promo-body);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    background-color: var(--promo-dark-bg);
+    color: var(--promo-light-text);
+}
+
+.container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* Hero Section */
+.hero-section {
+    background-color: var(--promo-dark-bg); /* O un gradiente, o imagen de fondo */
+    color: var(--promo-light-text);
+    padding: 60px 20px;
+    text-align: center;
+}
+.hero-logo {
+    max-width: 150px;
+    margin-bottom: 20px;
+}
+.hero-section h1 {
+    font-family: var(--font-promo-headings);
+    font-size: 2.8em;
+    margin-bottom: 0.5em;
+    color: var(--promo-secondary-color);
+}
+.hero-section .subtitle {
+    font-size: 1.3em;
+    margin-bottom: 1.5em;
+    color: #bdbdbd;
+}
+.hero-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    margin: 30px 0;
+    border: 3px solid var(--promo-secondary-color);
+}
+
+/* Call to Action Button */
+.cta-button {
+    display: inline-block;
+    background-color: var(--promo-primary-color);
+    color: var(--promo-dark-text); /* O blanco si contrasta mejor */
+    padding: 15px 35px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.cta-button:hover {
+    background-color: #ffab91; /* Un tono más claro de tu coral */
+    transform: translateY(-2px);
+}
+.cta-button.large {
+    font-size: 1.3em;
+    padding: 18px 40px;
+}
+
+/* Features Section */
+.features-section {
+    padding: 50px 20px;
+    background-color: var(--promo-section-bg);
+}
+.features-section h2 {
+    text-align: center;
+    font-family: var(--font-promo-headings);
+    font-size: 2.2em;
+    margin-bottom: 50px;
+    color: var(--promo-secondary-color);
+}
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+.feature-item {
+    background-color: var(--promo-dark-bg);
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.feature-icon {
+    width: 60px; /* Ajusta el tamaño de tus iconos */
+    height: 60px;
+    margin-bottom: 15px;
+}
+.feature-item h3 {
+    font-family: var(--font-promo-headings);
+    font-size: 1.5em;
+    color: var(--promo-primary-color);
+    margin-bottom: 10px;
+}
+.feature-item p {
+    font-size: 0.95em;
+    color: #bdbdbd;
+}
+
+/* How It Works Section */
+.how-it-works-section {
+    padding: 50px 20px;
+    text-align: center;
+}
+.how-it-works-section h2 {
+    font-family: var(--font-promo-headings);
+    font-size: 2.2em;
+    margin-bottom: 50px;
+    color: var(--promo-secondary-color);
+}
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+    align-items: flex-start;
+}
+.step-item {
+    text-align: center;
+}
+.step-image {
+    width: 100%;
+    max-width: 350px; /* Ajusta según tus capturas */
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    border: 2px solid var(--promo-section-bg);
+}
+.step-item h4 {
+    font-family: var(--font-promo-headings);
+    font-size: 1.3em;
+    color: var(--promo-primary-color);
+    margin-bottom: 8px;
+}
+
+/* Final CTA Section */
+.final-cta-section {
+    background-color: var(--promo-section-bg);
+    padding: 60px 20px;
+    text-align: center;
+}
+.final-cta-section h2 {
+    font-family: var(--font-promo-headings);
+    font-size: 2em;
+    color: var(--promo-secondary-color);
+    margin-bottom: 20px;
+}
+.final-cta-section p {
+    font-size: 1.1em;
+    margin-bottom: 30px;
+    color: #bdbdbd;
+}
+
+/* Promo Footer */
+.promo-footer {
+    background-color: var(--promo-dark-bg);
+    color: #aaa;
+    text-align: center;
+    padding: 30px 20px;
+    border-top: 1px solid #444;
+}
+.promo-footer p {
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+.promo-footer a {
+    color: var(--promo-primary-color);
+    text-decoration: none;
+}
+.promo-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 2.2em;
+    }
+    .hero-section .subtitle {
+        font-size: 1.1em;
+    }
+    .features-section h2, .how-it-works-section h2, .final-cta-section h2 {
+        font-size: 1.8em;
+    }
+    .features-grid, .steps-grid {
+        grid-template-columns: 1fr; /* Apila en móviles */
+    }
+}

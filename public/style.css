@@ -1,0 +1,1646 @@
+/* --- Definición de Variables de Color y Fuente --- */
+:root {
+    /* Colores */
+    --clr-bg-body: #2c2a3f;
+    --clr-text-main: #e0e0e0;
+    --clr-text-secondary: #bdbdbd; /* Para labels, párrafos tarjeta */
+    --clr-bg-section: #3d3b54;
+    --clr-border: #545170;
+    --clr-accent-1: #ffb74d; /* Naranja principal (títulos, etc) */
+    --clr-accent-2: #ffcc80; /* Naranja claro (títulos tarjeta, borde modal img) */
+    --clr-btn-p-bg: #ff8a65;  /* Botón primario fondo (coral) */
+    --clr-btn-p-text: #212121; /* Botón primario texto */
+    --clr-btn-p-hover: #ffab91; /* Botón primario hover */
+    --clr-btn-s-bg: #6a679e;  /* Botón secundario fondo (morado) */
+    --clr-btn-s-text: white;   /* Botón secundario texto */
+    --clr-btn-s-hover: #8481b8; /* Botón secundario hover */
+    --clr-btn-d-bg: #e57373;  /* Botón delete fondo (rojo) */
+    --clr-btn-d-text: white;   /* Botón delete texto */
+    --clr-btn-d-hover: #ef5350; /* Botón delete hover */
+    --clr-btn-disabled-bg: #5a5a5a;
+    --clr-btn-disabled-text: #9e9e9e;
+    /* Inputs usan fallback a variables principales en CSS */
+    --clr-input-bg: var(--clr-bg-body);
+    --clr-input-text: var(--clr-text-main);
+    --clr-input-border: var(--clr-border);
+    --clr-input-focus: var(--clr-btn-p-bg);
+    --clr-sidebar-active-bg: var(--clr-btn-p-bg);
+    --clr-sidebar-active-text: var(--clr-btn-p-text);
+    --clr-sidebar-hover-bg: var(--clr-border);
+    --clr-img-placeholder-bg: var(--clr-bg-body);
+    --clr-img-border: var(--clr-border);
+    --clr-modal-overlay: rgba(0,0,0,0.8);
+    --clr-modal-bg: var(--clr-bg-section);
+    --clr-modal-close: var(--clr-text-secondary);
+    --clr-modal-close-hover: white;
+
+    /* Fuentes */
+    --font-body: sans-serif;
+    --font-headings-main: sans-serif;
+    --font-headings-card: sans-serif;
+    --font-ui: sans-serif;
+    --font-size-body: 0.9rem;
+    --font-size-headings-main: 1.8rem;
+    --font-size-headings-card: 1.1rem; /* Título de la tarjeta */
+    --font-size-ui: 0.9rem;
+
+    /* Variables para layout fijo */
+    --header-height: 9.5rem;
+    --sidebar-width: 260px;
+}
+/* --- Estilos Generales --- */
+html {
+    height: 100%;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--clr-bg-body);
+    color: var(--clr-text-main);
+    margin: 0;
+    font-size: var(--font-size-body);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* --- Ajustes de Estilo del Encabezado --- */
+header {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+    background-color: var(--clr-bg-body);
+    padding: 0.5rem 1rem;
+    box-shadow: none;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-grow: 1;
+}
+
+header h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.5rem;
+    color: var(--clr-accent-1);
+    white-space: nowrap;
+}
+
+.header-page-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+#addGameBtn,
+#deleteSelectedBtn {
+    width: 49px;
+    height: 49px;
+    background-color: transparent;
+    padding: 5px;
+    font-size: inherit;
+    text-indent: 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    color: inherit;
+    transition: opacity 0.2s ease, transform 0.15s ease-out;
+}
+
+#addGameBtn:hover:not(:disabled),
+#deleteSelectedBtn:hover:not(:disabled) {
+    background-color: transparent;
+    opacity: 0.7;
+}
+
+#addGameBtn:disabled,
+#deleteSelectedBtn:disabled {
+    background-color: transparent !important;
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+#addGameBtn img,
+#deleteSelectedBtn img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+#undoDeleteBtn {
+    padding: 3px;
+    width: 28px;
+    height: 28px;
+    overflow: hidden;
+    background-color: var(--clr-btn-s-bg);
+    color: var(--clr-btn-s-text);
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+#undoDeleteBtn img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#undoDeleteBtn:hover:not(:disabled) {
+     background-color: var(--clr-btn-s-hover);
+}
+#undoDeleteBtn:disabled {
+    background-color: var(--clr-btn-disabled-bg) !important;
+    cursor: not-allowed; opacity: 0.5;
+}
+#undoDeleteBtn:disabled:hover {
+    background-color: var(--clr-btn-disabled-bg) !important;
+}
+
+#configBtn {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    font-size: 1.1rem;
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: var(--clr-btn-s-bg);
+    color: var(--clr-btn-s-text);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+#configBtn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor; /* Esto hace que el SVG herede el color del texto del botón */
+}
+
+
+
+
+#configBtn:hover:not(:disabled) {
+    background-color: var(--clr-btn-s-hover);
+}
+
+header .user-info {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#logout-button img {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+}
+
+#logout-button {
+    background-color: transparent;
+    border: none;
+    padding: 2px;
+    cursor: pointer;
+}
+
+body.auth-view-active header .header-content-wrapper {
+    display: none;
+}
+body.auth-view-active header {
+    box-shadow: none;
+}
+
+/* --- Áreas Principales (Auth y Game) --- */
+main#game-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--header-height); /* Espacio para el header fijo */
+}
+
+main#auth-area {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: var(--header-height); /* Espacio para el header fijo */
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+    text-align: center;
+}
+				/* Le da el tamaño a gusto de Buscar, Filtar y Ordenar */
+.filter-section-title-image {
+    display: block; /* Para que ocupe su propia línea y permita márgenes */
+    max-width: 20%; /* Para asegurar que no se desborde del contenedor */
+    height: auto;   /* Para mantener la proporción de la imagen */
+    margin-bottom: 1rem; /* O el espacio que necesites debajo de la imagen, similar al que tenía el h2 */
+}
+
+.filter-section {
+    /* Puede que necesites ajustar el padding-top de .filter-section si la imagen tiene una altura diferente al h2 */
+}
+				/* Le da el tamaño a gusto de Coleccion */
+.list-section-title-image {
+    display: block; /* Para que ocupe su propia línea y permita márgenes */
+    max-width: 10%; /* Para asegurar que no se desborde del contenedor */
+    height: auto;   /* Para mantener la proporción de la imagen */
+    margin: 0 auto 1.5rem auto; /* Centrar la imagen y darle un margen inferior similar al que tenía el h2 */
+}
+
+.sidebar-title-image {
+    display: block; /* Para que ocupe su propia línea si es necesario */
+    max-width: 66%; /* Para que se ajuste al ancho de la barra lateral */
+    height: auto;   /* Para mantener la proporción */
+    margin: 0 auto 1rem auto; /* Centrar la imagen y darle un margen inferior */
+}
+			/* Ajuste para el contenedor de la barra lateral si es necesario */
+.platform-sidebar {
+    /* Puede que necesites ajustar el padding-top o los márgenes internos
+       si la imagen tiene una altura muy diferente al h3 original. */
+}
+
+h1 { margin-bottom: 1rem; }
+
+h3, legend {
+    font-family: var(--font-headings-card);
+    color: var(--clr-accent-2);
+    font-size: var(--font-size-headings-card);
+}
+legend { color: var(--clr-accent-1); font-weight: bold; padding: 0 0.5em; margin-left: 0.5rem; }
+h3 { margin: 0.5rem 0 1rem 0; } /* Margen general para h3 */
+
+button, label, input, select, textarea,
+.filter-controls input, .filter-controls select, .sort-controls select {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+}
+p { /* Estilo general para párrafos, podría necesitar ser más específico */
+    font-family: var(--font-body);
+    margin: 0.1rem 0; /* Margen vertical muy pequeño para párrafos generales */
+    font-size: 0.9em;
+    color: var(--clr-text-secondary);
+}
+
+/* --- Estilos de Layout Principal --- */
+.page-layout {
+    flex-grow: 1;
+    position: relative; /* Para que filter-section se posicione relativo a este si no hay otro ancestro posicionado */
+}
+
+.platform-sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--clr-bg-section);
+    padding: 1.5rem 1rem;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.3);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 0;
+    top: var(--header-height);
+    height: calc(100vh - var(--header-height));
+    z-index: 998;
+    box-sizing: border-box;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 1rem 2rem 2rem 2rem; /* Padding general */
+    padding-top: 0px; /* Manteniendo el valor de tu CSS original para filter-section fijo */
+    position: relative;
+    margin-left: var(--sidebar-width);
+}
+
+#gameList {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(305px, 1fr));
+    gap: 20px;
+}
+
+.top-buttons {
+    margin-bottom: 1rem;
+    width: 100%; display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;
+    padding-top: 1rem;
+}
+
+#exportBtn, #importBtn { display: none; } /* Ocultos por ahora */
+
+.platform-sidebar h3 { color: var(--clr-accent-1); text-align: center; margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--clr-border); padding-bottom: 0.5rem; }
+#showAllPlatformsBtn { width: 100%; margin-bottom: 1rem; background-color: var(--clr-btn-s-bg); color: var(--clr-btn-s-text); text-align: center; font-weight: bold; }
+#showAllPlatformsBtn:hover:not(.active) { background-color: var(--clr-btn-s-hover); }
+
+
+#platformListFilter li.active {
+    background-color: #ff8a6500;
+    color: var(--clr-sidebar-active-text);
+    font-weight: bold;
+}
+
+
+#platformListFilter { list-style: none; padding: 0; margin: 0; flex-grow: 1; }
+#platformListFilter li {
+    font-family: var(--font-ui);
+    font-size: var(--font-size-ui);
+    padding: 0.6rem 0.8rem; cursor: pointer; border-radius: 4px; margin-bottom: 2px; transition: background-color 0.2s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: space-between; color: var(--clr-text-main);
+}
+#platformListFilter li:hover { background-color: var(--clr-sidebar-hover-bg); }
+#platformListFilter li.active { background-color: var(--clr-sidebar-active-bg); color: var(--clr-sidebar-active-text); font-weight: bold; }
+
+/* --- Formulario de Juego --- */
+.form-section { background-color: var(--clr-bg-section); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+#formSection > fieldset { border: 1px solid var(--clr-border); border-radius: 6px; padding: 1rem 1.5rem 1.5rem 1.5rem; margin: 0; }
+#gameForm { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem 1.5rem; align-items: start; }
+#gameForm label { display: block; margin-bottom: 0.3rem; font-weight: bold; color: var(--clr-text-secondary); }
+#gameForm input[type="text"], #gameForm input[type="number"], #gameForm input[type="file"], #gameForm select, #gameForm textarea { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--clr-input-border); background-color: var(--clr-input-bg); color: var(--clr-input-text); box-sizing: border-box; }
+#gameForm input[type="file"] { padding: 0.3rem 0.5rem; }
+#gameForm textarea { height: auto; min-height: 6em; }
+#gameForm input:focus, #gameForm select:focus, #gameForm textarea:focus, #gameForm input[type="file"]:focus { outline: none; border-color: var(--clr-input-focus); box-shadow: 0 0 5px var(--clr-input-focus); }
+.form-buttons { grid-column: 1 / -1; display: flex; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
+.form-buttons button[type="submit"] { background-color: var(--clr-btn-p-bg); color: var(--clr-btn-p-text); }
+.form-buttons button[type="submit"]:hover { background-color: var(--clr-btn-p-hover); }
+.form-buttons button[type="button"] { background-color: var(--clr-btn-s-bg); color: var(--clr-btn-s-text); }
+.form-buttons button[type="button"]:hover { background-color: var(--clr-btn-s-hover); }
+.image-preview { margin-top: 0.5rem; max-width: 100px; max-height: 150px; display: block; border: 1px dashed var(--clr-border); min-height: 50px; background-color: var(--clr-img-placeholder-bg); }
+.image-preview img { max-width: 100%; max-height: 150px; display: block; object-fit: contain; }
+#gameForm fieldset { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem 1.5rem; margin-top: 1rem; margin-bottom: 0.5rem; padding: 1rem 1.5rem 1.5rem 1.5rem; border-radius: 6px; border: 1px solid var(--clr-border); }
+
+#gameForm .image-upload-section {
+    grid-column: 1 / -1;
+    display: block;
+}
+
+#gameForm .rating-section { grid-column: 1 / -1; }
+.screenshot-upload-section { grid-column: 1 / -1; margin-top: 1rem; }
+.screenshots-preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 0.8rem; padding: 0.5rem; min-height: 60px; border: 1px dashed var(--clr-border); background-color: var(--clr-img-placeholder-bg); border-radius: 4px; }
+#screenshotsPreview img { max-width: 100px; max-height: 80px; height: auto; object-fit: contain; border: 1px solid var(--clr-border); border-radius: 3px; background-color: var(--clr-bg-section); }
+#existingScreenshotsLabel { }
+#existingScreenshotsPreview { }
+.input-error { border-color: #e57373 !important; box-shadow: 0 0 5px #e57373; }
+
+				/* Estilo específico para el botón de limpiar filtros como icono */
+#resetFiltersBtn {
+    background-color: transparent;
+    border: none;
+    padding: 2px;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    vertical-align: middle;
+    flex-shrink: 0;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+}
+						/* Estilo para la imagen dentro del botón */
+#resetFiltersBtn img {
+    display: block;
+    width: 120%;
+    height: 100%;
+    object-fit: contain;
+}
+						/* Efecto al pasar el ratón por encima */
+#resetFiltersBtn:hover {
+    opacity: 0.7;
+    background-color: transparent;
+}
+
+
+/* Estilos para el nuevo botón de admin con icono */
+.admin-icon-button {
+    background-color: transparent; /* Fondo transparente para que solo se vea el icono */
+    border: none;                 /* Sin borde */
+    padding: 4px;                 /* Un poco de padding alrededor del icono si es necesario */
+    cursor: pointer;
+    vertical-align: middle;       /* Alinear con otros botones/texto en el header */
+    line-height: 1;               /* Para que la altura del botón se ajuste bien al icono */
+}
+
+.admin-icon-button img {
+    height: 28px; /* Ajusta esta altura según el tamaño deseado para la corona */
+    width: auto;  /* Mantener la proporción de la imagen */
+    display: block; /* Para evitar espacio extra debajo de la imagen */
+}
+
+.admin-icon-button:hover img,
+.admin-icon-button:focus img {
+    opacity: 0.8; /* Efecto hover/focus sutil */
+}
+
+
+
+					/* Estilo para el foco (accesibilidad con teclado) */
+#resetFiltersBtn:focus {
+     outline: none;
+     outline-offset: 1px;
+     opacity: 1;
+}
+.filter-controls {
+    align-items: center;
+}
+				/* Estilo específico para el input de filtro por año */
+#yearFilterInput {
+    width: 100px;
+    max-width: 100px;
+    flex-grow: 0;
+    min-width: auto;
+}
+				/* Estilo específico para el select de filtro por género */
+#genreFilter {
+    width: 250px;
+    max-width: 250px;
+    flex-grow: 0;
+    min-width: auto;
+}
+
+
+
+/* --- Filtros y Ordenación --- */
+.filter-section {
+    background-color: var(--clr-bg-body);
+    padding: 0.5rem 3.5rem 1rem 1.5rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-sizing: border-box;
+    position: fixed;
+    top: var(--header-height);
+    left: var(--sidebar-width);
+    width: calc(100vw - var(--sidebar-width));
+    z-index: 997;
+}
+.filter-section h2 {
+    margin-top: 0; margin-bottom: 0.5rem; text-align: left; color: var(--clr-accent-1);
+}
+				/* Estilo para el botón Guardar Cambios en el modal de configuración como icono */
+#saveConfigBtn {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    width: 65px;
+    height: 65px;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+    vertical-align: middle;
+}
+#saveConfigBtn img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#saveConfigBtn:hover {
+    opacity: 0.8;
+}
+#saveConfigBtn:focus {
+    outline: none;
+    opacity: 1;
+}
+			/* Estilo para el botón Restablecer Predeterminados en el modal de configuración como icono */
+#resetConfigBtn {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    width: 65px;
+    height: 65px;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+    vertical-align: middle;
+}
+#resetConfigBtn img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#resetConfigBtn:hover {
+    opacity: 0.8;
+}
+#resetConfigBtn:focus {
+    outline: none;
+    opacity: 1;
+}
+
+.filter-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.filter-controls input[type="search"], .filter-controls input[type="number"], .filter-controls select { padding: 0.5rem; border-radius: 4px; border: 1px solid var(--clr-input-border); background-color: var(--clr-input-bg); color: var(--clr-input-text); flex-grow: 1; min-width: 150px; }
+.filter-controls input[type="search"]:focus, .filter-controls input[type="number"]:focus, .filter-controls select:focus { outline: none; border-color: var(--clr-input-focus); box-shadow: 0 0 5px var(--clr-input-focus); }
+.filter-controls button { padding: 0.5rem 1rem; flex-shrink: 0; background-color: var(--clr-btn-s-bg); color: var(--clr-btn-s-text); }
+.filter-controls button:hover { background-color: var(--clr-btn-s-hover); }
+.filter-controls input::placeholder { color: var(--clr-text-secondary); opacity: 0.8; }
+.filter-controls input[type=number]::-webkit-inner-spin-button, .filter-controls input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.filter-controls input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+.sort-controls { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; flex-shrink: 0; flex-basis: content; }
+.sort-controls label { font-weight: bold; color: var(--clr-text-secondary); flex-shrink: 0; white-space: nowrap; }
+.sort-controls select { padding: 0.5rem; border-radius: 4px; border: 1px solid var(--clr-input-border); background-color: var(--clr-input-bg); color: var(--clr-input-text); min-width: 180px; flex-grow: 0; }
+.sort-controls select:focus { outline: none; border-color: var(--clr-input-focus); box-shadow: 0 0 5px var(--clr-input-focus); }
+
+.list-section h2 { color: var(--clr-accent-1); text-align: center; margin-bottom: 1.5rem; }
+
+/* --- Estilos de Game Card (Tarjeta de Juego) --- */
+.game-card-simple {
+    width: 100%;
+    height: 410.00px;
+    box-sizing: border-box;
+    background-color: var(--clr-bg-section);
+    padding: 0rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: unset;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    justify-content: center;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.game-card-simple:hover {
+    border-color: var(--clr-accent-1);
+}
+
+.game-card-simple::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    background-image: var(--card-bg-image, none);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    filter: grayscale(100%) contrast(1.2);
+    opacity: 0.5;
+    border-radius: inherit;
+    pointer-events: none;
+    transition: none;
+}
+.game-card-simple > * {
+    position: relative;
+    z-index: 1;
+}
+
+.game-card-simple > .game-delete-checkbox {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+}
+.game-card-simple > .btn-edit-game {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    background-color: transparent;
+    border: none;
+    padding: 4px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s ease, transform 0.15s ease-out;
+    border-radius: 4px;
+}
+.game-card-simple > .btn-edit-game img {
+    display: block;
+    width: 120%;
+    height: 120%;
+    object-fit: contain;
+}
+.game-card-simple > .btn-edit-game:hover {
+    opacity: 0.7;
+    transform: scale(1.1);
+}
+.game-card-simple > .btn-edit-game:focus {
+    outline: none;
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.game-card-simple img.card-cover-image {
+    display: block;
+    height: 172.5px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    margin: 0 auto 0.5rem auto;
+    background-color: var(--clr-img-placeholder-bg);
+    border-radius: 4px;
+    pointer-events: none;
+}
+.card-image-container {
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+.platform-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 3px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.platform-logo-single {
+    display: block;
+    margin: 0.25rem auto 0 auto;
+}
+.platform-logo-stack {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+    width: 100%;
+    margin-top: 0.25rem;
+    margin-bottom: 0;
+}
+
+.card-content {
+    width: 100%;
+    padding-bottom: 35px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    line-height: 1.3;
+}
+.card-content .card-title {
+    margin-top: 0.2rem;
+    margin-bottom: 0.2rem;
+    font-size: var(--font-size-headings-card);
+    color: var(--clr-accent-2);
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+    width: 95%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.2;
+    pointer-events: none;
+}
+.card-content .game-info-line {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 0.75rem;
+    color: var(--clr-text-secondary, #bdbdbd);
+    line-height: 1.25;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    width: 90%;
+    text-align: center;
+    pointer-events: none;
+}
+.card-content .card-rating {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: fit-content;
+    z-index: 2;
+}
+.game-card-simple .card-rating .star-10 {
+    width: 0.9em;
+    height: 0.9em;
+    margin-right: 1px;
+    cursor: default;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.6));
+}
+
+/* Rating Stars (Generales y Formulario) */
+.rating-stars-10 { display: inline-block; vertical-align: middle; line-height: 1; margin-top: 0.3rem; }
+#formRatingStars { pointer-events: auto; cursor: default; }
+.rating-display-stars-10 { pointer-events: none; display: inline-block; vertical-align: middle; line-height: 1; white-space: nowrap; }
+.rating-display-stars-10 label.star-10 {
+    display: inline-block !important;
+    vertical-align: middle;
+    width: 16px;
+    height: 16px;
+    margin-right: 2px; margin-left: 0; margin-top: 0; margin-bottom: 0; padding: 0;
+}
+.rating-display-stars-10 label.star-10:last-child { margin-right: 0; }
+.rating-stars-10 .star-10,
+.rating-display-stars-10 .star-10 {
+    display: inline-block !important;
+    width: 1.5em;
+    height: 1.5em;
+    margin-right: 0.2em;
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23777" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    transition: background-image 0.1s ease-in-out;
+    vertical-align: middle !important;
+}
+.rating-stars-10 .star-10.active,
+.rating-display-stars-10 .star-10.active {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ffcc80" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') !important;
+}
+
+
+/* --- AÑADE ESTE CÓDIGO AL FINAL DE LA SECCIÓN DE ESTILOS DE ESTRELLAS --- */
+
+/* Estilo para la previsualización al pasar el mouse por encima */
+.rating-stars-10 .star-10.hover-preview {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23FFEB3B" d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/><path d="M0 0h24v24H0z" fill="none"/></svg>') !important;
+}
+
+
+
+/* --- Modales --- */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--clr-modal-overlay); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background: var(--clr-modal-bg); padding: 1.5rem 2rem; max-width: 90%; max-height: 90%; overflow-y: auto; color: var(--clr-text-main); position: relative; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+.modal .close { position: absolute; top: 10px; right: 15px; color: var(--clr-modal-close); font-size: 2rem; font-weight: bold; line-height: 1; cursor: pointer; z-index: 1005; padding: 0.25rem 0.5rem; user-select: none; }
+.modal .close:hover { color: var(--clr-modal-close-hover); }
+/* Modal Detalles Juego */
+#gameDetailModal .modal-content { width: 80vw; max-width: 1000px; min-height: 90vh; padding: 1.5rem 2rem; }
+.loading-message { text-align: center; font-size: 1.2em; padding: 2rem; color: var(--clr-text-secondary); }
+.error-message { color: var(--clr-btn-d-bg); }
+.game-detail-header { text-align: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--clr-border); padding-bottom: 1rem; }
+.game-detail-header h2 { font-family: var(--font-headings-main); color: var(--clr-accent-1); font-size: calc(var(--font-size-headings-main) * 1.2); margin-bottom: 0.25rem; text-align: center; }
+.game-detail-subheader { font-size: 1.1em; color: var(--clr-text-secondary); }
+.game-detail-subheader .game-detail-platform, .game-detail-subheader .game-detail-year { margin: 0 0.5em; font-weight: bold; }
+.game-detail-main-content { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 1.5rem; }
+.game-detail-visuals-column { flex: 1; min-width: 280px; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.game-detail-cover-backcover-wrapper { display: flex; justify-content: center; align-items: flex-start; gap: 1rem; width: 100%; }
+.game-detail-cover, .game-detail-backcover { flex-basis: calc(50% - 0.5rem); max-width: calc(50% - 0.5rem); max-height: 220px; object-fit: contain; border: 2px solid var(--clr-border); border-radius: 6px; background-color: var(--clr-img-placeholder-bg); cursor: pointer; transition: border-color 0.2s ease; }
+.game-detail-cover:hover, .game-detail-backcover:hover { border-color: var(--clr-accent-2); }
+.game-detail-placeholder-image { width: 100%; max-width: 300px; height: 200px; display: flex; align-items: center; justify-content: center; background-color: var(--clr-bg-body); border: 2px dashed var(--clr-border); border-radius: 6px; color: var(--clr-text-secondary); font-style: italic; }
+.game-detail-placeholder-image.small { flex-basis: calc(50% - 0.5rem); max-width: calc(50% - 0.5rem); height: 150px; }
+.game-detail-info-column { flex: 2; min-width: 300px; }
+.game-detail-info-column .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.5rem 1.5rem; margin-bottom: 1rem; }
+.game-detail-info-column p { margin: 0.2rem 0; font-size: 0.95em; color: var(--clr-text-main); line-height: 1.5; }
+.game-detail-info-column p strong { color: var(--clr-text-secondary); margin-right: 0.5em; font-weight: 600; }
+.game-detail-rating-section { margin-top: 1rem; margin-bottom: 1rem; font-size: 1.1em; }
+.game-detail-rating-section strong { color: var(--clr-text-secondary); margin-right: 0.5em; font-weight: 600; }
+.modal-content #gameDetails .rating-display-stars-10 .star-10 { width: 1.3em !important; height: 1.3em !important; }
+.game-detail-date { font-style: italic; color: var(--clr-text-secondary); font-size: 0.85em; margin-top: 1rem; }
+.game-detail-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--clr-border); }
+.game-detail-section h3 { font-family: var(--font-headings-card); color: var(--clr-accent-2); margin-bottom: 1rem; font-size: calc(var(--font-size-headings-card) * 1.1); text-align: left; }
+.system-requirements-section ul { list-style: none; padding-left: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 0.5rem 1rem; }
+.system-requirements-section li { background-color: rgba(0,0,0,0.1); padding: 0.5rem 0.75rem; border-radius: 4px; font-size: 0.9em; }
+.system-requirements-section li strong { color: var(--clr-text-secondary); }
+.additional-info-section .additional-info-content { white-space: pre-wrap; background-color: rgba(0,0,0,0.1); padding: 1rem; border-radius: 4px; font-size: 0.95em; line-height: 1.6; color: var(--clr-text-main); max-height: 200px; overflow-y: auto; }
+.screenshots-section .game-detail-screenshots-container { display: flex; flex-wrap: wrap; gap: 10px; background-color: rgba(0,0,0,0.1); padding: 1rem; border-radius: 4px; justify-content: flex-start; }
+.game-detail-screenshot { max-width: 180px; max-height: 120px; height: auto; object-fit: cover; border: 2px solid var(--clr-border); border-radius: 4px; cursor: pointer; transition: border-color 0.2s ease, transform 0.2s ease; }
+.game-detail-screenshot:hover { border-color: var(--clr-accent-2); transform: scale(1.05); }
+/* Modal Imagen/Galería */
+#imageModal { background: rgba(0,0,0,0.9); z-index: 1001; }
+#imageModal .modal-content { background: none; padding: 0; box-shadow: none; display: flex; align-items: center; justify-content: center; max-width:200%; max-height:200%; overflow:hidden; }
+#imageModalContent { display: block; object-fit: contain; border: 3px solid var(--clr-accent-2); border-radius: 5px; background-color: #000; max-width: 100%; max-height: 100%; width: auto; height: auto; }
+.gallery-nav-button { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(0, 0, 0, 0.4); color: white; border: none; font-size: 2.5rem; padding: 10px 15px; cursor: pointer; z-index: 1003; border-radius: 5px; transition: background-color 0.2s ease, opacity 0.2s ease, visibility 0.1s ease-out; opacity: 0.7; visibility: hidden; }
+.gallery-nav-button:hover { background-color: rgba(0, 0, 0, 0.7); opacity: 1; }
+.gallery-indicator { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0, 0, 0, 0.6); color: white; padding: 5px 15px; border-radius: 10px; font-size: 0.9rem; z-index: 1003; font-family: var(--font-ui); display: none; }
+#imageModal.has-gallery .gallery-indicator { display: block; }
+
+/* --- Estilos Modal Configuración --- */
+#configModal { background: transparent; }
+#configModal .modal-content { width: 60vw; max-width: 700px; min-width: 350px; position: relative; }
+#configModalHeader {
+    cursor: grab;
+    user-select: none;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--clr-border);
+    margin-bottom: 1rem;
+    position: relative;
+    background-color: var(--clr-modal-bg);
+}
+#configModal .modal-content.dragging { cursor: grabbing; opacity: 0.85; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+#configModal.is-dragging { display: block; align-items: initial; justify-content: initial; }
+
+.config-tabs-container {}
+.config-tabs-nav {
+    display: flex;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--clr-border);
+}
+.config-tab-button {
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--clr-text-secondary);
+    font-family: var(--font-ui);
+    font-size: 0.95em;
+    font-weight: bold;
+    transition: color 0.2s ease, border-color 0.2s ease;
+    margin-right: 5px;
+    margin-bottom: -2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+}
+.config-tab-button:last-child {
+    margin-right: 0;
+}
+.config-tab-button:hover {
+    color: var(--clr-text-main);
+}
+.config-tab-button.active {
+    color: var(--clr-accent-1);
+    border-bottom-color: var(--clr-accent-1);
+}
+#configForm {
+    display: block;
+}
+.config-tab-panel {
+    display: none;
+    padding-top: 0.5rem;
+}
+.config-tab-panel.active {
+    display: block;
+}
+
+.config-section {
+    border: 1px solid var(--clr-border);
+    border-radius: 6px;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    margin: 0;
+}
+.config-section-legend {
+    font-family: var(--font-headings-card);
+    color: var(--clr-accent-1);
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0 0.5em;
+    margin-left: 0.5rem;
+}
+.config-subsection-title {
+    font-family: var(--font-ui);
+    color: var(--clr-accent-2);
+    font-size: 1em;
+    font-weight: normal;
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px dashed var(--clr-border);
+}
+.config-section > .config-subsection-title:first-of-type {
+    margin-top: 0.5rem;
+}
+.color-option, .font-option, .font-size-option {
+    display: grid;
+    grid-template-columns: minmax(150px, 35%) 1fr;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+.color-option label, .font-option label, .font-size-option label {
+    text-align: right;
+    color: var(--clr-text-secondary);
+    font-size: 0.9em;
+    padding-right: 0.5rem;
+}
+.color-option input[type="color"] { width: 50px; height: 30px; border: 1px solid var(--clr-input-border); padding: 0 2px; cursor: pointer; background-color: transparent; }
+.color-option input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.color-option input[type="color"]::-webkit-color-swatch { border: none; border-radius: 3px; }
+.color-option input[type="color"]::-moz-color-swatch { border: none; border-radius: 3px; }
+.font-option select { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid var(--clr-input-border); background-color: var(--clr-input-bg); color: var(--clr-input-text); box-sizing: border-box; }
+.font-option select:focus { outline: none; border-color: var(--clr-input-focus); box-shadow: 0 0 5px var(--clr-input-focus); }
+.font-size-option div { display: flex; align-items: center; gap: 0.5rem; }
+.font-size-option input[type="number"] { padding: 0.4rem; border-radius: 4px; border: 1px solid var(--clr-input-border); background-color: var(--clr-input-bg); color: var(--clr-input-text); width: 60px; }
+.font-size-option input[type="number"]:focus { outline: none; border-color: var(--clr-input-focus); box-shadow: 0 0 5px var(--clr-input-focus); }
+.font-size-option span { color: var(--clr-text-secondary); font-size: 0.9em; }
+
+#configModal > .modal-content > .modal-buttons {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    border-top: 1px solid var(--clr-border);
+    padding-top: 1rem;
+}
+
+#gameFormModal .modal-content {
+    width: 70vw;
+    max-width: 900px;
+    min-height: 70vh;
+    padding: 1.5rem 2rem;
+}
+#gameFormModal .form-section {
+    margin-bottom: 0;
+    box-shadow: none;
+    padding: 0;
+}
+#gameFormModal .form-buttons {
+    margin-top: 1.5rem;
+}
+
+				/* Estilo para el botón de submit del formulario de juego como icono */
+#submitGameFormBtn {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    width: 65px;
+    height: 65px;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+}
+#submitGameFormBtn img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#submitGameFormBtn:hover {
+    opacity: 0.8;
+}
+#submitGameFormBtn:focus {
+    outline: none;
+    outline-offset: 1px;
+    opacity: 1;
+}
+.form-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+}
+				/* Estilo para el botón Limpiar Formulario en el modal como icono */
+#clearFormBtnInModal {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    width: 65px;
+    height: 65px;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+    vertical-align: middle;
+}
+#clearFormBtnInModal img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#clearFormBtnInModal:hover {
+    opacity: 0.8;
+}
+#clearFormBtnInModal:focus {
+    outline: none;
+    opacity: 1;
+}
+/* Estilo para el botón Cancelar en el modal como icono */
+#cancelFormBtnInModal {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    width: 65px;
+    height: 65px;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+    vertical-align: middle;
+}
+#cancelFormBtnInModal img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+#cancelFormBtnInModal:hover {
+    opacity: 0.8;
+}
+#cancelFormBtnInModal:focus {
+    outline: none;
+    opacity: 1;
+}
+
+/* Estilos para los botones personalizados de carga de archivos */
+.custom-file-upload-btn {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.custom-file-upload-btn img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+.custom-file-upload-btn:hover {
+    opacity: 0.8;
+}
+.custom-file-upload-btn:focus {
+    outline: none;
+    opacity: 1;
+}
+
+/* Ajustes para los contenedores de carga de Portada y Contraportada */
+#gameForm > div:has(> #cover),
+#gameForm > div:has(> #backCover) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#gameForm > div:has(> #cover) > label,
+#gameForm > div:has(> #backCover) > label {
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+.screenshot-upload-section > label:first-of-type {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+.screenshot-upload-section > div:nth-of-type(1) {
+    margin-bottom: 0.8rem;
+}
+
+.btn-icon-custom {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    line-height: 1;
+    transition: opacity 0.2s ease;
+}
+.btn-icon-custom img {
+    width: 36px;
+    height: 36px;
+    display: block;
+    object-fit: contain;
+}
+.btn-icon-custom:hover {
+    opacity: 0.7;
+}
+.btn-icon-custom:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.system-requirements-section ul {
+    list-style: none;
+    padding-left: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 0.5rem 1rem;
+}
+.system-requirements-section li {
+    background-color: rgba(0,0,0,0.1);
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+}
+.requirement-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+/* --- Estilos de Impresión --- */
+@media print {
+    body {
+        font-size: 12pt;
+        color: #000;
+        background-color: #fff !important;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+    header, #platformSidebar, .filter-section, footer, #addGameBtn,
+    #deleteSelectedBtn, #undoDeleteBtn, #configBtn, #logout-button,
+    .auth-area, #gameList {
+        display: none !important;
+    }
+    body.modal-open-print #game-area {
+        display: block !important;
+        padding-top: 0 !important;
+        margin-left: 0 !important;
+    }
+    body.modal-open-print .main-content {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+    h1, h2, h3, h4, h5, h6 { color: #000 !important; page-break-after: avoid; }
+    p, li, table { page-break-inside: avoid; }
+    a { text-decoration: none; color: #000; }
+    img { max-width: 100% !important; height: auto !important; display: block; page-break-inside: avoid; }
+    * { box-shadow: none !important; text-shadow: none !important; }
+    .page-break-before { page-break-before: always; }
+    .page-break-after { page-break-after: always; }
+    .page-break-inside-avoid { page-break-inside: avoid; }
+}
+
+/* ***** INICIO: ESTILOS PARA EL PANEL DE ADMINISTRACIÓN ***** */
+#tab-admin {
+    color: var(--clr-text-main);
+}
+#tab-admin .config-section {
+    border: 1px solid var(--clr-border);
+    border-radius: 6px;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    margin-bottom: 1rem;
+}
+#tab-admin .config-section-legend {
+    font-family: var(--font-headings-card);
+    color: var(--clr-accent-1);
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0 0.5em;
+    margin-left: 0;
+}
+.admin-button {
+    background-color: var(--clr-btn-s-bg);
+    color: var(--clr-btn-s-text);
+    padding: 0.6em 1em;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: 0.9em;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+    margin-right: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+}
+.admin-button img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+.admin-button:hover {
+    background-color: var(--clr-btn-s-hover);
+}
+.admin-button.primary {
+    background-color: var(--clr-btn-p-bg);
+    color: var(--clr-btn-p-text);
+}
+.admin-button.primary:hover {
+    background-color: var(--clr-btn-p-hover);
+}
+.admin-button.danger {
+    background-color: var(--clr-btn-d-bg);
+    color: var(--clr-btn-d-text);
+}
+.admin-button.danger:hover {
+    background-color: var(--clr-btn-d-hover);
+}
+.admin-button:disabled {
+    background-color: var(--clr-btn-disabled-bg);
+    color: var(--clr-btn-disabled-text);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+#adminUserListContainer {
+    margin-top: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--clr-border);
+    border-radius: 4px;
+}
+#adminUserListContainer table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85em;
+}
+#adminUserListContainer th,
+#adminUserListContainer td {
+    border-bottom: 1px solid var(--clr-border);
+    padding: 0.6em 0.8em;
+    text-align: left;
+    vertical-align: middle;
+    word-break: break-word;
+}
+#adminUserListContainer tr:last-child td {
+    border-bottom: none;
+}
+#adminUserListContainer th {
+    background-color: rgba(0,0,0,0.15);
+    color: var(--clr-text-main);
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+#adminUserListContainer td .action-btn {
+    font-size: 0.9em;
+    padding: 0.4em 0.7em;
+    margin-right: 5px;
+}
+#adminUserListContainer td .action-btn:last-child {
+    margin-right: 0;
+}
+#adminUserListContainer td .action-btn img {
+    width: 14px;
+    height: 14px;
+}
+#adminEditUserSection label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: bold;
+    color: var(--clr-text-secondary);
+    font-size: 0.9em;
+}
+#adminEditUserSection .admin-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.6rem;
+    margin-bottom: 0.9rem;
+    border-radius: 4px;
+    border: 1px solid var(--clr-input-border);
+    background-color: var(--clr-input-bg);
+    color: var(--clr-input-text);
+}
+#adminEditUserSection .admin-input:focus {
+    outline: none;
+    border-color: var(--clr-input-focus);
+    box-shadow: 0 0 4px var(--clr-input-focus);
+}
+#adminUserMessage.success {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    font-size: 0.9em;
+    text-align: center;
+}
+#adminUserMessage.error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+    font-size: 0.9em;
+    text-align: center;
+}
+/* ***** FIN: ESTILOS PARA EL PANEL DE ADMINISTRACIÓN ***** */
+
+/* ***** INICIO: ESTILOS PARA LA PESTAÑA "MIS COLECCIONES" ***** */
+#collections-tab-button {
+    /* Heredará estilos de .config-tab-button, añade específicos si es necesario */
+}
+
+#tab-collections {
+    /* Heredará estilos de .config-tab-panel, añade específicos si es necesario */
+    color: var(--clr-text-main); /* Asegura que el texto sea visible si no se hereda bien */
+}
+
+#tab-collections .config-section {
+    border: 1px solid var(--clr-border);
+    border-radius: 6px;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    margin-bottom: 1rem; /* Espacio entre los fieldsets de exportar e importar */
+}
+
+#tab-collections .config-section-legend {
+    font-family: var(--font-headings-card);
+    color: var(--clr-accent-1);
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0 0.5em;
+    margin-left: 0; /* Ajustado para alinearse con el padding del fieldset */
+}
+
+#tab-collections p {
+    color: var(--clr-text-secondary);
+    font-size: 0.9em;
+    margin-bottom: 0.8rem;
+}
+#tab-collections label {
+    color: var(--clr-text-secondary);
+    font-weight: bold;
+}
+
+/* Estilo para el input de archivo, reutilizando .admin-input */
+#tab-collections .admin-input[type="file"] {
+    /* width: 100%; ya heredado */
+    /* box-sizing: border-box; ya heredado */
+    padding: 0.3rem; /* Ajuste específico para input[type="file"] */
+    /* margin-bottom: 0.9rem; ya heredado */
+    /* border-radius: 4px; ya heredado */
+    /* border: 1px solid var(--clr-input-border); ya heredado */
+    /* background-color: var(--clr-input-bg); ya heredado */
+    /* color: var(--clr-input-text); ya heredado */
+}
+
+/* Estilos para los mensajes de estado en la pestaña de colecciones */
+#tab-collections .auth-message {
+    font-size: 0.9em;
+    text-align: left; /* Alineación a la izquierda para estos mensajes */
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 0.5rem; /* Un poco menos de margen si está dentro de un fieldset */
+    display: none; /* Oculto por defecto, se muestra desde JS */
+}
+#tab-collections .auth-message.success {
+    color: #155724; /* O un color de éxito de tu tema */
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    display: block; /* Mostrar cuando tenga contenido y clase */
+}
+#tab-collections .auth-message.error {
+    color: #721c24; /* O un color de error de tu tema */
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    display: block; /* Mostrar cuando tenga contenido y clase */
+}
+/* ***** FIN: ESTILOS PARA LA PESTAÑA "MIS COLECCIONES" ***** */
+
+/* --- Media Queries --- */
+@media (max-width: 768px) {
+    #gameDetailModal .modal-content { width: 95vw; max-height: 90vh; }
+    .game-detail-main-content { flex-direction: column; gap: 1.5rem; }
+    .game-detail-visuals-column, .game-detail-info-column { flex: none; width: 100%; }
+    .game-detail-info-column .info-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+    .system-requirements-section ul { grid-template-columns: 1fr; }
+    .screenshots-section .game-detail-screenshots-container { justify-content: center; }
+    .filter-controls { flex-direction: column; align-items: stretch; }
+    .sort-controls { margin-left: 0; width:100%; justify-content: space-between; }
+    .main-content { padding-top: 180px; }
+}
+
+@media (max-width: 600px) {
+    .game-detail-cover-backcover-wrapper { flex-direction: column; align-items: center; }
+    .game-detail-cover, .game-detail-backcover, .game-detail-placeholder-image.small {
+        flex-basis: auto; width: 80%; max-width: 250px;
+    }
+    #gameList { grid-template-columns: 1fr; }
+    .main-content { padding-left: 1rem; padding-right: 1rem; margin-left: 0; }
+    .platform-sidebar { display: none; }
+    .filter-section { width: 100vw; left: 0; }
+    header h1 { font-size: 1.2rem; }
+    .header-page-controls { gap: 0.2rem; }
+    #addGameBtn, #deleteSelectedBtn { width: 40px; height: 40px; }
+    #undoDeleteBtn, #configBtn { width: 24px; height: 24px; }
+}
+
+/* --- Estilos para la página de Autenticación --- */
+.auth-forms-container {
+    max-width: 420px;
+    width: 100%;
+    background-color: var(--clr-bg-section);
+    padding: 2rem 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    margin-top: 1.5rem;
+}
+#login-form div, #register-form div, #request-reset-form div { /* Añadido #request-reset-form div */
+    margin-bottom: 1.2rem;
+}
+#login-form label, #register-form label, #request-reset-form label { /* Añadido #request-reset-form label */
+    display: block;
+    text-align: left;
+    margin-bottom: 0.4rem;
+    color: var(--clr-text-secondary);
+    font-weight: bold;
+}
+#login-form input[type="text"], #login-form input[type="password"],
+#register-form input[type="text"], #register-form input[type="password"], #register-form input[type="email"], /* Añadido email de registro */
+#request-reset-form input[type="email"] { /* Añadido email de reseteo */
+    width: 100%;
+    padding: 0.6rem;
+    box-sizing: border-box;
+    border: 1px solid var(--clr-input-border);
+    border-radius: 4px;
+    background-color: var(--clr-input-bg);
+    color: var(--clr-input-text);
+}
+#login-form button[type="submit"], #register-form button[type="submit"], #request-reset-form button[type="submit"] { /* Añadido #request-reset-form button */
+    width: 100%;
+    padding: 0.7rem;
+    margin-top: 0.5rem;
+    font-size: 1rem;
+    background-color: var(--clr-btn-p-bg);
+    color: var(--clr-btn-p-text);
+    border: none; /* Asegurar que no tenga borde por defecto del navegador */
+    border-radius: 4px; /* Consistencia con inputs */
+    cursor: pointer; /* Cursor de botón */
+}
+#login-form button[type="submit"]:hover, #register-form button[type="submit"]:hover, #request-reset-form button[type="submit"]:hover { /* Añadido hover para botón de reseteo */
+    background-color: var(--clr-btn-p-hover);
+}
+#login-form-container p, #register-form-container p, #request-reset-form-container p { /* Añadido #request-reset-form-container p */
+    margin-top: 1.5rem;
+    font-size: 0.9em;
+}
+#login-form-container p button[type="button"], 
+#register-form-container p button[type="button"],
+#request-reset-form-container p button[type="button"] { /* Añadido para botones link en request-reset */
+    background-color: transparent;
+    color: var(--clr-accent-1);
+    text-decoration: underline;
+    padding: 0.2rem 0.4rem;
+    border: none;
+    cursor: pointer;
+    font-size: 1em; /* Asegurar que el tamaño sea consistente con el párrafo */
+}
+#login-form-container p button[type="button"]:hover, 
+#register-form-container p button[type="button"]:hover,
+#request-reset-form-container p button[type="button"]:hover { /* Añadido hover */
+    color: var(--clr-accent-2);
+}
+#auth-message {
+    margin-top: 1.5rem;
+    width: 100%;
+    font-weight: bold;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    text-align: center; /* Asegurar centrado para mensajes de auth-area */
+    /* Los colores y display se gestionan desde JS con clases .success y .error */
+}
+#auth-message.success {
+    color: #155724; /* O tu color de éxito temático */
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    display: block;
+}
+#auth-message.error {
+    color: #721c24; /* O tu color de error temático */
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    display: block;
+}
+
+
+.existing-screenshot-item-wrapper {
+    display: inline-block;
+    margin: 5px;
+    vertical-align: top;
+}
+.existing-screenshot-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid var(--clr-border);
+    border-radius: 4px;
+    background-color: var(--clr-bg-body);
+    min-width: 120px;
+    box-sizing: border-box;
+}
+.existing-screenshot-image {
+    max-width: 100px;
+    max-height: 100px;
+    display: block;
+    margin-top: 5px;
+    border: 1px solid var(--clr-img-border, var(--clr-border));
+    background-color: var(--clr-img-placeholder-bg, var(--clr-bg-section));
+}
+.existing-screenshot-checkbox {
+    margin-bottom: 5px;
+}
+#gameFormModal .screenshots-preview-container.existing-screenshots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+/* --- Estilos para Loading Skeletons --- */
+.skeleton-card {
+    background-color: var(--clr-bg-section);
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 398.36px; /* Misma altura que .game-card-simple para evitar saltos */
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden; /* Clave para la animación de brillo */
+}
+
+/* El pseudo-elemento que crea la ola de brillo */
+.skeleton-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    height: 100%;
+    width: 150%;
+    background: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        transparent 100%
+    );
+    /* Animación que mueve la ola de brillo */
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-image {
+    width: 170px;
+    height: 172.5px;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.skeleton-line {
+    width: 80%;
+    height: 1rem;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 4px;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-line.short {
+    width: 50%;
+}
+
+.skeleton-line.title {
+    height: 1.2rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Definición de la animación */
+@keyframes shimmer {
+    100% {
+        left: 150%;
+    }
+
+
+/* ESTILOS PARA LAS TARJETAS DE PLACEHOLDER (SOLUCIÓN DEFINITIVA) */
+.placeholder-card {
+    padding: 0; /* Anulamos el padding de la tarjeta para que el wrapper ocupe todo */
+    cursor: default;
+    border-color: transparent !important;
+    opacity: 0.8;
+    position: relative; /* Necesario para el posicionamiento absoluto del hijo */
+}
+
+.placeholder-card:hover {
+    transform: none;
+    border-color: transparent !important;
+}
+
+/* ESTILOS PARA LAS TARJETAS DE PLACEHOLDER (SOLUCIÓN FINAL) */
+
+.placeholder-card {
+    position: relative; /* Contexto para la imagen posicionada absolutamente */
+    padding: 0;
+    cursor: default;
+    border-color: transparent !important;
+    opacity: 0.8;
+    overflow: hidden; /* Asegura que nada se salga */
+}
+
+.placeholder-card:hover {
+    transform: none;
+    border-color: transparent !important;
+}
+
+/* Aplicamos los estilos directamente a la imagen con su nueva clase */
+.placeholder-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centrado perfecto */
+
+    /* Restringimos el tamaño al de la tarjeta menos un padding simulado */
+    max-width: calc(100% - 2rem);
+    max-height: calc(100% - 2rem);
+    
+    /* Propiedades clave de escalado */
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}

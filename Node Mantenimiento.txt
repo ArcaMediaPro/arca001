@@ -1,0 +1,37 @@
+node maintenanceScript.js
+
+node maintenanceScript.js --check-duplicates
+
+node maintenanceScript.js --delete
+
+node maintenanceScript.js --delete --check-duplicates
+
+
+
+
+node cleanupMasterScript.js 
+
+node cleanupMasterScript.js --delete
+
+
+
+
+node cleanupMasterScript_vUpdated.js
+
+node cleanupMasterScript_vUpdated.js --delete
+
+
+
+node validateExistingUsers.js
+
+
+node cleanupOrphans.js  ESTE SCRIPT SE UTILIZA PARA MANTENIMIENTO DE IMAGENES HUERFANAS EN CLOUDINARY
+
+
+
+npm test
+
+
+
+
+

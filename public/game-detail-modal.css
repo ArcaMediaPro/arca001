@@ -1,0 +1,610 @@
+/* game-detail-modal.css */
+
+/* Contenedor general del layout dentro del modal */
+.game-detail-layout-wrapper {
+    display: flex; /* */
+    flex-direction: column; /* Apila la sección superior y las inferiores */ /* */
+    gap: 20px; /* Espacio entre la sección superior y las inferiores */ /* */
+    position: relative; /* Necesario para z-index y contexto de apilamiento si es necesario */ /* */
+    /* z-index: 1; (No es estrictamente necesario aquí si el fondo se aplica directamente) */
+
+    /* Fondo dinámico */
+    background: var(--dynamic-modal-background, var(--clr-modal-bg, #2c2a3f));
+    /* Heredar border-radius del .modal-content para que coincidan si el modal-content tiene uno.
+       O definir uno propio si .modal-content ya no tiene un borde visible.
+       Como .modal-content mantiene su border-radius para el shadow, usar inherit o el mismo valor. */
+    border-radius: inherit; /* O especificar directamente '8px' si es más simple */
+    
+    /* Padding que antes estaba en .modal-content, ahora aquí para que el fondo lo incluya */
+    padding: 20px 25px; /* Valores originales de padding de .modal-content */
+}
+
+/* Sección superior que contendrá las columnas de visuales e info */
+.game-detail-top-content {
+    display: flex; /* */
+    flex-wrap: wrap; /* Para que en pantallas pequeñas las columnas se apilen */ /* */
+    gap: 25px;     /* Espacio entre la columna de visuales y la de información */ /* */
+    align-items: flex-start; /* Alinea las columnas (visuals-primary y textual-content) al inicio de su eje transversal (vertical) */ /* */
+}
+
+/* --- COLUMNA IZQUIERDA: VISUALES (PORTADA Y CONTRAPORTADA) --- */
+.game-detail-visuals-primary {
+    flex: 1; /* Proporción para la columna izquierda */ /* */
+    min-width: 250px; /* Ancho mínimo antes de que la columna se apile si usas flex-wrap */ /* */
+    display: flex; /* */
+    flex-direction: column; /* */
+    align-items: center; /* Centra los contenedores de imagen dentro de esta columna */ /* */
+    gap: 15px; /* Espacio entre portada y contraportada */ /* */
+}
+
+/* Contenedores de imagen para permitir un mejor control del tamaño y centrado de la imagen/placeholder si fuera necesario */
+.game-detail-cover-main-display, /* */
+.game-detail-backcover-main-display {
+    width: 70%; /* Ocupan el ancho de .game-detail-visuals-primary */ /* */
+    display: flex; /* */
+    justify-content: center; /* Centra la imagen/placeholder horizontalmente dentro de este div */ /* */
+}
+
+.game-detail-cover-main-display .game-detail-cover-img, /* */
+.game-detail-backcover-main-display .game-detail-backcover-img, /* */
+.game-detail-visuals-primary .game-detail-placeholder-image.primary-image {
+    width: 100%; /* La imagen o placeholder ocupa el ancho de su contenedor */ /* */
+    max-width: 280px; /* Límite del ancho de la imagen/placeholder en sí */ /* */
+    height: auto; /* */
+    object-fit: contain; /* */
+    border: 1px solid var(--clr-border); /* */
+    border-radius: 4px; /* */
+    background-color: var(--clr-bg-body); /* Fondo para placeholders o si la imagen tiene transparencia */ /* */
+    cursor: pointer; /* Indica que se puede hacer clic */ /* */
+}
+
+/* Estilos específicos para la portada y su placeholder */
+.game-detail-cover-main-display .game-detail-cover-img {
+    max-height: 350px; /* */
+}
+.game-detail-visuals-primary .game-detail-placeholder-image.primary-image.cover {
+    min-height: 300px; /* Altura mínima del placeholder de la portada. */ /* */
+}
+
+/* Estilos específicos para la contraportada y su placeholder */
+.game-detail-backcover-main-display .game-detail-backcover-img {
+    max-height: 220px; /* */
+}
+.game-detail-visuals-primary .game-detail-placeholder-image.primary-image.backcover {
+    min-height: 180px; /* Altura mínima del placeholder de la contraportada. */ /* */
+}
+
+
+/* --- COLUMNA DERECHA: INFORMACIÓN TEXTUAL --- */
+.game-detail-textual-content {
+    flex: 3; /* Proporción para la columna derecha */ /* */
+    min-width: 300px; /* */
+    display: flex; /* */
+    flex-direction: column; /* */
+    gap: 18px; /* Espacio entre título, info-grid y sección de puntaje */ /* */
+}
+
+.game-detail-header-main {
+    text-align: center; /* */
+}
+.game-detail-header-main h2 {
+    font-family: var(--font-headings-main); /* */
+    color: var(--clr-accent-1); /* */
+    font-size: 2em; /* Tamaño grande para el título */ /* */
+    margin: 0 0 0.25rem 0; /* */
+    line-height: 1.2; /* */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Sombra para mejorar legibilidad sobre fondo dinámico */ /* */
+}
+.game-detail-subheader-main {
+    font-size: 1.1em; /* */
+    color: var(--clr-text-secondary); /* */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3); /* Sombra para mejorar legibilidad */ /* */
+}
+.game-detail-subheader-main span {
+    margin-right: 12px; /* */
+}
+.game-detail-subheader-main span:last-child {
+    margin-right: 0; /* */
+}
+
+/* Información Adicional (en la columna derecha) */
+.additional-info-in-column {
+    /* border-top: 1px solid var(--clr-border); */  /* */
+    /* padding-top: 15px; */  /* */
+}
+
+.additional-info-in-column h3 {
+    font-family: var(--font-headings-card); /* */
+    color: var(--clr-accent-2); /* */
+    font-size: 1.1em; /* */
+    margin-top: 0;  /* */
+    margin-bottom: 0.5rem; /* */
+    text-align: left; /* */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Sombra para mejorar legibilidad */ /* */
+}
+
+.additional-info-in-column .additional-info-text-content {
+    background-color: transparent;  /* */
+    padding: 0; /* */
+    max-height: 474px; /* */
+    overflow-y: auto; /* */
+    font-size: 0.9rem; /* */
+    line-height: 1.5; /* */
+    color: var(--clr-text-main); /* */
+    /* Considerar añadir text-shadow si el contraste es bajo con ciertos fondos */
+    /* text-shadow: 0px 0px 3px rgba(0,0,0,0.7); */ /* */
+}
+
+.game-scoring-date-section {
+    margin-top: 10px;  /* */
+    padding-top: 10px; /* */
+    border-top: 1px solid var(--clr-border); /* */
+    display: flex; /* */
+    flex-direction: column; /* */
+    gap: 0.5rem; /* */
+}
+.game-detail-score-display {
+    font-size: 1.05em; /* */
+}
+.game-detail-score-display strong {
+    color: var(--clr-text-secondary); /* */
+}
+.game-detail-score-display .rating-display-stars-10 .star-10 { 
+    width: 1.2em !important; /* */
+    height: 1.2em !important; /* */
+}
+.game-detail-added-date {
+    font-style: italic; /* */
+    font-size: 0.8em; /* */
+    color: var(--clr-text-secondary); /* */
+}
+
+
+/* --- SECCIONES INFERIORES (ANCHO COMPLETO Y LADO A LADO) --- */
+.game-detail-section { 
+    margin-top: 15px; /* */
+    padding-top: 15px; /* */
+    border-top: 1px solid var(--clr-border); /* */
+}
+
+.game-detail-section h3 { 
+    font-family: var(--font-headings-card); /* */
+    color: var(--clr-accent-2); /* */
+    margin: 0 0 1rem 0;  /* */
+    font-size: 1.3em; /* */
+    text-align: left;  /* */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Sombra para mejorar legibilidad */ /* */
+}
+
+.screenshots-fullwidth-section {
+    /* Hereda de .game-detail-section */ /* */
+}
+
+.game-screenshots-gallery-container {
+    display: flex; /* */
+    flex-wrap: wrap;  /* */
+    gap: 10px; /* */
+    padding: 10px 0;  /* */
+}
+.game-detail-screenshot-item {
+    flex-grow: 1;  /* */
+    flex-basis: calc(33.333% - 7px);  /* */
+    max-width: calc(32.333% - 7px);  /* */
+    min-width: 150px;  /* */
+    height: 200px; /* */
+    object-fit: cover;  /* */
+    border: 1px solid var(--clr-border); /* */
+    border-radius: 4px; /* */
+    cursor: pointer; /* */
+    background-color: var(--clr-bg-body);  /* */
+}
+
+.game-detail-side-by-side-container {
+    display: flex; /* */
+    flex-wrap: wrap;  /* */
+    gap: 20px;  /* */
+    margin-top: 15px;  /* */
+    align-items: flex-start;  /* */
+}
+
+/* Secciones internas con un ligero fondo para destacar sobre el fondo dinámico principal */
+.system-requirements-column, /* */
+.main-info-column { 
+    flex: 1 1 calc(50% - 10px);  /* */
+    min-width: 280px;  /* */
+    border: 1px solid var(--clr-border);  /* */
+    border-radius: 6px;  /* */
+    padding: 15px;  /* */
+    background-color: rgba(0, 0, 0, 0.2); /* Fondo semitransparente oscuro para contraste */ /* */
+    box-sizing: border-box;  /* */
+}
+
+.game-detail-section.system-requirements-column, /* */
+.game-detail-section.main-info-column {
+    margin-top: 0; /* El gap del contenedor padre se encarga */ /* */
+    padding-top: 4px; /* El padding interno del marco ya da espacio, corregido a 4px*/
+    border-top: none; /* El marco ya tiene borde, no necesitamos doble borde superior */ /* */
+}
+/* Ajustar el primer game-detail-section si es uno de estos para que no tenga doble borde/espacio */
+.screenshots-fullwidth-section + .game-detail-side-by-side-container .game-detail-section {
+    /* No necesita ajustes especiales si el side-by-side-container ya tiene su propio margen */ /* */
+}
+
+
+.system-requirements-column h3, /* */
+.main-info-column h3 {
+    margin-top: 0;  /* */
+    padding-top: 4px; /* Corregido a 4px */
+    margin-bottom: 0.8rem; /* Espacio antes de la lista/grid */ /* */
+}
+
+.system-requirements-column .system-requirements-list {
+    list-style: none; /* */
+    padding-left: 0; /* */
+    display: grid; /* */
+    grid-template-columns: 1fr;  /* */
+    gap: 0.6rem; /* */
+}
+.system-requirements-list li {
+    background-color: rgba(0,0,0,0.15); /* Fondo sutil para los items, sobre el fondo de la columna */ /* */
+    padding: 0.6rem 0.8rem; /* */
+    border-radius: 4px; /* */
+    font-size: 0.9em; /* */
+    display: flex; /* */
+    align-items: center; /* */
+    gap: 0.7em; /* */
+}
+.requirement-icon {
+    width: 20px; /* */
+    height: 20px; /* */
+    object-fit: contain; /* */
+    flex-shrink: 0; /* */
+}
+
+.main-info-column .info-grid-container {
+    display: grid; /* */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));  /* */
+    gap: 0.6rem 1.2rem; /* */
+}
+
+/* INICIO DEL NUEVO SEGMENTO CSS */
+.main-info-column .info-grid-container p[style*="border-top"] {
+    /* El estilo inline ya se aplica en modals.js para el separador de préstamo.
+       Esta regla puede anular o complementar esos estilos si es necesario.
+       Se usa var(--clr-border-dashed) con un fallback si la variable no está definida.
+       Los !important se usan para asegurar que estas reglas prevalezcan sobre los estilos en línea
+       si hay conflicto y se desea este comportamiento. Úsalos con precaución.
+    */
+    border-top: 1px dashed var(--clr-border-dashed, #555) !important;
+    padding-top: 10px !important;
+    margin-top: 10px !important;
+}
+/* FIN DEL NUEVO SEGMENTO CSS */
+
+
+/* --- Media Queries Específicas para este Modal --- */
+@media (min-width: 769px) { /* */
+    /* Estilos para pantallas más grandes */
+}
+
+@media (max-width: 900px) {  /* */
+    .game-detail-top-content {
+        flex-direction: column; /* */
+        align-items: stretch; /* */
+    }
+    .game-detail-visuals-primary, /* */
+    .game-detail-textual-content {
+        flex-basis: auto; /* */
+        width: 100%; /* */
+    }
+    .game-detail-visuals-primary {
+         flex-direction: row; /* */
+         justify-content: space-around; /* */
+         align-items: flex-start; /* */
+    }
+    .game-detail-visuals-primary > div {
+        flex-basis: 48%; /* */
+        max-width: 48%; /* */
+    }
+    .game-detail-cover-main-display .game-detail-cover-img {
+        max-height: 300px; /* */
+    }
+     .game-detail-visuals-primary .game-detail-placeholder-image.primary-image.cover {
+        min-height: 250px; /* */
+    }
+    .game-detail-backcover-main-display .game-detail-backcover-img {
+        max-height: 200px; /* */
+    }
+    .game-detail-visuals-primary .game-detail-placeholder-image.primary-image.backcover {
+        min-height: 160px; /* */
+    }
+}
+
+@media (max-width: 768px) {  /* */
+    .game-detail-side-by-side-container {
+        flex-direction: column;  /* */
+        gap: 15px;  /* */
+        align-items: stretch;  /* */
+    }
+
+    .system-requirements-column, /* */
+    .main-info-column {
+        min-width: 100%;  /* */
+        flex-basis: auto;  /* */
+    }
+   
+    .screenshots-fullwidth-section + .game-detail-side-by-side-container {
+         margin-top: 15px; /* Asegurar espacio si viene después de screenshots */ /* */
+    }
+
+
+    .game-screenshots-gallery-container {
+        justify-content: center; /* */
+    }
+    .game-detail-screenshot-item {
+        flex-basis: calc(50% - 5px); /* */
+        max-width: calc(50% - 5px); /* */
+        height: 100px; /* */
+    }
+}
+
+@media (max-width: 480px) {  /* */
+    .game-detail-screenshot-item {
+        flex-basis: 100%; /* */
+        max-width: 100%; /* */
+        height: 150px; /* */
+    }
+    .game-detail-header-main h2 {
+        font-size: 1.6em; /* */
+    }
+    .game-detail-subheader-main {
+        font-size: 0.9em; /* */
+    }
+    .game-detail-visuals-primary > div {
+        width: 90%; /* */
+    }
+
+    .main-info-column .info-grid-container, /* */
+    .system-requirements-column .system-requirements-list { 
+        grid-template-columns: 1fr;  /* */
+    }
+     .game-detail-textual-content {
+        gap: 12px; /* */
+    }
+    .additional-info-in-column h3 {
+        font-size: 1em; /* */
+    }
+    .game-detail-section h3 {
+        font-size: 1.2em; /* */
+    }
+}
+
+/* --- MODIFICACIÓN CLAVE PARA COBERTURA DEL FONDO --- */
+/* 1. Comentar o eliminar la regla original para el ::before de .modal-content */
+/*
+#gameDetailModal .modal-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0; 
+    bottom: 0; 
+    background: var(--dynamic-modal-background, var(--clr-modal-bg, #2c2a3f)); 
+    opacity: 1; 
+    z-index: -1; 
+    border-radius: inherit; 
+    pointer-events: none; 
+    transition: background 0.5s ease-in-out; 
+}
+*/
+
+/* 2. Ajustar .modal-content */
+#gameDetailModal .modal-content {
+    /* Estilos existentes de style.css que se aplican: */
+    /* width: 80vw; max-width: 1000px; min-height: 90vh; overflow-y: auto; color: var(--clr-text-main); */
+    /* box-shadow: 0 5px 15px rgba(0,0,0,0.5); */
+    
+    /* Ajustes específicos de game-detail-modal.css */
+    padding: 0; /* Eliminamos el padding de aquí, se movió al wrapper */
+    position: relative; /* */
+    z-index: 1; /* */
+    background-color: transparent !important; /* Crucial para que el fondo del wrapper sea visible */ /* */
+    border-radius: 8px; /* Mantenemos el radius para el shadow y la forma general del modal */ /* */
+    /* El box-shadow de style.css sigue aplicando a este contenedor */
+}
+
+
+/* --- Estilos de Impresión Específicos para el Modal --- */
+@media print { /* */
+    #gameDetailModal {
+        position: static !important;  /* */
+        display: block !important;  /* */
+        width: 100% !important; /* */
+        height: auto !important; /* */
+        overflow: visible !important; /* */
+        background-color: #fff !important;  /* */
+        box-shadow: none !important; /* */
+        z-index: auto !important; /* */
+        margin: 0; /* */
+        padding: 0; /* */
+    }
+
+    #gameDetailModal .modal-content {
+        width: 100% !important; /* */
+        max-width: 100% !important; /* */
+        max-height: none !important; /* */
+        box-shadow: none !important; /* */
+        border: none !important;  /* */
+        padding: 1cm;  /* Re-aplicar padding para impresión si es necesario */ /* */
+        margin: 0; /* */
+        overflow: visible !important; /* */
+        background-color: #fff !important; /* Fondo blanco explícito para impresión */ /* */
+    }
+
+    /* #gameDetailModal .modal-content::before { Ya está comentado, no es necesario aquí } */
+
+    #gameDetailModal .close {
+        display: none !important;  /* */
+    }
+
+    .game-detail-layout-wrapper {
+        gap: 15px;  /* */
+        background: none !important; /* Sin fondo dinámico en impresión */
+        padding: 0; /* El padding de impresión lo maneja .modal-content */
+        border-radius: 0;
+    }
+
+    .game-detail-top-content {
+        gap: 15px; /* */
+        align-items: flex-start;  /* */
+    }
+
+    .game-detail-visuals-primary {
+        flex: 0 0 30%;  /* */
+        min-width: 0;  /* */
+        gap: 10px; /* */
+        page-break-inside: avoid; /* */
+    }
+    .game-detail-textual-content {
+        flex: 0 0 65%;  /* */
+        min-width: 0; /* */
+        gap: 10px; /* */
+        page-break-inside: avoid; /* */
+    }
+    .game-detail-cover-main-display .game-detail-cover-img, /* */
+    .game-detail-backcover-main-display .game-detail-backcover-img {
+        max-width: 100%;  /* */
+        border: 1px solid #ccc !important;  /* */
+    }
+     .game-detail-visuals-primary .game-detail-placeholder-image.primary-image {
+        border: 1px dashed #ccc !important; /* */
+        padding: 10px; /* */
+        text-align: center; /* */
+    }
+
+    .game-detail-header-main h2 {
+        font-size: 18pt;  /* */
+    }
+    .game-detail-subheader-main {
+        font-size: 11pt; /* */
+    }
+    .additional-info-in-column .additional-info-text-content {
+        max-height: none;  /* */
+        overflow-y: visible; /* */
+        font-size: 10pt; /* */
+    }
+    .game-scoring-date-section {
+        border-top: 1px solid #eee !important; /* */
+    }
+    .game-detail-score-display .rating-display-stars-10 .star-10 {
+        width: 1em !important; /* */
+        height: 1em !important; /* */
+    }
+
+    .game-detail-section {
+        margin-top: 10mm; /* */
+        padding-top: 5mm; /* */
+        border-top: 1px solid #ccc !important; /* */
+    }
+    .game-detail-section h3 {
+        font-size: 14pt; /* */
+        color: #000 !important; /* */
+    }
+
+    .screenshots-fullwidth-section {
+        page-break-before: auto;  /* */
+    }
+    .game-screenshots-gallery-container {
+        gap: 5px; /* */
+        justify-content: flex-start; /* */
+    }
+    .game-detail-screenshot-item {
+        flex-basis: calc(50% - 3px);  /* */
+        max-width: calc(50% - 3px); /* */
+        height: auto;  /* */
+        max-height: 100mm;  /* */
+        border: 1px solid #ccc !important; /* */
+    }
+
+    .game-detail-side-by-side-container {
+        display: flex !important;  /* */
+        flex-direction: row !important;  /* */
+        flex-wrap: nowrap !important;  /* */
+        gap: 10mm; /* */
+        align-items: flex-start; /* */
+        page-break-inside: avoid;  /* */
+    }
+    .system-requirements-column, /* */
+    .main-info-column {
+        flex: 1 1 48% !important;  /* */
+        min-width: 0;  /* */
+        border: 1px solid #ccc !important;  /* */
+        padding: 10px; /* */
+        background-color: #f9f9f9 !important;  /* */
+        page-break-inside: avoid; /* */
+    }
+
+    .system-requirements-list li {
+        font-size: 9pt; /* */
+        background-color: #fff !important;  /* */
+        border: 1px solid #eee; /* */
+        padding: 5px; /* */
+    }
+    .main-info-column .info-grid-container {
+        font-size: 10pt; /* */
+        grid-template-columns: 1fr;  /* */
+        gap: 3px; /* */
+    }
+    .main-info-column .info-grid-container p {
+        margin: 2px 0; /* */
+    }
+}
+
+/* -------------------------------------------------- */
+/* --- INICIO DE NUEVOS ESTILOS AÑADIDOS ------------ */
+/* -------------------------------------------------- */
+
+/* NUEVOS ESTILOS PARA LOS ICONOS DE CANTIDAD */
+.detail-quantity-container {
+    display: flex; /* Para alinear "Cantidad:" y los iconos */ /* */
+    align-items: center; /* Centrar verticalmente */ /* */
+    margin-bottom: 10px; /* Espacio debajo de esta línea de detalle */ /* */
+}
+
+.detail-quantity-container strong {
+    margin-right: 8px; /* Espacio entre la etiqueta "Cantidad:" y los iconos */ /* */
+    color: var(--clr-text-secondary); /* Heredar color de etiqueta si es necesario */ /* */
+}
+
+.quantity-icons-wrapper {
+    display: inline-flex; /* Para alinear los iconos horizontalmente */ /* */
+    flex-wrap: wrap;      /* Permitir que los iconos pasen a la siguiente línea si no caben */ /* */
+    align-items: center; /* */
+}
+
+.quantity-icon {
+    width: 24px;  /* Ajusta el tamaño según tus iconos */ /* */
+    height: 24px; /* Ajusta el tamaño según tus iconos */ /* */
+    margin-right: 4px; /* Espacio entre iconos */ /* */
+    margin-bottom: 4px; /* Espacio si los iconos se envuelven a la siguiente línea */ /* */
+    object-fit: contain; /* Asegura que el icono se vea bien dentro de las dimensiones */ /* */
+}
+
+/* Clase para ocultar visualmente pero mantener accesible para lectores de pantalla */
+/* Si ya tienes esta clase en style.css, no necesitas repetirla. Si no, añádela aquí o en style.css */
+/* Asumiendo que NO está en style.css, la añado aquí: */
+.sr-only {
+    position: absolute; /* */
+    width: 1px; /* */
+    height: 1px; /* */
+    padding: 0; /* */
+    margin: -1px; /* */
+    overflow: hidden; /* */
+    clip: rect(0, 0, 0, 0); /* */
+    white-space: nowrap; /* */
+    border: 0; /* */
+}
+
+/* -------------------------------------------------- */
+/* --- FIN DE NUEVOS ESTILOS AÑADIDOS --------------- */
+/* -------------------------------------------------- */

@@ -1,0 +1,663 @@
+/* promocional.css */
+:root {
+    --promo-color-primary: #6a0dad; /* Morado principal del logo Arcamedia */
+    --promo-color-secondary: #4b0082; /* Morado más oscuro para acentos o hover */
+    --promo-color-accent: #ffc107;   /* Amarillo/Dorado para CTAs y acentos brillantes */
+    --promo-color-dark: #212529;     /* Texto oscuro principal */
+    --promo-color-header-bg: #111111; /* Negro para el header */
+    --promo-color-light-text: #f8f9fa; /* Texto claro para fondos oscuros */
+    --promo-color-bg-light: #ffffff;    /* Fondo claro principal */
+    --promo-color-bg-section: #f8f9fa; /* Fondo ligeramente gris para secciones */
+    --promo-color-border: #dee2e6;
+
+    /* Fuentes inspiradas en "Arcamedia Font" y un look moderno/gamer */
+    --promo-font-headings: 'Orbitron', sans-serif; /* Fuente con estilo tecnológico/gamer */
+    --promo-font-body: 'Roboto', sans-serif; /* Fuente sans-serif legible para el cuerpo */
+}
+
+body {
+    font-family: var(--promo-font-body);
+    margin: 0;
+    padding: 0;
+    line-height: 1.7;
+    color: var(--promo-color-dark);
+    background-color: var(--promo-color-bg-light); /* Este es el fondo más externo */
+    overflow-x: hidden;
+}
+
+/* Header Promocional */
+.promo-header {
+    background-color: var(--promo-color-header-bg);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    padding: 0.75rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* Header siempre visible y por encima */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+.promo-nav-right {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem; /* Esto crea un espacio consistente entre los elementos de la derecha */
+}
+
+
+.promo-nav {
+    display: flex;
+    align-items: center; /* Centra los elementos verticalmente */
+    justify-content: space-between; /* <--- ESTA ES LA LÍNEA CLAVE */
+    max-width: 1788px;
+    margin: 0 auto;
+}
+.promo-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.promo-logo img {
+    height: 45px;
+    vertical-align: middle;
+}
+.promo-logo span {
+    font-family: var(--promo-font-headings);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--promo-color-primary);
+}
+
+.promo-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-left: auto; /* <-- AÑADE ESTA LÍNEA */
+}
+
+.promo-menu li {
+    margin: 0;
+}
+
+.promo-menu li a,
+.promo-nav-button {
+    text-decoration: none;
+    color: var(--promo-color-light-text);
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.1s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: none;
+}
+
+.promo-menu li a:hover,
+.promo-nav-button:not(.primary):hover {
+    color: var(--promo-color-accent);
+    background-color: #222222;
+    border-color: #333333;
+}
+
+.promo-nav-button.primary {
+    background-color: var(--promo-color-primary);
+    color: var(--promo-color-light-text);
+    border-color: var(--promo-color-primary);
+}
+.promo-nav-button.primary:hover {
+    background-color: var(--promo-color-secondary);
+    border-color: var(--promo-color-secondary);
+    transform: translateY(-1px);
+}
+
+.promo-mobile-menu-toggle {
+    display: none;
+    font-size: 1.8rem;
+    background: none;
+    border: none;
+    color: var(--promo-color-light-text);
+    cursor: pointer;
+}
+
+/* Contenedor principal para el fondo extendido */
+main#promo-page-content {
+    background-image: url('Imagenes/Arcamedia Fondo.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    /* background-attachment: fixed; /* Descomentar para efecto parallax si se desea */
+    position: relative; /* Necesario si se añaden pseudo-elementos globales de superposición */
+}
+
+/* Hero Section */
+.promo-hero {
+    /* QUITADAS las propiedades de background-image, size, position, repeat */
+    color: var(--promo-color-light-text);
+    text-align: center;
+    padding: 80px 20px;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* Para .promo-hero-overlay */
+    background-color: transparent; /* Para que se vea el fondo de main#promo-page-content */
+    z-index: 2; /* Para estar sobre el fondo de main, pero permitir que el overlay del hero funcione bien */
+}
+
+.promo-hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Superposición oscura específica para el hero */
+    z-index: 1; /* Detrás del contenido del hero, pero sobre el promo-hero transparente */
+}
+
+.promo-hero-content {
+    max-width: 850px;
+    position: relative;
+    z-index: 2; /* Por encima del promo-hero-overlay */
+}
+
+.promo-hero h1 {
+    font-family: var(--promo-font-headings);
+    font-size: 3.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+}
+
+.promo-hero p {
+    font-size: 1.3rem;
+    margin-bottom: 2.5rem;
+    opacity: 0.95;
+    font-weight: 300;
+}
+
+.promo-hero-image {
+    max-width: 90%;
+    width: 650px;
+    border-radius: 10px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    margin-bottom: 3rem;
+    border: 4px solid rgba(255,255,255,0.8);
+}
+
+.promo-cta-button {
+    background-color: var(--promo-color-accent);
+    color: var(--promo-color-dark);
+    font-family: var(--promo-font-headings);
+    font-size: 1.3rem;
+    font-weight: 600;
+    padding: 0.9rem 2.5rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.promo-cta-button:hover {
+    transform: translateY(-3px) scale(1.02);
+    background-color: #ffd043;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.promo-cta-button.secondary {
+    background-color: transparent;
+    color: var(--promo-color-accent);
+    border: 2px solid var(--promo-color-accent);
+    box-shadow: none;
+}
+.promo-cta-button.secondary:hover {
+    background-color: rgba(255,193,7,0.15);
+    color: #ffd043;
+    border-color: #ffd043;
+    box-shadow: 0 4px 10px rgba(255,193,7,0.2);
+}
+
+.promo-login-link {
+    margin-top: 2rem;
+    font-size: 1rem;
+}
+.promo-login-link a {
+    color: var(--promo-color-accent);
+    font-weight: 500;
+    text-decoration: underline;
+}
+.promo-login-link a:hover {
+    color: var(--promo-color-light-text);
+}
+
+/* Features Section */
+.promo-features {
+    padding: 80px 20px;
+    text-align: center;
+    background-color: rgba(248, 249, 250, 0.85); /* Fondo claro semi-transparente, permite ver el fondo de main */
+    position: relative; /* Para control de apilamiento */
+    z-index: 1; /* Nivel base para esta sección sobre el fondo de main */
+}
+
+.promo-features h2 {
+    font-family: var(--promo-font-headings);
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 4rem;
+    color: var(--promo-color-dark);
+}
+
+.promo-features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.promo-feature-item {
+    background: var(--promo-color-bg-light);
+    padding: 2.5rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.promo-feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.promo-feature-item img {
+    width: 70px;
+    height: 70px;
+    margin-bottom: 1.5rem;
+    object-fit: contain;
+}
+
+.promo-feature-item h3 {
+    font-family: var(--promo-font-headings);
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--promo-color-primary);
+}
+.promo-feature-item p {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* Pricing Section */
+.promo-pricing {
+    padding: 80px 20px;
+    text-align: center;
+    background-color: var(--promo-color-bg-light); /* Restaurado a fondo sólido (blanco) */
+    position: relative;
+    z-index: 1;
+}
+.promo-pricing h2 {
+    font-family: var(--promo-font-headings);
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 4rem;
+    color: var(--promo-color-dark);
+}
+.promo-pricing-grid {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.promo-price-plan {
+    background: var(--promo-color-bg-light);
+    border: 1px solid var(--promo-color-border);
+    border-radius: 10px;
+    padding: 2.5rem 2rem;
+    width: 320px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.promo-price-plan:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+.promo-price-plan.recommended {
+    border-color: var(--promo-color-primary);
+    border-width: 2px;
+    box-shadow: 0 8px 30px rgba(106, 13, 173, 0.15);
+    transform: scale(1.05);
+}
+.promo-price-plan.recommended:hover {
+    transform: scale(1.05) translateY(-5px);
+}
+
+.promo-price-plan h3 {
+    font-family: var(--promo-font-headings);
+    font-size: 1.7rem;
+    font-weight: 600;
+    color: var(--promo-color-primary);
+    margin-bottom: 1rem;
+}
+.promo-price-plan .promo-price-amount {
+    font-family: var(--promo-font-headings);
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--promo-color-dark);
+    margin-bottom: 1.5rem;
+}
+.promo-price-plan .promo-price-amount span {
+    font-size: 1rem;
+    color: #777;
+    font-weight: 400;
+    font-family: var(--promo-font-body);
+}
+.promo-price-plan ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2.5rem;
+    text-align: left;
+    flex-grow: 1;
+    font-size: 0.95rem;
+}
+.promo-price-plan ul li {
+    margin-bottom: 0.9rem;
+    padding-left: 1.8rem;
+    position: relative;
+}
+.promo-price-plan ul li::before {
+    content: '✔';
+    color: var(--promo-color-primary);
+    position: absolute;
+    left: 0;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+/* Auth Modal Overlay */
+.auth-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 15px;
+}
+
+.auth-modal-content {
+    background: var(--promo-color-bg-light);
+    padding: 2.5rem;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    text-align: left;
+}
+
+.auth-modal-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 2.2rem;
+    color: #aaa;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+.auth-modal-close-btn:hover {
+    color: var(--promo-color-dark);
+}
+
+.auth-modal-content h2 {
+    text-align: center;
+    font-family: var(--promo-font-headings);
+    color: var(--promo-color-primary);
+    margin-top: 0;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.auth-modal-content form div {
+    margin-bottom: 1.5rem;
+}
+.auth-modal-content label {
+    display: block;
+    margin-bottom: 0.6rem;
+    font-weight: 500;
+    color: #555;
+    font-size: 0.9rem;
+}
+.auth-modal-content input[type="text"],
+.auth-modal-content input[type="password"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--promo-color-border);
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.auth-modal-content input[type="text"]:focus,
+.auth-modal-content input[type="password"]:focus {
+    outline: none;
+    border-color: var(--promo-color-primary);
+    box-shadow: 0 0 0 3px rgba(106, 13, 173, 0.15);
+}
+
+.auth-submit-button {
+    background-color: var(--promo-color-primary);
+    color: var(--promo-color-light-text);
+    padding: 0.9rem;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: var(--promo-font-body);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.auth-submit-button:hover {
+    background-color: var(--promo-color-secondary);
+    transform: translateY(-1px);
+}
+
+.auth-switch-form {
+    text-align: center;
+    margin-top: 1.8rem;
+    font-size: 0.95rem;
+}
+.auth-switch-form a {
+    color: var(--promo-color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+.auth-switch-form a:hover {
+    color: var(--promo-color-secondary);
+    border-bottom-color: var(--promo-color-secondary);
+}
+.auth-message {
+    text-align: center;
+    margin-top: 1.2rem;
+    font-weight: 500;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+.auth-message.error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+.auth-message.success {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+/* Footer Promocional */
+.promo-footer {
+    background: var(--promo-color-dark);
+    color: #ccc;
+    text-align: center;
+    padding: 2.5rem 1rem;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 5;
+}
+.promo-footer p {
+    margin: 0.4rem 0;
+}
+.promo-footer a {
+    color: var(--promo-color-accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.promo-footer a:hover {
+    color: #ffd043;
+    text-decoration: underline;
+}
+
+/* Responsive para menú móvil */
+@media (max-width: 850px) {
+    .promo-menu {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: var(--promo-color-header-bg);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        padding: 0.5rem 0;
+        border-top: 1px solid #333;
+    }
+    .promo-menu.active {
+        display: flex;
+    }
+    .promo-menu li {
+        margin: 0;
+        width: 100%;
+    }
+    .promo-menu li a, .promo-nav-button {
+        display: block;
+        width: auto;
+        margin: 0.5rem 1rem;
+        text-align: left;
+        padding: 0.8rem 1rem;
+    }
+    .promo-nav-button {
+        width: calc(100% - 2rem);
+        box-sizing: border-box;
+        text-align: center;
+    }
+    .promo-mobile-menu-toggle {
+        display: block;
+    }
+
+    .promo-hero h1 { font-size: 2.5rem; }
+    .promo-hero p { font-size: 1.15rem; }
+    .promo-features h2, .promo-pricing h2 { font-size: 2.2rem; }
+}
+
+					/* --- INICIO: Estilos para el Selector de Idioma --- */
+
+.language-selector-container {
+    margin: 0; /* ANTES: margin-left: 1.2rem; */
+    display: flex;
+    align-items: center;
+}
+
+.language-selector {
+    background-color: #333;
+    color: var(--promo-color-light-text);
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 0.5rem 0.8rem;
+    font-family: var(--promo-font-body);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.language-selector:hover {
+    background-color: #444;
+    border-color: #777;
+}
+
+.language-selector:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--promo-color-accent);
+}
+
+					/* --- FIN: Estilos para el Selector de Idioma --- */
+
+						/* Ajustes responsivos para el selector */
+@media (max-width: 850px) {
+    /* Mover el selector dentro del menú desplegable */
+    .promo-nav-right .promo-menu,
+    .promo-nav-right .language-selector-container {
+        display: none;
+        width: auto;
+        margin: 0.5rem 1rem;
+        padding: 0.2rem 0;
+    }
+	}
+
+    .language-selector {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Ocultarlo de la barra principal cuando el menú móvil está activo */
+    .promo-nav > .language-selector-container {
+        display: none;
+    }
+}
+
+
+
+@media (max-width: 480px) {
+    .promo-header { padding: 0.75rem 1rem; }
+    .promo-logo img { height: 35px; }
+    .promo-logo span { font-size: 1.3rem; }
+
+    .promo-hero { padding: 60px 15px; min-height: 80vh;}
+    .promo-hero h1 { font-size: 2rem; }
+    .promo-hero p { font-size: 1.05rem; margin-bottom: 2rem;}
+    .promo-hero-image { width: 95%; margin-bottom: 2.5rem;}
+    .promo-cta-button { font-size: 1.1rem; padding: 0.8rem 2rem;}
+
+    .promo-features { padding: 60px 15px; }
+    .promo-features h2, .promo-pricing h2 { font-size: 1.9rem; margin-bottom: 3rem;}
+    .promo-features-grid { grid-template-columns: 1fr; gap: 1.5rem;}
+    .promo-feature-item { padding: 2rem 1.5rem; }
+    .promo-feature-item img { width: 60px; height: 60px; }
+
+    .promo-pricing { padding: 60px 15px; }
+    .promo-price-plan { width: 100%; max-width: 300px; margin-left: auto; margin-right: auto;}
+
+    .auth-modal-content { padding: 2rem 1.5rem; }
+    .auth-modal-content h2 { font-size: 1.6rem; margin-bottom: 1.5rem;}
+}

@@ -1,0 +1,22 @@
+| Idioma         | Buscar, Filtrar y Ordenar            | Colección  | Plataforma  |
+| -------------  | ------------------------------------ | ---------- | ----------- |
+| 🇪🇸 Español     | Buscar, Filtrar y Ordenar            | Colección  | Plataforma  |
+| 🇬🇧 Inglés      | Search, Filter and Sort              | Collection | Platform    |
+| 🇵🇹 Portugués   | Buscar, Filtrar e Ordenar            | Coleção    | Plataforma  |
+| 🇮🇹 Italiano    | Cerca, Filtra e Ordina               | Collezione | Piattaforma |
+| 🇫🇷 Francés     | Rechercher, Filtrer et Trier         | Collection | Plateforme  |
+| 🇩🇪 Alemán      | Suchen, Filtern und Sortieren        | Sammlung   | Plattform   |
+| 🇷🇺 Ruso       | Поиск, Фильтр и Сортировка           | Коллекция  | Платформа   |
+| ja Japonés    | 検索・フィルター・並べ替え                   | コレクション   | プラットフォーム |
+| zn Chino     | 搜索、筛选与排序                       | 收藏         | 平台       |
+| 🇮🇳 Hindi     | खोजें, फ़िल्टर करें और क्रमबद्ध करें             | संग्रह           | प्लेटफ़ॉर्म    |
+
+
+
+| Idioma      | Fuente recomendada (compatible y estilizada)                              |
+| ----------- | ------------------------------------------------------------------------- |
+| **Ruso**    | [Exo 2](https://fonts.google.com/specimen/Exo+2) → soporta cirílico       |
+| **Hindi**   | [Rajdhani](https://fonts.google.com/specimen/Rajdhani) → tiene Devanagari |
+| **Japonés** | [Noto Sans JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP)       |
+| **Chino**   | [Noto Sans SC](https://fonts.google.com/noto/specimen/Noto+Sans+SC)       |
+

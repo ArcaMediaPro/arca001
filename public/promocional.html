@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n-key="meta_title">Catalogador de Videojuegos PRO - ¡Tu Colección Organizada!</title>
+    <link rel="stylesheet" href="promocional.css">
+</head>
+<body>
+    <header class="promo-header">
+    <nav class="promo-nav">
+        <div class="promo-logo">
+            <img src="Imagenes/Logo Arcamedia.png" alt="Arcamedia Logo" style="height: 166px;">
+            <span data-i18n-key="nav_logo_text">Catalogador PRO</span>
+        </div>
+
+        <div class="promo-nav-right">
+            <ul class="promo-menu">
+                <li><a href="#features-section" data-i18n-key="nav_features">Características</a></li>
+                <li><a href="#pricing-section" data-i18n-key="nav_plans">Planes</a></li>
+                <li><button id="promo-btn-show-login" class="promo-nav-button" data-i18n-key="nav_login">Iniciar Sesión</button></li>
+                <li><button id="promo-btn-show-register" class="promo-nav-button primary" data-i18n-key="nav_register">Registrarse</button></li>
+            </ul>
+            <div class="language-selector-container">
+                <select id="language-selector" class="language-selector">
+                    <option value="es">Español</option>
+                    <option value="en">English</option>
+                    <option value="de">Deutsch</option>
+                    <option value="pt">Português</option>
+                    <option value="it">Italiano</option>
+                    <option value="fr">Français</option>
+                    <option value="ja">日本語</option>
+                    <option value="zh">中文</option>
+                    <option value="ru">Русский</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
+            </div>
+            <button id="promo-mobile-menu-toggle" class="promo-mobile-menu-toggle">☰</button>
+        </div>
+        </nav>
+</header>
+
+    <main id="promo-page-content">
+        <section class="promo-hero">
+            <div class="promo-hero-overlay"></div>
+            <div class="promo-hero-content">
+                <h1 data-i18n-key="hero_title">La Revolución en la Organización de Tu Colección de Juegos</h1>
+                <p data-i18n-key="hero_subtitle">Desde clásicos de PC Big Box hasta los últimos lanzamientos. Gestiona, descubre y presume tu pasión por los videojuegos como nunca antes.</p>
+                <img src="Imagenes/Screenshot Catalogador 001.png" alt="Vista previa del Catalogador PRO" class="promo-hero-image">
+                <img src="Imagenes/Screenshot Catalogador 002.png" alt="Vista previa del Catalogador PRO" class="promo-hero-image">
+                <img src="Imagenes/Screenshot Catalogador 003.png" alt="Vista previa del Catalogador PRO" class="promo-hero-image">
+                <button id="promo-btn-cta-register" class="promo-cta-button" data-i18n-key="hero_cta">¡Comienza Gratis Ahora!</button>
+                <p class="promo-login-link">
+                    <span data-i18n-key="hero_login_prompt">¿Ya tienes cuenta?</span>
+                    <a href="#" id="promo-link-show-login-hero" data-i18n-key="hero_login_link">Inicia sesión aquí</a>.
+                </p>
+            </div>
+        </section>
+
+        <section id="features-section" class="promo-features">
+            <h2 data-i18n-key="features_title">Todo lo que Necesitas en un Solo Lugar</h2>
+            <div class="promo-features-grid">
+                <div class="promo-feature-item">
+                    <img src="Imagenes/Catalogo Detallado.png" alt="Icono Catalogo Detallado">
+                    <h3 data-i18n-key="feature1_title">Catálogo Detallado</h3>
+                    <p data-i18n-key="feature1_desc">Registra cada aspecto de tus juegos: plataforma, año, desarrollador, formato, estado, e incluso requisitos de sistema.</p>
+                </div>
+                <div class="promo-feature-item">
+                    <img src="Imagenes/Galeria Multimedia.png" alt="Icono Galeria Multimedia">
+                    <h3 data-i18n-key="feature2_title">Galería Multimedia</h3>
+                    <p data-i18n-key="feature2_desc">Sube portadas, contraportadas y múltiples capturas de pantalla para cada título. ¡Revive la nostalgia visual!</p>
+                </div>
+                <div class="promo-feature-item">
+                    <img src="Imagenes/Filtros y Búsqueda Avanzada.png" alt="Icono Filtros Avanzados">
+                    <h3 data-i18n-key="feature3_title">Filtros y Búsqueda Avanzada</h3>
+                    <p data-i18n-key="feature3_desc">Encuentra cualquier juego en segundos con potentes filtros por género, año, plataforma y más. Ordena tu colección a tu gusto.</p>
+                </div>
+                <div class="promo-feature-item">
+                    <img src="Imagenes/Personalizacion Visual.png" alt="Icono Personalizacion">
+                    <h3 data-i18n-key="feature4_title">Personalización Visual</h3>
+                    <p data-i18n-key="feature4_desc">Adapta la apariencia del catalogador a tu estilo con temas de colores y opciones de tipografía configurables.</p>
+                </div>
+                 <div class="promo-feature-item">
+                    <img src="Imagenes/Seguimiento de Progreso.png" alt="Icono Seguimiento Progreso">
+                    <h3 data-i18n-key="feature5_title">Seguimiento de Progreso</h3>
+                    <p data-i18n-key="feature5_desc">Lleva un control de los juegos que estás jugando, los que has completado o los que tienes pendientes.</p>
+                </div>
+                 <div class="promo-feature-item">
+                    <img src="Imagenes/Seguro y Confiable.png" alt="Icono Backup Seguro">
+                    <h3 data-i18n-key="feature6_title">Seguro y Confiable</h3>
+                    <p data-i18n-key="feature6_desc">Tus datos se guardan de forma segura. Accede a tu colección desde cualquier lugar (funcionalidad backend).</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pricing-section" class="promo-pricing">
+            <h2 data-i18n-key="pricing_title">Planes Flexibles para Cada Coleccionista</h2>
+            <div class="promo-pricing-grid">
+                <div class="promo-price-plan">
+                    <h3 data-i18n-key="plan_free_title">Gratis</h3>
+                    <p class="promo-price-amount">$0<span data-i18n-key="plan_per_month">/mes</span></p>
+                    <ul>
+                        <li data-i18n-key="plan_free_feat1">Hasta 50 juegos</li>
+                        <li data-i18n-key="plan_free_feat2">Funciones básicas de catalogación</li>
+                        <li data-i18n-key="plan_free_feat3">Soporte comunitario</li>
+                    </ul>
+                    <button class="promo-cta-button secondary" data-action="register" data-i18n-key="plan_free_cta">Empezar Gratis</button>
+                </div>
+                <div class="promo-price-plan recommended">
+                    <h3 data-i18n-key="plan_pro_title">Coleccionista PRO</h3>
+                    <p class="promo-price-amount">$4.99<span data-i18n-key="plan_per_month">/mes</span></p>
+                    <ul>
+                        <li data-i18n-key="plan_pro_feat1">Juegos ilimitados</li>
+                        <li data-i18n-key="plan_pro_feat2">Todas las funciones avanzadas</li>
+                        <li data-i18n-key="plan_pro_feat3">Backup en la nube (simulado)</li>
+                        <li data-i18n-key="plan_pro_feat4">Soporte prioritario</li>
+                    </ul>
+                    <button class="promo-cta-button" data-action="register-pro" data-i18n-key="plan_pro_cta">Obtener PRO</button>
+                </div>
+                 <div class="promo-price-plan">
+                    <h3 data-i18n-key="plan_legend_title">Leyenda Arcade</h3>
+                    <p class="promo-price-amount">$9.99<span data-i18n-key="plan_per_month">/mes</span></p>
+                    <ul>
+                        <li data-i18n-key="plan_legend_feat1">Todo en PRO</li>
+                        <li data-i18n-key="plan_legend_feat2">Acceso anticipado a nuevas funciones</li>
+                        <li data-i18n-key="plan_legend_feat3">Consultoría de preservación (simulado)</li>
+                    </ul>
+                    <button class="promo-cta-button secondary" data-action="register-legend" data-i18n-key="plan_legend_cta">Ser Leyenda</button>
+                </div>
+            </div>
+        </section>
+        
+
+
+
+  <div id="auth-modal-overlay" class="auth-modal-overlay" style="display: none;">
+            <div class="auth-modal-content">
+                <button id="auth-modal-close" class="auth-modal-close-btn">&times;</button>
+
+                <div id="login-form-container">
+                    <h2 data-i18n-key="modal_login_title">Iniciar Sesión</h2>
+                    <form id="login-form">
+                        <div>
+                            <label for="login-username" data-i18n-key="modal_login_user_label">Usuario:</label>
+                            <input type="text" id="login-username" name="loginUsername" required>
+                        </div>
+                        <div>
+                            <label for="login-password" data-i18n-key="modal_login_pass_label">Contraseña:</label>
+                            <input type="password" id="login-password" name="loginPassword" required>
+                        </div>
+                        <button type="submit" class="auth-submit-button" data-i18n-key="modal_login_submit_btn">Entrar</button>
+                        <p class="auth-switch-form" style="margin-top: 8px; margin-bottom: 8px;"><a href="#" id="show-request-reset-form-modal" class="link-button" style="font-size: 0.85em;" data-i18n-key="modal_forgot_pass_link">¿Olvidaste tu contraseña?</a></p>
+                        <p class="auth-switch-form"><span data-i18n-key="modal_switch_to_register_prompt">¿No tienes cuenta?</span> <a href="#" id="show-register-from-login" data-i18n-key="modal_switch_to_register_link">Regístrate aquí</a></p>
+                    </form>
+                </div>
+
+                <div id="register-form-container" style="display: none;">
+                    <h2 data-i18n-key="modal_register_title">Crear Cuenta</h2>
+                    <form id="register-form">
+                         <div>
+                            <label for="register-username" data-i18n-key="modal_register_user_label">Nombre de Usuario:</label>
+                            <input type="text" id="register-username" name="registerUsername" required>
+                        </div>
+                        <div>
+                            <label for="register-email" data-i18n-key="modal_register_email_label">Correo Electrónico:</label>
+                            <input type="email" id="register-email" name="registerEmail" required>
+                        </div>
+                        <div>
+                            <label for="register-password" data-i18n-key="modal_register_pass_label">Contraseña:</label>
+                            <input type="password" id="register-password" name="registerPassword" required>
+                        </div>
+                         <button type="submit" class="auth-submit-button" data-i18n-key="modal_register_submit_btn">Crear Cuenta</button>
+                        <p class="auth-switch-form"><span data-i18n-key="modal_switch_to_login_prompt">¿Ya tienes cuenta?</span> <a href="#" id="show-login-from-register" data-i18n-key="modal_switch_to_login_link">Inicia sesión aquí</a></p>
+                    </form>
+                </div>
+                
+                <div id="promo-request-reset-form-container" style="display: none;">
+                    <h2 data-i18n-key="modal_reset_title">Restablecer Contraseña</h2>
+                    <form id="promo-request-reset-form">
+                        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #555;" data-i18n-key="modal_reset_instructions">
+                            Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.
+                        </p>
+                        <div>
+                            <label for="promo-reset-email" data-i18n-key="modal_register_email_label">Correo Electrónico:</label>
+                            <input type="email" id="promo-reset-email" name="promoResetEmail" required>
+                        </div>
+                        <button type="submit" class="auth-submit-button" data-i18n-key="modal_reset_submit_btn">Enviar Enlace</button>
+                    </form>
+                    <p class="auth-switch-form"><a href="#" id="show-login-from-reset" data-i18n-key="modal_back_to_login_link">Volver a Iniciar Sesión</a></p>
+                </div>
+
+                <div id="auth-message" class="auth-message" style="display: none;"></div>
+            </div>
+        </div>
+
+
+
+
+
+    </main>
+
+    <footer class="promo-footer">
+        <p>&copy; <span id="currentYear"></span> <span data-i18n-key="footer_copyright">Catalogador PRO por Arcamedia. Todos los derechos reservados.</span></p>
+        <p><a href="tos.html" data-i18n-key="footer_tos">Términos de Servicio</a> | <a href="politica.html" data-i18n-key="footer_privacy">Política de Privacidad</a></p>
+    </footer>
+
+    <script type="module" src="promoMain.js"></script>
+   
+</body>
+</html>

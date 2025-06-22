@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catalogador PC Big Box v3 - API Backend</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="game-detail-modal.css">
+    <link rel="stylesheet" href="toast.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-content-wrapper">
+            <img src="Imagenes/Logo Arcamedia.png" alt="Arcamedia Logo" id="appLogo" style="max-height: 136px; margin-right: 1rem;" data-i18n-key="header_appLogoAlt" data-i18n-target-attr="alt">
+            <div class="header-page-controls">
+                <button id="addGameBtn" type="button" title="Agregar Juego" data-i18n-key="header_addGameBtnTitle" data-i18n-target-attr="title">
+                    <img src="Imagenes/agregar juego.png" alt="Agregar Juego" data-i18n-key="header_addGameBtnImgAlt" data-i18n-target-attr="alt">
+                </button>
+                <button id="deleteSelectedBtn" type="button" title="Eliminar Seleccionados" data-i18n-key="header_deleteBtnTitle" data-i18n-target-attr="title" disabled>
+                    <img src="Imagenes/eliminar seleccion.png" alt="Eliminar Seleccionados" data-i18n-key="header_deleteBtnImgAlt" data-i18n-target-attr="alt">
+                </button>
+                <button id="undoDeleteBtn" type="button" title="Deshacer última eliminación" data-i18n-key="header_undoBtnTitle" data-i18n-target-attr="title" disabled>
+                    <img src="Imagenes/Deshacer.png" alt="Deshacer" data-i18n-key="header_undoBtnImgAlt" data-i18n-target-attr="alt">
+                </button>
+            </div>
+        </div>
+    <div id="user-info" class="user-info" style="display: none;">
+    	<span data-i18n-key="userInfo_welcome">Bienvenido,</span> <span id="logged-in-username"></span>
+    
+        <div id="plan-usage-counter" style="display: none; margin-left: 1rem; color: var(--clr-text-secondary); font-size: 0.9em; background-color: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 4px;">
+        </div>
+    <button id="admin-panel-link-button" 
+            type="button" 
+            class="nav-button admin-icon-button" 
+            style="display:none; margin-left: 10px;" 
+            title="Panel de Administración" 
+            aria-label="Panel de Administración"
+            data-i18n-key="userInfo_adminPanelBtnTitle" 
+            data-i18n-target-attr="title"
+            data-i18n-aria-label-key="userInfo_adminPanelBtnAriaLabel"> <img src="Imagenes/Corona.png" alt="Panel de Administración" data-i18n-key="userInfo_adminPanelImgAlt" data-i18n-target-attr="alt">
+    </button>
+    
+    <select id="languageSwitcher" 
+                    title="Seleccionar Idioma" 
+                    class="nav-button" 
+                    style="margin-left: 10px; padding: 5px; background-color: var(--clr-bg-section); color: var(--clr-text-main); border: 1px solid var(--clr-border); border-radius: 4px; cursor: pointer;"
+                    data-i18n-key="languageSwitcher_title"
+                    data-i18n-target-attr="title">
+                <option value="es" data-i18n-key="languageSwitcher_optSpanish">Español</option>
+                <option value="en" data-i18n-key="languageSwitcher_optEnglish">English</option>
+		<option value="de" data-i18n-key="languageSwitcher_optGerman">Deutsch</option>
+    		<option value="fr" data-i18n-key="languageSwitcher_optFrench">Français</option>
+    		<option value="it" data-i18n-key="languageSwitcher_optItalian">Italiano</option>
+    		<option value="pt" data-i18n-key="languageSwitcher_optPortuguese">Português</option>
+    		<option value="ru" data-i18n-key="languageSwitcher_optRussian">Русский</option>
+   		<option value="ja" data-i18n-key="languageSwitcher_optJapanese">日本語</option> 
+    		<option value="cn" data-i18n-key="languageSwitcher_optChinese">中文</option> 
+    	        <option value="hi" data-i18n-key="languageSwitcher_optHindi">हिन्दी</option>
+		</select>
+
+            
+            <button id="configBtn" type="button" title="Configuración" class="nav-button" data-i18n-key="userInfo_configBtnTitle" data-i18n-target-attr="title">
+    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 0 24 24" width="20px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+</button>
+            <button id="logout-button" type="button" title="Cerrar Sesión" class="nav-button" data-i18n-key="userInfo_logoutBtnTitle" data-i18n-target-attr="title">
+                <img src="Imagenes/Salir.png" alt="Cerrar Sesión" style="height: 28px; vertical-align: middle;" data-i18n-key="userInfo_logoutBtnAlt" data-i18n-target-attr="alt">
+            </button>
+        </div>
+    </header>
+
+    <main id="auth-area" class="auth-area">
+        <h2 data-i18n-key="auth_accessCatalogerTitle">Acceso al Catalogador</h2>
+        <div class="auth-forms-container">
+            <div id="login-form-container">
+                <h3 data-i18n-key="loginForm_title">Iniciar Sesión</h3>
+                <form id="login-form">
+                    <div>
+                        <label for="login-username" data-i18n-key="loginForm_labelUser">Usuario:</label>
+                        <input type="text" id="login-username" name="loginUsername" required>
+                    </div>
+                    <div>
+                        <label for="login-password" data-i18n-key="loginForm_labelPassword">Contraseña:</label>
+                        <input type="password" id="login-password" name="loginPassword" required>
+                    </div>
+                    <button type="submit" data-i18n-key="loginForm_buttonSubmit">Entrar</button>
+                </form>
+                <p><button type="button" id="show-request-reset-form" class="link-button" data-i18n-key="loginForm_forgotPasswordLink">¿Olvidaste tu contraseña?</button></p>
+                <p><span data-i18n-key="loginForm_promptNoAccount">¿No tienes cuenta?</span> <button type="button" id="show-register-from-login" class="link-button" data-i18n-key="loginForm_registerLink">Regístrate aquí</button></p>
+            </div>
+
+            <div id="register-form-container" style="display: none;">
+            <h3 data-i18n-key="registerForm_title">Registrarse</h3>
+            <form id="register-form">
+                <div>
+                    <label for="register-username" data-i18n-key="registerForm_labelUser">Usuario:</label>
+                    <input type="text" id="register-username" name="registerUsername" required>
+                </div>
+                <div>
+                    <label for="register-email" data-i18n-key="registerForm_labelEmail">Correo Electrónico:</label>
+                    <input type="email" id="register-email" name="registerEmail" required>
+                </div>
+                <div>
+                    <label for="register-password" data-i18n-key="registerForm_labelPassword">Contraseña:</label>
+                    <input type="password" id="register-password" name="registerPassword" required>
+                </div>
+                <button type="submit" data-i18n-key="registerForm_buttonSubmit">Crear Cuenta</button>
+            </form>
+            <p><span data-i18n-key="registerForm_promptHasAccount">¿Ya tienes cuenta?</span> <button type="button" id="show-login-from-register" class="link-button" data-i18n-key="registerForm_loginLink">Iniciar Sesión</button></p>
+        </div>
+
+            <div id="request-reset-form-container" style="display: none;">
+            <h3 data-i18n-key="resetForm_title">Restablecer Contraseña</h3>
+            <form id="request-reset-form">
+                <p data-i18n-key="resetForm_instruction">Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.</p>
+                <div>
+                    <label for="reset-email" data-i18n-key="resetForm_labelEmail">Correo Electrónico:</label>
+                    <input type="email" id="reset-email" name="resetEmail" required>
+                </div>
+                <button type="submit" data-i18n-key="resetForm_buttonSubmit">Enviar Enlace</button>
+            </form>
+            <p><button type="button" id="show-login-from-reset" class="link-button" data-i18n-key="resetForm_backToLoginLink">Volver a Iniciar Sesión</button></p>
+        </div>
+
+            <div id="auth-message" class="auth-message" style="margin-top: 1rem;"></div>
+        </div>
+    </main>
+
+    <main id="game-area" class="game-area" style="display: none;">
+        <div class="page-layout">
+            <div id="platformSidebar" class="platform-sidebar">
+            <img id="sidebarTitleImage" src="Imagenes/Plataforma_es.png" alt="Plataformas" class="sidebar-title-image" data-i18n-key="sidebar_platformsImgAlt" data-i18n-target-attr="alt">
+            <button id="showAllPlatformsBtn" class="active" data-i18n-key="sidebar_showAllPlatformsBtn">Todas las Plataformas</button>
+            <ul id="platformListFilter">
+                </ul>
+        </div>
+
+            <div id="mainContent" class="main-content">
+                <div class="filter-section">
+                    <img id="filterSectionTitleImage" src="Imagenes/buscar filtrar y ordena_es.png" alt="Buscar, Filtrar y Ordenar" class="filter-section-title-image" data-i18n-key="filterSection_titleImgAlt" data-i18n-target-attr="alt">
+                    
+<div class="filter-controls">
+                        <input type="search" 
+                               id="searchInput" 
+                               placeholder="Buscar por título..." 
+                               aria-label="Buscar por título" 
+                               data-i18n-key="filter_searchInputPlaceholder" 
+                               data-i18n-target-attr="placeholder">
+                        <select id="genreFilter" 
+                                aria-label="Filtrar por género" 
+                                data-i18n-key="filter_genreFilterAriaLabel" 
+                                data-i18n-target-attr="aria-label"> 
+                            <option value="" data-i18n-key="filter_genreOpt_allGenres">-- Todos los Géneros --</option> 
+                        </select>
+                        <input type="number" 
+                               id="yearFilterInput" 
+                               placeholder="Año (ej: 1995)" 
+                               min="1950" 
+                               max="2099" 
+                               aria-label="Filtrar por año" 
+                               data-i18n-key="filter_yearFilterPlaceholder" 
+                               data-i18n-target-attr="placeholder"> 
+                        <div class="sort-controls">
+                            <label for="sortOrder" style="white-space: nowrap;" data-i18n-key="filter_sortOrderLabel">Ordenar por:</label>
+                            <select id="sortOrder" 
+                                    aria-label="Ordenar lista de juegos" 
+                                    data-i18n-key="filter_sortOrderAriaLabel" 
+                                    data-i18n-target-attr="aria-label">
+                                <option value="title-asc" data-i18n-key="filter_sortOpt_titleAsc">Título (A-Z)</option>
+                                <option value="title-desc" data-i18n-key="filter_sortOpt_titleDesc">Título (Z-A)</option>
+                                <option value="year-desc" data-i18n-key="filter_sortOpt_yearDesc">Año (Más Reciente)</option>
+                                <option value="year-asc" data-i18n-key="filter_sortOpt_yearAsc">Año (Más Antiguo)</option>
+                                <option value="rating-desc" data-i18n-key="filter_sortOpt_ratingDesc">Puntaje (Mayor a Menor)</option>
+                                <option value="rating-asc" data-i18n-key="filter_sortOpt_ratingAsc">Puntaje (Menor a Mayor)</option>
+                                <option value="date-desc" data-i18n-key="filter_sortOpt_dateDesc">Fecha Añadido (Más Reciente)</option>
+                                <option value="date-asc" data-i18n-key="filter_sortOpt_dateAsc">Fecha Añadido (Más Antiguo)</option>
+                                <option value="platform-asc" data-i18n-key="filter_sortOpt_platformAsc">Plataforma (A-Z)</option>
+                                <option value="genre-asc" data-i18n-key="filter_sortOpt_genreAsc">Género (A-Z)</option>
+                            </select>
+                        </div>
+                        <button id="resetFiltersBtn" 
+                                type="button" 
+                                title="Limpiar búsqueda y filtros" 
+                                data-i18n-key="filter_resetBtnTitle" 
+                                data-i18n-target-attr="title">
+                            <img src="Imagenes/Limpiar Filtro.png" 
+                                 alt="Limpiar Filtros" 
+                                 data-i18n-key="filter_resetBtnImgAlt" 
+                                 data-i18n-target-attr="alt">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="list-section">
+                <img id="listSectionTitleImage" src="Imagenes/Coleccion_es.png" alt="Colección de Juegos" class="list-section-title-image" data-i18n-key="listSection_collectionImgAlt" data-i18n-target-attr="alt">
+                <ul id="gameList">
+                    </ul>
+            </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+    <p>&copy; <span id="currentYear"></span> <span data-i18n-key="footer_appName">Catalogador de Videojuegos</span></p>
+    </footer>
+
+    <div id="gameFormModal" class="modal" style="z-index: 1002; display: none;">
+    <div class="modal-content" style="width: 70vw; max-width: 900px;">
+        <span class="close-game-form close" title="Cerrar" data-i18n-key="gameForm_closeBtnTitle" data-i18n-target-attr="title">&times;</span>
+        <div class="form-section" id="formSectionInModal" style="display: block; margin-bottom: 0; box-shadow: none; padding: 0;">
+            <fieldset>
+                <legend id="gameFormLegend" data-i18n-key="gameForm_legend">Agregar/Editar Juego</legend> <form id="gameForm" novalidate>
+                    <input type="hidden" id="editGameId" name="editGameId" value="">
+                    <div> <label for="title" data-i18n-key="gameForm_labelTitle">Título:</label> <input type="text" id="title" name="title" required> </div>
+                    <div>
+                        <label for="platform" data-i18n-key="gameForm_labelPlatform">Plataforma:</label>
+                        <select id="platform" name="platform" required>
+    <option value="" data-i18n-key="gameForm_optPlatformDefault">-- Seleccionar Plataforma --</option>
+    <option value="platform_amstrad" data-i18n-key="platform_amstrad">Amstrad</option>
+    <option value="platform_apple_macintosh" data-i18n-key="platform_apple_macintosh">Apple Macintosh</option>
+    <option value="platform_atari_2600" data-i18n-key="platform_atari_2600">Atari 2600</option>
+    <option value="platform_atari_jaguar" data-i18n-key="platform_atari_jaguar">Atari Jaguar</option>
+    <option value="platform_atari_st" data-i18n-key="platform_atari_st">Atari ST</option>
+    <option value="platform_commodore_64" data-i18n-key="platform_commodore_64">Commodore 64</option>
+    <option value="platform_commodore_amiga" data-i18n-key="platform_commodore_amiga">Commodore AMIGA</option>
+    <option value="platform_game_gear" data-i18n-key="platform_game_gear">Game Gear</option>
+    <option value="platform_linux" data-i18n-key="platform_linux">Linux</option>
+    <option value="platform_microsoft_xbox" data-i18n-key="platform_microsoft_xbox">Microsoft X BOX</option>
+    <option value="platform_microsoft_xbox_360" data-i18n-key="platform_microsoft_xbox_360">Microsoft X BOX 360</option>
+    <option value="platform_microsoft_xbox_one" data-i18n-key="platform_microsoft_xbox_one">Microsoft X BOX ONE</option>
+    <option value="platform_msx" data-i18n-key="platform_msx">MSX</option>
+    <option value="platform_neo_geo_pocket" data-i18n-key="platform_neo_geo_pocket">NEO GEO Pocket</option>
+    <option value="platform_neo_geo_pocket_color" data-i18n-key="platform_neo_geo_pocket_color">NEO GEO Pocket Color</option>
+    <option value="platform_nintendo_3ds" data-i18n-key="platform_nintendo_3ds">Nintendo 3DS</option>
+    <option value="platform_nintendo_64" data-i18n-key="platform_nintendo_64">Nintendo 64</option>
+    <option value="platform_nintendo_ds" data-i18n-key="platform_nintendo_ds">Nintendo DS</option>
+    <option value="platform_nintendo_game_boy" data-i18n-key="platform_nintendo_game_boy">Nintendo Game BOY</option>
+    <option value="platform_nintendo_game_boy_advance" data-i18n-key="platform_nintendo_game_boy_advance">Nintendo Game BOY Advance</option>
+    <option value="platform_nintendo_game_boy_color" data-i18n-key="platform_nintendo_game_boy_color">Nintendo Game BOY Color</option>
+    <option value="platform_nintendo_game_cube" data-i18n-key="platform_nintendo_game_cube">Nintendo Game CUBE</option>
+    <option value="platform_nintendo_nes" data-i18n-key="platform_nintendo_nes">Nintendo NES</option>
+    <option value="platform_nintendo_switch" data-i18n-key="platform_nintendo_switch">Nintendo Switch</option>
+    <option value="platform_nintendo_switch_2" data-i18n-key="platform_nintendo_switch_2">Nintendo Switch 2</option>
+    <option value="platform_nintendo_wii" data-i18n-key="platform_nintendo_wii">Nintendo Wii</option>
+    <option value="platform_nintendo_wii_u" data-i18n-key="platform_nintendo_wii_u">Nintendo Wii U</option>
+    <option value="platform_panasonic_3do" data-i18n-key="platform_panasonic_3do">Panasonic 3DO</option>
+    <option value="platform_pc_dos" data-i18n-key="platform_pc_dos">PC DOS</option>
+    <option value="platform_pc_dos_apple_macintosh" data-i18n-key="platform_pc_dos_apple_macintosh">PC DOS - Apple Macintosh</option>
+    <option value="platform_pc_dos_windows" data-i18n-key="platform_pc_dos_windows">PC DOS - Windows</option>
+    <option value="platform_pc_engine" data-i18n-key="platform_pc_engine">PC Engine</option>
+    <option value="platform_sega_32x" data-i18n-key="platform_sega_32x">Sega 32X</option>
+    <option value="platform_sega_cd" data-i18n-key="platform_sega_cd">Sega CD</option>
+    <option value="platform_sega_genesis" data-i18n-key="platform_sega_genesis">Sega Genesis</option>
+    <option value="platform_sega_master_system" data-i18n-key="platform_sega_master_system">Sega Master System</option>
+    <option value="platform_sega_megadrive" data-i18n-key="platform_sega_megadrive">Sega Megadrive</option>
+    <option value="platform_sega_saturn" data-i18n-key="platform_sega_saturn">Sega Saturn</option>
+    <option value="platform_sony_ps_vita" data-i18n-key="platform_sony_ps_vita">Sony PS Vita</option>
+    <option value="platform_sony_playstation" data-i18n-key="platform_sony_playstation">Sony PlayStation</option>
+    <option value="platform_sony_playstation_2" data-i18n-key="platform_sony_playstation_2">Sony Play Station 2</option>
+    <option value="platform_sony_playstation_3" data-i18n-key="platform_sony_playstation_3">Sony PlayStation 3</option>
+    <option value="platform_sony_playstation_4" data-i18n-key="platform_sony_playstation_4">Sony PlayStation 4</option>
+    <option value="platform_sony_playstation_5" data-i18n-key="platform_sony_playstation_5">Sony PlayStation 5</option>
+    <option value="platform_sony_psp" data-i18n-key="platform_sony_psp">Sony PsP</option>
+    <option value="platform_super_nintendo" data-i18n-key="platform_super_nintendo">Super Nintendo</option>
+    <option value="platform_turbo_16_grafx" data-i18n-key="platform_turbo_16_grafx">Turbo 16 Grafx</option>
+    <option value="platform_windows_95" data-i18n-key="platform_windows_95">Windows 95</option>
+    <option value="platform_windows_98" data-i18n-key="platform_windows_98">Windows 98</option>
+    <option value="platform_windows_xp" data-i18n-key="platform_windows_xp">Windows Xp</option>
+    <option value="platform_windows_10" data-i18n-key="platform_windows_10">Windows 10</option>
+    <option value="platform_zx_spectrum" data-i18n-key="platform_zx_spectrum">ZX Spectrum</option>
+</select>
+                    </div>
+                    <div> <label for="year" data-i18n-key="gameForm_labelYear">Año:</label> <input type="number" id="year" name="year" min="1950" max="2099"> </div>
+                    <div> <label for="developer" data-i18n-key="gameForm_labelDeveloper">Desarrollador:</label> <input type="text" id="developer" name="developer"> </div>
+                    <div> <label for="publisher" data-i18n-key="gameForm_labelPublisher">Distribuidor:</label> <input type="text" id="publisher" name="publisher"> </div>
+                    <div>
+                        <label for="genre" data-i18n-key="gameForm_labelGenre">Género:</label>
+                        <select id="genre" name="genre" required>
+                            <option value="" data-i18n-key="gameForm_optGenreDefault">-- Seleccionar Género --</option>
+                            <option value="gameForm_genre_adventure" data-i18n-key="gameForm_genre_adventure">Aventura</option>
+                            <option value="gameForm_genre_rpgAdventure" data-i18n-key="gameForm_genre_rpgAdventure">Aventura - RPG</option>
+                            <option value="gameForm_genre_graphicAdventure" data-i18n-key="gameForm_genre_graphicAdventure">Aventura Gráfica</option>
+                            <option value="gameForm_genre_textAdventure" data-i18n-key="gameForm_genre_textAdventure">Aventura Conversacional</option>
+                            <option value="gameForm_genre_arcade" data-i18n-key="gameForm_genre_arcade">Arcades</option>
+                            <option value="gameForm_genre_sports" data-i18n-key="gameForm_genre_sports">Deportes</option>
+                            <option value="gameForm_genre_turnBasedStrategy" data-i18n-key="gameForm_genre_turnBasedStrategy">Estrategia x Turnos</option>
+                            <option value="gameForm_genre_realTimeStrategy" data-i18n-key="gameForm_genre_realTimeStrategy">Estrategia en Tiempo Real</option>
+                            <option value="gameForm_genre_puzzle" data-i18n-key="gameForm_genre_puzzle">Ingenio - Puzzle</option>
+                            <option value="gameForm_genre_fps" data-i18n-key="gameForm_genre_fps">Primera Persona - FPS</option>
+                            <option value="gameForm_genre_program" data-i18n-key="gameForm_genre_program">Programa</option>
+                            <option value="gameForm_genre_simulation" data-i18n-key="gameForm_genre_simulation">Simulador</option>
+                            <option value="gameForm_genre_flightSim" data-i18n-key="gameForm_genre_flightSim">Simulador de Vuelo</option>
+                            <option value="gameForm_genre_racingSim" data-i18n-key="gameForm_genre_racingSim">Simulador de Carreras</option>
+                            <option value="gameForm_genre_spaceSim" data-i18n-key="gameForm_genre_spaceSim">Simulador Espacial</option>
+                        </select>
+                    </div>
+                    <div> 
+                        <label for="format" data-i18n-key="gameForm_labelFormat">Formato:</label> 
+                        <select id="format" name="format" required>
+                            <option value="" data-i18n-key="gameForm_optFormatDefault">-- Seleccionar --</option>
+                            <option value="gameForm_format_diskette" data-i18n-key="gameForm_format_diskette">Disquetes</option>
+                            <option value="gameForm_format_cd" data-i18n-key="gameForm_format_cd">CD</option>
+                            <option value="gameForm_format_cartridge" data-i18n-key="gameForm_format_cartridge">Cartucho</option>
+                            <option value="gameForm_format_dvd" data-i18n-key="gameForm_format_dvd">DvD</option>
+                            <option value="gameForm_format_tape" disabled data-i18n-key="gameForm_format_tape">Cinta</option>
+                            <option value="gameForm_format_digital" data-i18n-key="gameForm_format_digital">Digital</option>
+                        </select> 
+                    </div>
+
+                    <div id="capacityContainer" class="form-field" style="display: none;">
+    <label for="capacity" data-i18n-key="gameForm_label_capacity">Capacidad (Disquetes):</label>
+    <select id="capacity" name="capacity">
+        <option value="" data-i18n-key="gameForm_optSelectDefault">-- Seleccionar --</option>
+        <option value="gameForm_capacity_dd360kb" data-i18n-key="gameForm_capacity_dd360kb">DD (360Kb)</option>
+        <option value="gameForm_capacity_hd12mb" data-i18n-key="gameForm_capacity_hd12mb">HD (1.2Mb)</option>
+        <option value="gameForm_capacity_dd720kb" data-i18n-key="gameForm_capacity_dd720kb">DD (720Kb)</option>
+        <option value="gameForm_capacity_hd144mb" data-i18n-key="gameForm_capacity_hd144mb">HD (1.44MB)</option>
+    </select>
+</div>
+                    <div id="quantityContainer" style="display: none;"> 
+                        <label for="quantity" data-i18n-key="gameForm_labelQuantityDiscs">Cantidad (Discos):</label> 
+                        <input type="number" id="quantity" name="quantity" min="1" step="1" placeholder="Nº" data-i18n-key="gameForm_inputQuantityPlaceholder" data-i18n-target-attr="placeholder"> 
+                    </div>
+                    <div>
+                        <label for="language" data-i18n-key="gameForm_labelLanguage">Idioma:</label>
+                        <select id="language" name="language">
+                            <option value="" data-i18n-key="gameForm_optLanguageDefault">-- Seleccionar Idioma --</option>
+                            <option value="gameForm_lang_spanish" data-i18n-key="gameForm_lang_spanish">Español</option>
+                            <option value="gameForm_lang_english" data-i18n-key="gameForm_lang_english">Inglés</option>
+                            <option value="gameForm_lang_german" data-i18n-key="gameForm_lang_german">Alemán</option>
+                            <option value="gameForm_lang_italian" data-i18n-key="gameForm_lang_italian">Italiano</option>
+                            <option value="gameForm_lang_french" data-i18n-key="gameForm_lang_french">Francés</option>
+                            <option value="gameForm_lang_russian" data-i18n-key="gameForm_lang_russian">Ruso</option>
+                            <option value="gameForm_lang_portuguese" data-i18n-key="gameForm_lang_portuguese">Portugués</option>
+                            <option value="gameForm_lang_chinese" data-i18n-key="gameForm_lang_chinese">Chino</option>
+                            <option value="gameForm_lang_japanese" data-i18n-key="gameForm_lang_japanese">Japonés</option>
+                            <option value="gameForm_lang_swedish" data-i18n-key="gameForm_lang_swedish">Sueco</option>
+                            <option value="gameForm_lang_greek" data-i18n-key="gameForm_lang_greek">Griego</option>
+                            <option value="gameForm_lang_multilanguage" data-i18n-key="gameForm_lang_multilanguage">Multilenguaje</option>
+                            <option value="gameForm_lang_other" data-i18n-key="gameForm_lang_other">Otro (Especificar en Información Adicional)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="region" data-i18n-key="gameForm_labelRegion">Región:</label>
+                        <select id="region" name="region">
+                            <option value="" data-i18n-key="gameForm_optRegionDefault">-- Seleccionar Región --</option>
+                            <optgroup label="NTSC" data-i18n-key="gameForm_optgroupNTSC" data-i18n-target-attr="label">
+                                <option value="gameForm_region_ntscUsa" data-i18n-key="gameForm_region_ntscUsa">NTSC - USA</option>
+                                <option value="gameForm_region_ntscJapan" data-i18n-key="gameForm_region_ntscJapan">NTSC - Japón</option>
+                                <option value="gameForm_region_ntscLatam" data-i18n-key="gameForm_region_ntscLatam">NTSC - LATAM</option>
+                                <option value="gameForm_region_ntscAsia" data-i18n-key="gameForm_region_ntscAsia">NTSC - Asia (Corea, Taiwán, etc.)</option>
+                            </optgroup>
+                            <optgroup label="PAL" data-i18n-key="gameForm_optgroupPAL" data-i18n-target-attr="label">
+                                <option value="gameForm_region_palEurope" data-i18n-key="gameForm_region_palEurope">PAL - Europa</option>
+                                <option value="gameForm_region_palSpain" data-i18n-key="gameForm_region_palSpain">PAL - España</option>
+                                <option value="gameForm_region_palUk" data-i18n-key="gameForm_region_palUk">PAL - Reino Unido</option>
+                                <option value="gameForm_region_palAustralia" data-i18n-key="gameForm_region_palAustralia">PAL - Australia</option>
+                                <option value="gameForm_region_palAsia" data-i18n-key="gameForm_region_palAsia">PAL - Asia (Algunas regiones)</option>
+                                <option value="gameForm_region_palAfrica" data-i18n-key="gameForm_region_palAfrica">PAL - África (Algunas regiones)</option>
+                            </optgroup>
+                            <optgroup label="SECAM" data-i18n-key="gameForm_optgroupSECAM" data-i18n-target-attr="label">
+                                <option value="gameForm_region_secamFrance" data-i18n-key="gameForm_region_secamFrance">SECAM - Francia</option>
+                                <option value="gameForm_region_secamRussia" data-i18n-key="gameForm_region_secamRussia">SECAM - Rusia</option>
+                                <option value="gameForm_region_secamAfrica" data-i18n-key="gameForm_region_secamAfrica">SECAM - África (Algunas regiones)</option>
+                            </optgroup>
+                            <option value="gameForm_region_regionFree" data-i18n-key="gameForm_region_regionFree">Región Libre / Mundial</option>
+                            <option value="gameForm_region_other" data-i18n-key="gameForm_region_other">Otra (Especificar en Info Adicional)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="ageRating" data-i18n-key="gameForm_labelAgeRating">Calificación Edad:</label>
+                        <select id="ageRating" name="ageRating">
+                            <option value="" data-i18n-key="gameForm_optAgeRatingDefault">-- Seleccionar Calificación --</option>
+                            <option value="gameForm_ageRating_rp" data-i18n-key="gameForm_ageRating_rp">RP - Calificación Pendiente</option>
+                            <option value="gameForm_ageRating_e" data-i18n-key="gameForm_ageRating_e">E - Todas las Edades</option>
+                            <option value="gameForm_ageRating_e10" data-i18n-key="gameForm_ageRating_e10">E10+ - Todos Mayores de 10</option>
+                            <option value="gameForm_ageRating_t" data-i18n-key="gameForm_ageRating_t">T - Adolescentes +13</option>
+                            <option value="gameForm_ageRating_m" data-i18n-key="gameForm_ageRating_m">M - Maduro +17</option>
+                            <option value="gameForm_ageRating_a" data-i18n-key="gameForm_ageRating_a">A - Adulto +18</option>
+                            <option value="gameForm_ageRating_other" data-i18n-key="gameForm_ageRating_other">Otro (Especificar en Info Adicional)</option>
+                        </select>
+                    </div>
+                    <div> 
+                        <label for="barcode" data-i18n-key="gameForm_labelBarcode">Código Barras:</label> 
+                        <input type="text" id="barcode" name="barcode" placeholder="Ej: 0123456789012" data-i18n-key="gameForm_inputBarcodePlaceholder" data-i18n-target-attr="placeholder">
+                    </div>
+                    <div> 
+                        <label for="condition" data-i18n-key="gameForm_labelCondition">Estado Juego:</label> 
+                        <select id="condition" name="condition">
+                            <option value="" data-i18n-key="gameForm_optSelectDefault">-- Seleccionar --</option>
+                            <option value="gameForm_condition_newSealed" data-i18n-key="gameForm_condition_newSealed">Nuevo Precintado</option>
+                            <option value="gameForm_condition_newOpenBox" data-i18n-key="gameForm_condition_newOpenBox">Nuevo Abierto</option>
+                            <option value="gameForm_condition_cib" data-i18n-key="gameForm_condition_cib">Completo en Caja</option>
+                            <option value="gameForm_condition_incomplete" data-i18n-key="gameForm_condition_incomplete">Incompleto en Caja</option>
+                            <option value="gameForm_condition_loose" data-i18n-key="gameForm_condition_loose">Suelto (solo Media)</option>
+                        </select>
+                    </div>
+                    <div> 
+                        <label for="progress" data-i18n-key="gameForm_labelProgress">Progreso:</label> 
+                        <select id="progress" name="progress">
+                            <option value="" data-i18n-key="gameForm_optProgressDefault">Seleccionar...</option>
+                            <option value="gameForm_progress_pending" data-i18n-key="gameForm_progress_pending">Pendiente</option>
+                            <option value="gameForm_progress_notPlayed" data-i18n-key="gameForm_progress_notPlayed">No Jugado</option>
+                            <option value="gameForm_progress_playing" data-i18n-key="gameForm_progress_playing">Jugando</option>
+                            <option value="gameForm_progress_completed" data-i18n-key="gameForm_progress_completed">Completado</option>
+                            <option value="gameForm_progress_abandoned" data-i18n-key="gameForm_progress_abandoned">Abandonado</option>
+                        </select> 
+                    </div>
+                    <div> 
+                        <label for="multiplayer" data-i18n-key="gameForm_labelMultiplayer">Multijugador:</label> 
+                        <select id="multiplayer" name="multiplayer">
+                            <option value="" data-i18n-key="gameForm_optMultiplayerDefault">-- Seleccionar --</option>
+                            <option value="false" data-i18n-key="gameForm_value_no">No</option>
+                            <option value="true" data-i18n-key="gameForm_value_yes">Sí</option>
+                        </select> 
+                    </div>
+                    <div id="numPlayersContainer" style="display: none;"> 
+                        <label for="numPlayers" data-i18n-key="gameForm_labelNumPlayers">Número de Jugadores:</label> 
+                        <input type="number" id="numPlayers" name="numPlayers" min="2" step="1" placeholder="Ej: 2" data-i18n-key="gameForm_inputNumPlayersPlaceholder" data-i18n-target-attr="placeholder">
+                    </div>
+                    <div style="grid-column: 1 / -1;"> 
+                        <label for="additionalInfo" data-i18n-key="gameForm_labelAdditionalInfo">Información Adicional (Descripción, Notas):</label> 
+                        <textarea id="additionalInfo" name="additionalInfo" rows="4" placeholder="Escribe aquí la descripción del juego, notas personales, curiosidades..." data-i18n-key="gameForm_textareaAdditionalInfoPlaceholder" data-i18n-target-attr="placeholder"></textarea> 
+                    </div>
+                    <div style="grid-column: 1 / -1;"> 
+                        <label for="copyProtection" data-i18n-key="gameForm_labelCopyProtection">Protección de Copia:</label> 
+                        <input type="text" id="copyProtection" name="copyProtection" placeholder="Ej: Rueda de códigos, Clave en manual p.15, Sin protección" data-i18n-key="gameForm_inputCopyProtectionPlaceholder" data-i18n-target-attr="placeholder">
+                    </div>
+
+                    <fieldset>
+                        <legend data-i18n-key="gameForm_legendSystemRequirements">Requisitos de Sistema</legend>
+                        <div>
+                            <label for="reqCpu" data-i18n-key="gameForm_labelReqCpu">CPU:</label>
+                            <select id="reqCpu" name="reqCpu">
+                                <option value="" data-i18n-key="gameForm_optReqCpuDefault">-- Seleccionar CPU --</option>
+                                <option value="gameForm_cpu_xt_i8088" data-i18n-key="gameForm_cpu_xt_i8088">PC XT i8088</option>
+                                <option value="gameForm_cpu_at_i80286" data-i18n-key="gameForm_cpu_at_i80286">PC AT i80286</option>
+                                <option value="gameForm_cpu_at_i80386" data-i18n-key="gameForm_cpu_at_i80386">PC AT i80386</option>
+                                <option value="gameForm_cpu_at_i80486" data-i18n-key="gameForm_cpu_at_i80486">PC AT i80486</option>
+                                <option value="gameForm_cpu_at_pentium" data-i18n-key="gameForm_cpu_at_pentium">PC AT Pentium</option>
+                                <option value="gameForm_cpu_at_pentium_mmx" data-i18n-key="gameForm_cpu_at_pentium_mmx">PC AT Pentium MMX</option>
+                                <option value="gameForm_cpu_intel_i3" data-i18n-key="gameForm_cpu_intel_i3">PC Intel i3</option>
+                                <option value="gameForm_cpu_intel_i5" data-i18n-key="gameForm_cpu_intel_i5">PC Intel i5</option>
+                                <option value="gameForm_cpu_intel_i7" data-i18n-key="gameForm_cpu_intel_i7">PC Intel i7</option>
+                                <option value="gameForm_cpu_motorola_680x0" data-i18n-key="gameForm_cpu_motorola_680x0">Motorola 68000/20/30/40</option>
+                                <option value="gameForm_cpu_motorola_6840" data-i18n-key="gameForm_cpu_motorola_6840">Motorola 6840</option>
+                                <option value="gameForm_cpu_motorola_68000" data-i18n-key="gameForm_cpu_motorola_68000">Motorola 68000</option>
+                                <option value="gameForm_cpu_r3000a" data-i18n-key="gameForm_cpu_r3000a">R3000A de 32 bits</option>
+                                <option value="gameForm_cpu_mips_r5900" data-i18n-key="gameForm_cpu_mips_r5900">MIPS R5900 (COP0)</option>
+                                <option value="gameForm_cpu_cell_be" data-i18n-key="gameForm_cpu_cell_be">Cell Broadband Engine 1PPE y 8 SPEs</option>
+                                <option value="gameForm_cpu_mos_6507" data-i18n-key="gameForm_cpu_mos_6507">MOS Technology 6507</option>
+                                <option value="gameForm_cpu_hitachi_sh2" data-i18n-key="gameForm_cpu_hitachi_sh2">Hitachi SH-2 de 32 bits</option>
+                                <option value="gameForm_cpu_motorola_6800" data-i18n-key="gameForm_cpu_motorola_6800">Motorola 6800</option>
+                                <option value="gameForm_cpu_hudson_huc6280a" data-i18n-key="gameForm_cpu_hudson_huc6280a">Hudson HuC6280A</option>
+                                <option value="gameForm_cpu_ricoh_5a22" data-i18n-key="gameForm_cpu_ricoh_5a22">Ricoh 5A22 Ricoh 2A03</option>
+                                <option value="gameForm_cpu_mos_6510" data-i18n-key="gameForm_cpu_mos_6510">MOS Technology 6510</option>
+                                <option value="gameForm_cpu_zilog_80_80a" data-i18n-key="gameForm_cpu_zilog_80_80a">Microcontrolador Zilog 80/80A</option>
+                                <option value="gameForm_cpu_zilog_z80" data-i18n-key="gameForm_cpu_zilog_z80">Zilog Z80</option>
+                            </select>
+                        </div>
+                        <div> 
+                            <label for="reqSound" data-i18n-key="gameForm_labelReqSound">Sonido:</label> 
+                            <input type="text" id="reqSound" name="reqSound" placeholder="Ej: Sound Blaster 16" data-i18n-key="gameForm_inputReqSoundPlaceholder" data-i18n-target-attr="placeholder"> 
+                        </div>
+                        <div>
+                            <label for="reqController" data-i18n-key="gameForm_labelReqController">Mando:</label>
+                            <select id="reqController" name="reqController">
+                                <option value="" data-i18n-key="gameForm_optReqControllerDefault">-- Seleccionar Mando --</option>
+                                <option value="gameForm_controller_joystick" data-i18n-key="gameForm_controller_joystick">Joystick</option>
+                                <option value="gameForm_controller_keyboard" data-i18n-key="gameForm_controller_keyboard">Teclado</option>
+                                <option value="gameForm_controller_mouse" data-i18n-key="gameForm_controller_mouse">Mouse</option>
+                                <option value="gameForm_controller_joyKey" data-i18n-key="gameForm_controller_joyKey">Joystick-Teclado</option>
+                                <option value="gameForm_controller_joyKeyMouse" data-i18n-key="gameForm_controller_joyKeyMouse">Joystick-Teclado-Mouse</option>
+                                <option value="gameForm_controller_keyMouse" data-i18n-key="gameForm_controller_keyMouse">Teclado-Mouse</option>
+                                <option value="gameForm_controller_joyMouse" data-i18n-key="gameForm_controller_joyMouse">Joystick-Mouse</option>
+                                <option value="gameForm_controller_racingWheel" data-i18n-key="gameForm_controller_racingWheel">Volante Carreras</option>
+                                <option value="gameForm_controller_flightStick" data-i18n-key="gameForm_controller_flightStick">Volante Aero Espacial</option>
+                                <option value="gameForm_controller_other" data-i18n-key="gameForm_controller_other">Otro</option>
+                            </select>
+                        </div>
+                        <div> 
+                            <label for="reqGfx" data-i18n-key="gameForm_labelReqGfx">Gráfica:</label> 
+                            <select id="reqGfx" name="reqGfx">
+                                <option value="" data-i18n-key="gameForm_optReqGfxDefault">-- Seleccionar Gráfica --</option>
+                                <option value="gameForm_gfx_hercules_cga" data-i18n-key="gameForm_gfx_hercules_cga">Hercules - CGA</option>
+                                <option value="gameForm_gfx_cga_4" data-i18n-key="gameForm_gfx_cga_4">CGA 4 Colores</option>
+                                <option value="gameForm_gfx_ega_16" data-i18n-key="gameForm_gfx_ega_16">EGA 16 Colores</option>
+                                <option value="gameForm_gfx_ega_vga_256" data-i18n-key="gameForm_gfx_ega_vga_256">EGA - VGA 256 Colores</option>
+                                <option value="gameForm_gfx_vga_256" data-i18n-key="gameForm_gfx_vga_256">VGA 256 Colores</option>
+                                <option value="gameForm_gfx_svga_16m" data-i18n-key="gameForm_gfx_svga_16m">Svga 16 Millones de Colores</option>
+                                <option value="gameForm_gfx_nvidia_amd_modern" data-i18n-key="gameForm_gfx_nvidia_amd_modern">Nvidia GF GT 640--AMD HD 7750 o Superiores</option>
+                            </select> 
+                        </div>
+                        <div> 
+                            <label for="reqMemory" data-i18n-key="gameForm_labelReqMemory">Memoria:</label> 
+                            <input type="text" id="reqMemory" name="reqMemory" placeholder="Ej: 4MB RAM" data-i18n-key="gameForm_inputReqMemoryPlaceholder" data-i18n-target-attr="placeholder"> 
+                        </div>
+                        <div> 
+                            <label for="reqHdd" data-i18n-key="gameForm_labelReqHdd">HDD:</label> 
+                            <select id="reqHdd" name="reqHdd">
+                                <option value="" data-i18n-key="gameForm_optSelectDefault">-- Seleccionar --</option>
+                                <option value="gameForm_hdd_required" data-i18n-key="gameForm_hdd_required">Requerido</option>
+                                <option value="gameForm_hdd_notRequired" data-i18n-key="gameForm_hdd_notRequired">No Requerido</option>
+                                <option value="gameForm_hdd_recommended" data-i18n-key="gameForm_hdd_recommended">Recomendado</option>
+                            </select>
+                        </div>
+                    </fieldset>
+
+                    <fieldset style="margin-top: 15px;">
+                        <legend data-i18n-key="gameForm_legendLoanInfo">Información de Préstamo</legend>
+                        <div>
+                            <label for="isLoaned" data-i18n-key="gameForm_labelIsLoaned">¿Está Prestado?</label>
+                            <select id="isLoaned" name="isLoaned">
+                                <option value="false" data-i18n-key="gameForm_value_no">No</option>
+                                <option value="true" data-i18n-key="gameForm_value_yes">Sí</option>
+                            </select>
+                        </div>
+                        <div id="loanDetailsContainer" style="display: none; grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px 20px; margin-top: 10px;">
+                            <div>
+                                <label for="loanedTo" data-i18n-key="gameForm_labelLoanedTo">Prestado A:</label>
+                                <input type="text" id="loanedTo" name="loanedTo" placeholder="Nombre de la persona" data-i18n-key="gameForm_inputLoanedToPlaceholder" data-i18n-target-attr="placeholder">
+                            </div>
+                            <div>
+                                <label for="loanDate" data-i18n-key="gameForm_labelLoanDate">Fecha de Préstamo:</label>
+                                <input type="date" id="loanDate" name="loanDate">
+                            </div>
+                        </div>
+                    </fieldset>
+                    
+                    <div class="image-upload-section">
+                        <div>
+                            <div> 
+                                <label for="cover" data-i18n-key="gameForm_labelCover">Portada:</label>
+                                <button type="button" class="custom-file-upload-btn" data-target-input="cover" title="Cargar Portada" data-i18n-key="gameForm_btnUploadCoverTitle" data-i18n-target-attr="title">
+                                    <img src="Imagenes/Cargar Imagen.png" alt="Cargar Portada" data-i18n-key="gameForm_imgUploadCoverAlt" data-i18n-target-attr="alt">
+                                </button>
+                                <input type="file" id="cover" name="cover" accept="image/*" style="display: none;">
+                                <div class="image-preview" id="coverPreview"></div>
+                            </div>
+                            <div> 
+                                <label for="backCover" data-i18n-key="gameForm_labelBackCover">Contraportada:</label>
+                                <button type="button" class="custom-file-upload-btn" data-target-input="backCover" title="Cargar Contraportada" data-i18n-key="gameForm_btnUploadBackCoverTitle" data-i18n-target-attr="title">
+                                    <img src="Imagenes/Cargar Imagen.png" alt="Cargar Contraportada" data-i18n-key="gameForm_imgUploadBackCoverAlt" data-i18n-target-attr="alt">
+                                </button>
+                                <input type="file" id="backCover" name="backCover" accept="image/*" style="display: none;">
+                                <div class="image-preview" id="backCoverPreview"></div>
+                            </div>
+                            <div class="screenshot-upload-section" style="grid-column: 1 / -1;">
+                                <label for="screenshots" data-i18n-key="gameForm_labelScreenshots">Añadir Nuevas Capturas (hasta 6 en total):</label>
+                                <div>
+                                    <button type="button" class="custom-file-upload-btn" data-target-input="screenshots" title="Añadir Capturas" data-i18n-key="gameForm_btnUploadScreenshotsTitle" data-i18n-target-attr="title">
+                                        <img src="Imagenes/Cargar Imagen.png" alt="Añadir Capturas" data-i18n-key="gameForm_imgUploadScreenshotsAlt" data-i18n-target-attr="alt">
+                                    </button>
+                                    <input type="file" id="screenshots" name="screenshots" multiple accept="image/*" style="display: none;">
+                                </div>
+                                <div id="screenshotsPreview" class="screenshots-preview-container"></div>
+
+                                <label id="existingScreenshotsLabel" style="margin-top: 1rem; display: none;" data-i18n-key="gameForm_labelExistingScreenshots">Capturas Existentes:</label>
+                                <div id="existingScreenshotsPreview" class="screenshots-preview-container existing-screenshots" style="display: none;"></div>
+                            </div>
+                            <div id="deleteScreenshotsControls" style="margin-top: 0.8rem; display: none; text-align: left;">
+                                <button type="button" id="deleteSelectedScreenshotsBtn" class="btn-icon-custom" title="Eliminar Capturas Seleccionadas" data-i18n-key="gameForm_btnDeleteScreenshotsTitle" data-i18n-target-attr="title">
+                                    <img src="Imagenes/Eliminar Seleccion.png" alt="Eliminar Capturas Seleccionadas" data-i18n-key="gameForm_imgDeleteScreenshotsAlt" data-i18n-target-attr="alt">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rating-section">
+                        <label data-i18n-key="gameForm_labelRating">Puntaje:</label>
+                        <div class="rating-stars-10" id="formRatingStars"></div> 
+                        <input type="hidden" id="rating" name="rating" value="0" aria-label="Puntaje seleccionado" data-i18n-key="gameForm_inputRatingAriaLabel" data-i18n-target-attr="aria-label">
+                    </div>
+
+                    <div class="form-buttons">
+                         <button type="submit" id="submitGameFormBtn" title="Guardar Juego">
+                            <img src="Imagenes/Actualizar Juego.png" alt="Guardar Juego">
+                        </button>
+                        <button type="button" id="clearFormBtnInModal" title="Limpiar Formulario" data-i18n-key="gameForm_btnClearTitle" data-i18n-target-attr="title">
+                            <img src="Imagenes/Limpiar.png" alt="Limpiar Formulario" data-i18n-key="gameForm_btnClearImgAlt" data-i18n-target-attr="alt">
+                        </button>
+                        <button type="button" id="cancelFormBtnInModal" title="Cancelar" data-i18n-key="gameForm_btnCancelTitle" data-i18n-target-attr="title">
+                            <img src="Imagenes/Cancelar.png" alt="Cancelar" data-i18n-key="gameForm_btnCancelImgAlt" data-i18n-target-attr="alt">
+                        </button>
+                    </div>
+                </form>
+            </fieldset>
+        </div>
+    </div>
+</div>
+    <div id="gameDetailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" title="Cerrar" data-i18n-key="gameDetailModal_closeBtnTitle" data-i18n-target-attr="title">&times;</span>
+            <div id="gameDetails">
+                </div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal" style="z-index: 1001; display: none;">
+        <span class="close" title="Cerrar" data-i18n-key="imageModal_closeBtnTitle" data-i18n-target-attr="title">&times;</span>
+        <button class="gallery-nav-button prev" title="Anterior (Flecha Izq)" data-i18n-key="imageModal_prevBtnTitle" data-i18n-target-attr="title">&#10094;</button>
+        <button class="gallery-nav-button next" title="Siguiente (Flecha Der)" data-i18n-key="imageModal_nextBtnTitle" data-i18n-target-attr="title">&#10095;</button>
+        <div id="imageWrapper" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+            <img id="imageModalContent" src="" alt="Imagen Ampliada" data-i18n-key="imageModal_imgAlt" data-i18n-target-attr="alt">
+        </div>
+        <div id="galleryIndicator" class="gallery-indicator"></div>
+    </div>
+
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <span class="close" title="Cerrar" data-i18n-key="configModal_closeBtnTitle" data-i18n-target-attr="title">&times;</span>
+            <h2 id="configModalHeader" data-i18n-key="configModal_header">Configuración</h2>
+
+            <div class="config-tabs-container">
+                <div class="config-tabs-nav">
+                    <button type="button" class="config-tab-button active" data-tab="tab-general" data-i18n-key="configModal_tabGeneral">General</button>
+                    <button type="button" class="config-tab-button" data-tab="tab-colors" data-i18n-key="configModal_tabColors">Colores</button>
+                    <button type="button" class="config-tab-button" data-tab="tab-typography" data-i18n-key="configModal_tabTypography">Tipografía</button>
+                    <button type="button" class="config-tab-button" data-tab="tab-profile" id="profile-tab-button" data-i18n-key="configModal_tabProfile">Mi Perfil</button>
+                    <button type="button" class="config-tab-button" data-tab="tab-collections" id="collections-tab-button" data-i18n-key="configModal_tabCollections">Mis Colecciones</button>
+                    <button type="button" class="config-tab-button" data-tab="tab-admin" id="admin-tab-button" style="display: none;" data-i18n-key="configModal_tabAdmin">Administración</button>
+                </div>
+
+                <form id="configForm">
+                    <div id="tab-general" class="config-tab-panel active">
+                        <fieldset class="config-section">
+                            <legend class="config-section-legend" data-i18n-key="configGeneral_legendAppearance">Apariencia General</legend>
+                            <div class="color-option"> <label for="cfgBgBody" data-i18n-key="configGeneral_labelBgBody">Fondo Principal:</label> <input type="color" id="cfgBgBody" data-var="--clr-bg-body"> </div>
+                            <div class="color-option"> <label for="cfgTextMain" data-i18n-key="configGeneral_labelTextMain">Texto Principal:</label> <input type="color" id="cfgTextMain" data-var="--clr-text-main"> </div>
+                            <div class="color-option"> <label for="cfgTextSecondary" data-i18n-key="configGeneral_labelTextSecondary">Texto Secundario:</label> <input type="color" id="cfgTextSecondary" data-var="--clr-text-secondary"> </div>
+                            <div class="color-option"> <label for="cfgBgSection" data-i18n-key="configGeneral_labelBgSection">Fondo Secciones/Tarjetas:</label> <input type="color" id="cfgBgSection" data-var="--clr-bg-section"> </div>
+                            <div class="color-option"> <label for="cfgBorder" data-i18n-key="configGeneral_labelBorder">Bordes/Separadores:</label> <input type="color" id="cfgBorder" data-var="--clr-border"> </div>
+                            <div class="color-option"> <label for="cfgInputFocus" data-i18n-key="configGeneral_labelInputFocus">Color de Foco (Inputs):</label> <input type="color" id="cfgInputFocus" data-var="--clr-input-focus"> </div>
+                        </fieldset>
+                    </div>
+
+                    <div id="tab-colors" class="config-tab-panel">
+                        <fieldset class="config-section">
+                            <legend class="config-section-legend" data-i18n-key="configColors_legendAccentAndButtons">Colores de Acento y Botones</legend>
+                            <div class="color-option"> <label for="cfgAccent1" data-i18n-key="configColors_labelAccent1">Acento 1 (Títulos):</label> <input type="color" id="cfgAccent1" data-var="--clr-accent-1"> </div>
+                            <div class="color-option"> <label for="cfgAccent2" data-i18n-key="configColors_labelAccent2">Acento 2 (Tarjetas):</label> <input type="color" id="cfgAccent2" data-var="--clr-accent-2"> </div>
+
+                            <h4 class="config-subsection-title" data-i18n-key="configColors_subtitlePrimaryButtons">Botones Primarios</h4>
+                            <div class="color-option"> <label for="cfgBtnPBg" data-i18n-key="configColors_labelBtnPrimaryBg">Fondo:</label> <input type="color" id="cfgBtnPBg" data-var="--clr-btn-p-bg"> </div>
+                            <div class="color-option"> <label for="cfgBtnPText" data-i18n-key="configColors_labelBtnPrimaryText">Texto:</label> <input type="color" id="cfgBtnPText" data-var="--clr-btn-p-text"> </div>
+                            <div class="color-option"> <label for="cfgBtnPHover" data-i18n-key="configColors_labelBtnPrimaryHover">Hover Fondo:</label> <input type="color" id="cfgBtnPHover" data-var="--clr-btn-p-hover"> </div>
+
+                            <h4 class="config-subsection-title" data-i18n-key="configColors_subtitleSecondaryButtons">Botones Secundarios</h4>
+                            <div class="color-option"> <label for="cfgBtnSBg" data-i18n-key="configColors_labelBtnSecondaryBg">Fondo:</label> <input type="color" id="cfgBtnSBg" data-var="--clr-btn-s-bg"> </div>
+                            <div class="color-option"> <label for="cfgBtnSText" data-i18n-key="configColors_labelBtnSecondaryText">Texto:</label> <input type="color" id="cfgBtnSText" data-var="--clr-btn-s-text"> </div>
+                            <div class="color-option"> <label for="cfgBtnSHover" data-i18n-key="configColors_labelBtnSecondaryHover">Hover Fondo:</label> <input type="color" id="cfgBtnSHover" data-var="--clr-btn-s-hover"> </div>
+
+                            <h4 class="config-subsection-title" data-i18n-key="configColors_subtitleDeleteButtons">Botones de Eliminación</h4>
+                            <div class="color-option"> <label for="cfgBtnDBg" data-i18n-key="configColors_labelBtnDeleteBg">Fondo:</label> <input type="color" id="cfgBtnDBg" data-var="--clr-btn-d-bg"> </div>
+                            <div class="color-option"> <label for="cfgBtnDText" data-i18n-key="configColors_labelBtnDeleteText">Texto:</label> <input type="color" id="cfgBtnDText" data-var="--clr-btn-d-text"> </div>
+                            <div class="color-option"> <label for="cfgBtnDHover" data-i18n-key="configColors_labelBtnDeleteHover">Hover Fondo:</label> <input type="color" id="cfgBtnDHover" data-var="--clr-btn-d-hover"> </div>
+                        </fieldset>
+                    </div>
+
+                    <div id="tab-typography" class="config-tab-panel">
+                        <fieldset class="config-section">
+                            <legend class="config-section-legend" data-i18n-key="configTypography_legend">Tipografía</legend>
+
+                            <div class="font-option">
+                                <label for="cfgFontBody" data-i18n-key="configTypography_labelFontGeneral">Fuente General:</label>
+                                <select id="cfgFontBody" data-var="--font-body">
+                                    <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
+                                    <option value='Arial, Helvetica, sans-serif'>Arial</option>
+                                    <option value='Verdana, Geneva, sans-serif'>Verdana</option>
+                                    <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
+                                    <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
+                                    <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
+                                    <option value='Georgia, serif'>Georgia (Serif)</option>
+                                    <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
+                                    <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
+                                </select>
+                            </div>
+                            <div class="font-size-option">
+                                <label for="cfgFontSizeBody" data-i18n-key="configTypography_labelSizeGeneral">Tamaño General (rem):</label>
+                                <div>
+                                    <input type="number" id="cfgFontSizeBody" data-var-size="--font-size-body" min="0.5" max="2" step="0.05" style="width: 60px;">
+                                    <span data-i18n-key="configTypography_unitRem">rem</span>
+                                </div>
+                            </div>
+
+                            <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleHeadingsMain">Encabezados Principales (H1, H2)</h4>
+                            <div class="font-option">
+                                <label for="cfgFontHeadingsMain" data-i18n-key="configTypography_labelFontHeadingsMain">Fuente:</label>
+                                <select id="cfgFontHeadingsMain" data-var="--font-headings-main">
+                                    <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
+                                    <option value='Arial, Helvetica, sans-serif'>Arial</option>
+                                    <option value='Verdana, Geneva, sans-serif'>Verdana</option>
+                                    <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
+                                    <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
+                                    <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
+                                    <option value='Georgia, serif'>Georgia (Serif)</option>
+                                    <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
+                                    <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
+                                </select>
+                            </div>
+                            <div class="font-size-option">
+                                <label for="cfgFontSizeHeadingsMain" data-i18n-key="configTypography_labelSizeHeadingsMain">Tamaño (rem):</label>
+                                <div>
+                                    <input type="number" id="cfgFontSizeHeadingsMain" data-var-size="--font-size-headings-main" min="1" max="4" step="0.1" style="width: 60px;">
+                                    <span data-i18n-key="configTypography_unitRem">rem</span>
+                                </div>
+                            </div>
+
+                            <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleHeadingsCard">Encabezados Secundarios (Tarjetas, etc.)</h4>
+                            <div class="font-option">
+                                <label for="cfgFontHeadingsCard" data-i18n-key="configTypography_labelFontHeadingsCard">Fuente:</label>
+                                <select id="cfgFontHeadingsCard" data-var="--font-headings-card">
+                                    <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
+                                    <option value='Arial, Helvetica, sans-serif'>Arial</option>
+                                    <option value='Verdana, Geneva, sans-serif'>Verdana</option>
+                                    <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
+                                    <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
+                                    <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
+                                    <option value='Georgia, serif'>Georgia (Serif)</option>
+                                    <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
+                                    <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
+                                </select>
+                            </div>
+                            <div class="font-size-option">
+                                <label for="cfgFontSizeHeadingsCard" data-i18n-key="configTypography_labelSizeHeadingsCard">Tamaño (rem):</label>
+                                <div>
+                                    <input type="number" id="cfgFontSizeHeadingsCard" data-var-size="--font-size-headings-card" min="0.8" max="2.5" step="0.05" style="width: 60px;">
+                                    <span data-i18n-key="configTypography_unitRem">rem</span>
+                                </div>
+                            </div>
+
+                            <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleUIElements">Elementos UI (Botones, Labels)</h4>
+                            <div class="font-option">
+                                <label for="cfgFontUi" data-i18n-key="configTypography_labelFontUI">Fuente:</label>
+                                <select id="cfgFontUi" data-var="--font-ui">
+                                    <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
+                                    <option value='Arial, Helvetica, sans-serif'>Arial</option>
+                                    <option value='Verdana, Geneva, sans-serif'>Verdana</option>
+                                    <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
+                                    <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
+                                    <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
+                                    <option value='Georgia, serif'>Georgia (Serif)</option>
+                                    <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
+                                    <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
+                                </select>
+                            </div>
+                            <div class="font-size-option">
+                                <label for="cfgFontSizeUi" data-i18n-key="configTypography_labelSizeUI">Tamaño UI (rem):</label>
+                                <div>
+                                    <input type="number" id="cfgFontSizeUi" data-var-size="--font-size-ui" min="0.7" max="1.5" step="0.05" style="width: 60px;">
+                                    <span data-i18n-key="configTypography_unitRem">rem</span>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                <div id="tab-profile" class="config-tab-panel">
+                    <fieldset class="config-section">
+                        <legend class="config-section-legend" data-i18n-key="configProfile_legendUserInfo">Información de Usuario</legend>
+                        <div class="profile-info-section" style="padding-bottom: 15px; border-bottom: 1px solid var(--clr-border); margin-bottom: 20px;">
+                            <p><strong data-i18n-key="configProfile_labelUsername">Nombre de Usuario:</strong> <span id="configProfileUsername">Cargando...</span></p>
+                            <p><strong data-i18n-key="configProfile_labelEmail">Correo Electrónico:</strong> <span id="configProfileEmail">Cargando...</span></p>
+                        </div>
+                    </fieldset>
+                    <fieldset class="config-section" style="margin-top: 1.5rem;">
+                        <legend class="config-section-legend" data-i18n-key="configProfile_legendChangePassword">Cambiar Contraseña</legend>
+                        <form id="configChangePasswordForm" novalidate>
+                            <div style="margin-bottom: 10px;">
+                                <label for="configCurrentPassword" style="display: block; margin-bottom: 5px; color: var(--clr-text-secondary);" data-i18n-key="configProfile_labelCurrentPassword">Contraseña Actual:</label>
+                                <input type="password" id="configCurrentPassword" name="currentPassword" required autocomplete="current-password" class="admin-input" style="margin-bottom:0;">
+                            </div>
+                            <div style="margin-bottom: 10px;">
+                                <label for="configNewPassword" style="display: block; margin-bottom: 5px; color: var(--clr-text-secondary);" data-i18n-key="configProfile_labelNewPassword">Nueva Contraseña:</label>
+                                <input type="password" id="configNewPassword" name="newPassword" required autocomplete="new-password" class="admin-input" style="margin-bottom:0;">
+                            </div>
+                            <div style="margin-bottom: 15px;">
+                                <label for="configConfirmNewPassword" style="display: block; margin-bottom: 5px; color: var(--clr-text-secondary);" data-i18n-key="configProfile_labelConfirmNewPassword">Confirmar Nueva Contraseña:</label>
+                                <input type="password" id="configConfirmNewPassword" name="confirmNewPassword" required autocomplete="new-password" class="admin-input" style="margin-bottom:0;">
+                            </div>
+                            <button type="submit" class="admin-button primary" style="width: auto; padding: 10px 20px;" data-i18n-key="configProfile_btnChangePassword">Cambiar Contraseña</button>
+                        </form>
+                        <div id="configChangePasswordMessage" class="auth-message" style="margin-top: 1rem; text-align:left;"></div>
+                    </fieldset>
+                </div>
+
+                <div id="tab-collections" class="config-tab-panel">
+                    <fieldset class="config-section">
+                        <legend class="config-section-legend" data-i18n-key="configCollections_legendExport">Exportar Mi Colección</legend>
+                        <p data-i18n-key="configCollections_pExportInfo">Guarda una copia de seguridad de tu colección de juegos en un archivo JSON.</p>
+                        <button type="button" id="exportCollectionBtn" class="admin-button primary">
+                            <img src="Imagenes/Guardar Configuracion.png" alt="" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;"> <span data-i18n-key="configCollections_btnExport">Exportar Colección</span>
+                        </button>
+                        <div id="exportStatusMessage" class="auth-message" style="margin-top: 1rem; text-align:left;"></div>
+                    </fieldset>
+            
+                    <fieldset class="config-section" style="margin-top: 1.5rem;">
+                        <legend class="config-section-legend" data-i18n-key="configCollections_legendImport">Importar Mi Colección</legend>
+                        <p data-i18n-key="configCollections_pImportWarning" data-i18n-mode="html"><strong>¡Atención!</strong> Importar un archivo puede añadir o actualizar juegos en tu colección actual según coincidan título y plataforma.</p>
+                        
+
+<div>
+                            <label style="display:block; margin-bottom:0.5rem;" data-i18n-key="configCollections_labelImportFile">Seleccionar archivo JSON:</label>
+                            <input type="file" id="importFile" accept=".json" style="display: none;">
+                            
+                            <button type="button" id="customImportFileButton" class="admin-button" style="margin-right: 10px;">
+                                <span data-i18n-key="configCollections_btnChooseFile">Elegir archivo...</span>
+                            </button>
+                            
+                            <span id="importFileStatus" data-i18n-key="configCollections_statusNoFileChosen">Ningún archivo seleccionado</span>
+                        </div>
+
+                        <button type="button" id="importCollectionBtn" class="admin-button primary" style="margin-top:1rem;" disabled> 
+                            <img src="Imagenes/Cargar Imagen.png" alt="" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;"> <span data-i18n-key="configCollections_btnImport">Importar Colección</span>
+                        </button>
+                        <div id="importStatusMessage" class="auth-message" style="margin-top: 1rem; text-align:left;"></div>
+                    </fieldset>
+                </div>
+
+                <div id="tab-admin" class="config-tab-panel">
+                    <fieldset class="config-section">
+                        <legend class="config-section-legend" data-i18n-key="configAdmin_legendUserManagement">Gestión de Usuarios del Sistema</legend>
+                
+                        <div class="admin-user-search-controls" style="margin-bottom: 1rem; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                            <input type="text" id="adminSearchUsername" class="admin-input" placeholder="Buscar por nombre de usuario..." style="flex-grow: 1; min-width: 180px; margin-bottom: 0;" data-i18n-key="configAdmin_inputSearchUsernamePlaceholder" data-i18n-target-attr="placeholder">
+                            <input type="text" id="adminSearchEmail" class="admin-input" placeholder="Buscar por correo electrónico..." style="flex-grow: 1; min-width: 180px; margin-bottom: 0;" data-i18n-key="configAdmin_inputSearchEmailPlaceholder" data-i18n-target-attr="placeholder">
+                            <button type="button" id="adminPerformUserSearchBtn" class="admin-button primary" style="flex-shrink: 0;">
+                                <img src="Imagenes/buscar filtrar y ordena_es.png" alt="Buscar" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px; filter: brightness(0) invert(1);" data-i18n-key="configAdmin_btnSearchImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnSearch">Buscar</span>
+                            </button>
+                            <button type="button" id="adminClearUserSearchBtn" class="admin-button secondary" style="flex-shrink: 0; display: none;">
+                                 <img src="Imagenes/Limpiar Filtro.png" alt="Limpiar Búsqueda" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnClearSearchImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnClearSearch">Limpiar</span>
+                            </button>
+                        </div>
+                
+                        <button type="button" id="loadUsersBtn" class="admin-button" style="margin-bottom: 1rem;">
+                            <img src="Imagenes/User.png" alt="Cargar/Refrescar Usuarios" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnLoadRefreshUsersImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnLoadRefreshUsers">Cargar Todos / Refrescar</span>
+                        </button>
+                        <div id="adminUserListContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--clr-border); border-radius: 4px; padding: 5px;">
+                            <p style="padding:10px; text-align:center;" data-i18n-key="configAdmin_pUserListPlaceholder">Realice una búsqueda o haga clic en "Cargar Todos / Refrescar" para ver la lista de usuarios.</p>
+                        </div>
+                    </fieldset>
+                
+                    <fieldset id="adminEditUserSection" class="config-section" style="margin-top: 1.5rem; display:none;">
+                        <legend class="config-section-legend"><span data-i18n-key="configAdmin_legendEditUser">Modificar Usuario: </span><span id="editingUserUsername" style="color: var(--clr-accent-1);"></span></legend>
+                        <input type="hidden" id="editingUserId">
+                        <div>
+                            <label for="editUserUsername" data-i18n-key="configAdmin_labelEditUsername">Nombre de usuario:</label>
+                            <input type="text" id="editUserUsername" class="admin-input">
+                        </div>
+                        <div>
+                            <label for="editUserEmail" data-i18n-key="configAdmin_labelEditEmail">Correo Electrónico:</label>
+                            <input type="email" id="editUserEmail" class="admin-input">
+                        </div>
+                        <div>
+                            <label for="editUserRole" data-i18n-key="configAdmin_labelEditRole">Rol de Usuario:</label>
+                            <select id="editUserRole" class="admin-input">
+                                <option value="user">user</option>
+                                <option value="admin">admin</option>
+                            </select>
+                        </div>
+                        <h4 class="config-subsection-title" style="margin-top:1rem; margin-bottom:0.5rem; font-size: 0.95em;" data-i18n-key="configAdmin_subtitleChangePasswordOptional">Cambiar Contraseña (Opcional)</h4>
+                        <div>
+                            <label for="editUserNewPassword" data-i18n-key="configAdmin_labelEditNewPassword">Nueva Contraseña:</label>
+                            <input type="password" id="editUserNewPassword" class="admin-input" placeholder="Dejar en blanco para no modificar" data-i18n-key="configAdmin_inputEditNewPasswordPlaceholder" data-i18n-target-attr="placeholder">
+                        </div>
+                        <div class="modal-buttons" style="justify-content: flex-start; margin-top: 1rem;">
+                            <button type="button" id="saveUserChangesBtn" class="admin-button primary">
+                                <img src="Imagenes/Actualizar Juego.png" alt="Guardar Cambios" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnSaveChangesImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnSaveChanges">Guardar Cambios</span>
+                            </button>
+                            <button type="button" id="cancelUserEditBtn" class="admin-button secondary" style="background-color: var(--clr-btn-s-bg);">
+                                <img src="Imagenes/Cancelar.png" alt="Cancelar Edición" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnCancelEditImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnCancelEdit">Cancelar</span>
+                            </button>
+                        </div>
+                    </fieldset>
+                    <fieldset class="config-section" style="margin-top: 1.5rem;">
+                        <legend class="config-section-legend" data-i18n-key="configAdmin_legendFileStats">Estadísticas de Archivos por Usuario</legend>
+                        <button type="button" id="adminViewFileStatsBtn" class="admin-button">
+                            <img src="Imagenes/Galeria Multimedia.png" alt="Icono Estadísticas" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnViewFileStatsImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnViewFileStats">Ver/Actualizar Estadísticas de Archivos</span>
+                        </button>
+                        <div id="adminFileStatsContainer" style="margin-top: 1rem; max-height: 300px; overflow-y: auto; border: 1px solid var(--clr-border); border-radius: 4px; padding: 5px;">
+                            <p style="padding:10px; text-align:center;" data-i18n-key="configAdmin_pFileStatsPlaceholder">Haga clic en el botón para cargar las estadísticas.</p>
+                            </div>
+                    </fieldset>
+                    <div id="adminUserMessage" class="auth-message" style="margin-top: 1rem; text-align:center;"></div>
+                </div> </form> </div> <div class="modal-buttons" style="border-top: 1px solid var(--clr-border); padding-top: 1rem; margin-top:1rem;">
+                <button id="saveConfigBtn" type="button" title="Guardar Cambios de Tema" data-i18n-key="configModal_btnSaveThemeTitle" data-i18n-target-attr="title">
+                    <img src="Imagenes/Guardar Configuracion.png" alt="Guardar Cambios de Tema" data-i18n-key="configModal_btnSaveThemeImgAlt" data-i18n-target-attr="alt">
+                </button>
+                <button id="resetConfigBtn" type="button" title="Restablecer Tema Predeterminado" data-i18n-key="configModal_btnResetThemeTitle" data-i18n-target-attr="title">
+                    <img src="Imagenes/Restablecer Predeterminados.png" alt="Restablecer Tema" data-i18n-key="configModal_btnResetThemeImgAlt" data-i18n-target-attr="alt">
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast-container"></div>
+
+    <script type="module" src="main.js"></script>
+    
+</body>
+</html>
