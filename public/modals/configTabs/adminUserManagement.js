@@ -72,7 +72,7 @@ function renderAdminUserList(users) {
                         <img src="imagenes/Editar Juego.png" alt="Editar" style="width:14px;height:14px;">
                     </button>
                     <button type="button" class="admin-button danger delete-admin-user-btn" data-userid="${escapeHtml(user._id)}" data-username="${escapeHtml(user.username)}" title="Eliminar Usuario">
-                        <img src="imagenes/eliminar seleccion.png" alt="Eliminar" style="width:14px;height:14px;">
+                        <img src="imagenes/Eliminar Seleccion.png" alt="Eliminar" style="width:14px;height:14px;">
                     </button>
                 </td>
             </tr>`;
