@@ -172,7 +172,7 @@ app.put('/api/admin/users/:id/plan', authMiddleware, isAdmin, async (req, res) =
 });
 							// <<< FIN DE LA NUEVA RUTA >>>
 
-//app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res) => {
+app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res) => {
     try {
         const allGames = await Game.find({}).populate('owner', 'username');
         if (!allGames) return res.json([]);
