@@ -93,7 +93,7 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocio
 
 
 
-//app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 //app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
 
