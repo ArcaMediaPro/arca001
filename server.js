@@ -85,10 +85,8 @@ app.use((req, res, next) => {
 });
 
 // --- RUTAS ---
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
-
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
 app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
 app.use('/api/auth', authRoutes); 
 app.use('/api/games', gameRoutes);
