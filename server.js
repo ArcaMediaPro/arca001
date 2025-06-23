@@ -33,6 +33,7 @@ const connectDB = async () => {
         process.exit(1);
     }
 };
+
 connectDB();
 
 const app = express();
@@ -83,17 +84,16 @@ app.use((req, res, next) => {
     next();
 });
 
-
-
-
 // --- RUTAS ---
-// 1. PRIMERO, definimos todas las rutas de la API que empiezan con /api
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
+
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
 app.use('/api/auth', authRoutes); 
 app.use('/api/games', gameRoutes);
 app.use('/api/collections', collectionRoutes); 
-app.use('/api/preferences', preferenceRoutes);
-
+app.use('/api/preferences', preferenceRoutes); 
 
 // --- RUTAS DE ADMINISTRADOR ---
 app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
@@ -188,17 +188,6 @@ app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res)
         res.json(statsArray);
     } catch (error) {
         res.status(500).json({ message: "Error del servidor al obtener las estadísticas." });
-    }
-});
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('*', (req, res) => {
-    // Si la ruta es /app, sirve la app principal, si no, sirve la página promocional.
-    if (req.path === '/app') {
-        res.sendFile(path.join(__dirname, 'public', 'index.html'));
-    } else {
-        res.sendFile(path.join(__dirname, 'public', 'promocional.html'));
     }
 });
 
