@@ -11,7 +11,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 
-const app = express();
+
 app.use(express.static('public'));
 
 // --- REQUIRES DE MODELOS Y RUTAS ---
@@ -41,7 +41,7 @@ const connectDB = async () => {
 
 connectDB();
 
-//const app = express();
+const app = express();
 //app.use(express.static('public'));
 
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
