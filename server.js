@@ -1,4 +1,4 @@
-// server.js (MODIFICADO PARA MOSTRAR promocional.html EN LA RAÍZ)
+// server.js (COMPLETO CON LA RUTA PARA CAMBIAR PLAN)
 
 require('dotenv').config();
 const express = require('express');
@@ -85,22 +85,9 @@ app.use((req, res, next) => {
 });
 
 // --- RUTAS ---
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
 
-// Sirve todos los archivos estáticos (CSS, JS del frontend, imágenes) desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
-
-// <<< INICIO DE LA MODIFICACIÓN >>>
-// La ruta principal '/' ahora servirá la página promocional.
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'promocional.html'));
-});
-
-// Para acceder a la aplicación principal (login), se deberá ir a '/app'
-app.get('/app', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-// <<< FIN DE LA MODIFICACIÓN >>>
-
 
 app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
 app.use('/api/auth', authRoutes); 
@@ -109,7 +96,7 @@ app.use('/api/collections', collectionRoutes);
 app.use('/api/preferences', preferenceRoutes); 
 
 // --- RUTAS DE ADMINISTRADOR ---
-app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => {
+app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
     try {
         const { username, email } = req.query;
         const filter = {};
@@ -126,11 +113,13 @@ app.put('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
+
         const { username, email, role, newPassword } = req.body;
         if (username) user.username = username;
         if (email) user.email = email.toLowerCase();
         if (role) user.role = role;
         if (newPassword) user.password = newPassword;
+
         const updatedUser = await user.save();
         const userObject = updatedUser.toObject();
         delete userObject.password;
@@ -146,6 +135,7 @@ app.delete('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => 
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
         if (user._id.equals(req.user.id)) return res.status(400).json({ message: 'No puedes eliminar tu propia cuenta.' });
+        
         await User.findByIdAndDelete(req.params.id);
         res.json({ message: 'Usuario eliminado correctamente.' });
     } catch (error) {
@@ -153,23 +143,30 @@ app.delete('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => 
     }
 });
 
+// <<< INICIO DE LA NUEVA RUTA PARA ACTUALIZAR PLANES >>>
 app.put('/api/admin/users/:id/plan', authMiddleware, isAdmin, async (req, res) => {
     const { id } = req.params;
     const { plan } = req.body;
     const allowedPlans = ['free', 'medium', 'premium'];
+
     if (!allowedPlans.includes(plan)) {
         return res.status(400).json({ message: 'Plan de suscripción inválido.' });
     }
+
     try {
         const user = await User.findById(id);
-        if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
         user.subscriptionPlan = plan;
         await user.save();
         res.json({ message: 'Plan de usuario actualizado correctamente.' });
     } catch (error) {
+        console.error("Error en PUT /api/admin/users/:id/plan:", error);
         res.status(500).json({ message: 'Error interno del servidor al actualizar el plan.' });
     }
 });
+// <<< FIN DE LA NUEVA RUTA >>>
 
 app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res) => {
     try {
