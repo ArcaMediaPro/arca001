@@ -96,12 +96,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //app.use('/api/auth', authRoutes);
  
-app.use('/api/games', gameRoutes);
-app.use('/api/collections', collectionRoutes); 
-app.use('/api/preferences', preferenceRoutes); 
+//app.use('/api/games', gameRoutes);
+//app.use('/api/collections', collectionRoutes); 
+//app.use('/api/preferences', preferenceRoutes); 
 
 								// --- RUTAS DE ADMINISTRADOR ---
-app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
+//app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
     try {
         const { username, email } = req.query;
         const filter = {};
@@ -114,7 +114,7 @@ app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => {
     }
 });
 
-app.put('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
+//app.put('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
@@ -135,7 +135,7 @@ app.put('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
     }
 });
 
-app.delete('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
+//app.delete('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
