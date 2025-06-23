@@ -125,7 +125,7 @@ body {
 
 /* Contenedor principal para el fondo extendido */
 main#promo-page-content {
-    background-image: url('Imagenes/Arcamedia Fondo.png');
+    background-image: url('imagenes/Arcamedia Fondo.png');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;

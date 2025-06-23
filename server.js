@@ -2,17 +2,12 @@
 
 require('dotenv').config();
 const express = require('express');
-
-
 const helmet = require('helmet');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
-
-
-app.use(express.static('public'));
 
 // --- REQUIRES DE MODELOS Y RUTAS ---
 mongoose.set('strictQuery', true);
@@ -42,7 +37,7 @@ const connectDB = async () => {
 connectDB();
 
 const app = express();
-//app.use(express.static('public'));
+
 
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
 app.use(helmet({
