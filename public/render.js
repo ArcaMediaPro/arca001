@@ -46,7 +46,7 @@ function createGameCard(game) {
     editButton.dataset.id = game._id;
     editButton.title = getText('gameCard_btnEditTitle');
     const editImg = document.createElement('img');
-    editImg.src = 'Imagenes/Editar Juego.png';
+    editImg.src = 'imagenes/Editar Juego.png';
     editImg.alt = getText('gameCard_btnEditImgAlt');
     editButton.appendChild(editImg);
     li.appendChild(editButton);
@@ -149,7 +149,7 @@ export function renderGameList(gamesToRender, append = false) {
 function generatePlatformLogoHtml(platformKey) {
     const translatedPlatform = getText(platformKey);
     let logoHtml = '';
-    const logoBasePath = 'Logos OS/';
+    const logoBasePath = 'logos-os/';
     const platformLogos = {
         'Amstrad': 'amstrad Logo.png', 'Apple Macintosh': 'MacOS Logo 1995.png',
         'Atari 2600': 'atari 2600 logo.png', 'Atari Jaguar': 'Atari Jaguar logo.png',
@@ -210,7 +210,7 @@ export function renderPlaceholderGames(count = 10) {
     const lang = getCurrentLanguage();
     const availablePlaceholderLangs = ['cn', 'de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'pt', 'ru'];
     const langToUse = availablePlaceholderLangs.includes(lang) ? lang : 'en';
-    const imageUrl = `Imagenes/placeholder-${langToUse}.png`;
+    const imageUrl = `imagenes/placeholder-${langToUse}.png`;
     for (let i = 0; i < count; i++) {
         const li = document.createElement('li');
         li.className = 'game-card-simple placeholder-card';
