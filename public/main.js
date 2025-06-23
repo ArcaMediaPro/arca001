@@ -119,7 +119,7 @@ function updateLocalizedImages(lang) {
     for (const [id, baseName] of Object.entries(imageMap)) {
         const imgElement = getElem(id, false);
         if (imgElement) {
-            const newSrc = `Imagenes/${baseName}_${lang}.png`;
+            const newSrc = `imagenes/${baseName}_${lang}.png`;
             imgElement.src = newSrc;
         }
     }
