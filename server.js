@@ -37,6 +37,7 @@ const connectDB = async () => {
 connectDB();
 
 const app = express();
+app.use(express.static('public'));
 
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
 app.use(helmet({
