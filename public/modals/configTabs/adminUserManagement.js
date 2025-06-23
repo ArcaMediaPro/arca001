@@ -69,10 +69,10 @@ function renderAdminUserList(users) {
                 <td data-label="Acciones">
                     <button type="button" class="admin-button primary btn-save-plan" data-userid="${escapeHtml(user._id)}" data-username="${escapeHtml(user.username)}" title="Guardar Plan">PLAN</button>
                     <button type="button" class="admin-button edit-admin-user-btn" data-userid="${escapeHtml(user._id)}" data-username="${escapeHtml(user.username)}" data-email="${escapeHtml(user.email)}" data-role="${escapeHtml(user.role)}" title="Editar Usuario">
-                        <img src="Imagenes/Editar Juego.png" alt="Editar" style="width:14px;height:14px;">
+                        <img src="imagenes/Editar Juego.png" alt="Editar" style="width:14px;height:14px;">
                     </button>
                     <button type="button" class="admin-button danger delete-admin-user-btn" data-userid="${escapeHtml(user._id)}" data-username="${escapeHtml(user.username)}" title="Eliminar Usuario">
-                        <img src="Imagenes/eliminar seleccion.png" alt="Eliminar" style="width:14px;height:14px;">
+                        <img src="imagenes/eliminar seleccion.png" alt="Eliminar" style="width:14px;height:14px;">
                     </button>
                 </td>
             </tr>`;
