@@ -32,6 +32,22 @@ node cleanupOrphans.js  ESTE SCRIPT SE UTILIZA PARA MANTENIMIENTO DE IMAGENES HU
 npm test
 
 
+# 1. Prepara todos los cambios
+git add .
 
+# 2. Guarda los cambios con un mensaje
+git commit -m "Verificar orden de rutas en server.js"
+
+# 3. Sube los cambios a GitHub
+git push origin main
+
+
+
+Agregar Directorio al raíz del Proyecto
+git add fonts/
+
+git commit -m "Añadir carpeta de fuentes"
+
+git push origin main
 
 
