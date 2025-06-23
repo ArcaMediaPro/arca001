@@ -57,9 +57,9 @@ app.use(helmet({
 app.use(cors({
     origin: function (origin, callback) {
         const allowedOriginsConfig = [
-            'http://localhost:5000',
-            'http://127.0.0.1:5000',
-            'http://localhost:5173',
+            //'http://localhost:5000',
+            //'http://127.0.0.1:5000',
+            //'http://localhost:5173',
             process.env.FRONTEND_URL
         ].filter(Boolean);
 
@@ -105,7 +105,7 @@ app.use('/api/preferences', preferenceRoutes);
 
 								// --- RUTAS DE ADMINISTRADOR ---
 
-//app.use('/api/admin', adminRoutes);
+app.use('/api/admin', adminRoutes);
 
 
 						// --- MANEJO DE ERRORES Y ARRANQUE ---
