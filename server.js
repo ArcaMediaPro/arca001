@@ -93,10 +93,11 @@ app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocio
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
 
-//app.use('/api/auth', authRoutes); 
-//app.use('/api/games', gameRoutes);
-//app.use('/api/collections', collectionRoutes); 
-//app.use('/api/preferences', preferenceRoutes); 
+app.use('/api/auth', authRoutes); 
+app.use('/api/games', gameRoutes);
+app.use('/api/collections', collectionRoutes); 
+
+app.use('/api/preferences', preferenceRoutes); 
 
 								// --- RUTAS DE ADMINISTRADOR ---
 //app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
