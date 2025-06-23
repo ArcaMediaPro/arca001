@@ -188,15 +188,15 @@ if (game.systemRequirements) {
         const iconStyle = 'width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;';
         
         // Estos campos usan getText() porque sus valores son claves de traducción. Esto es CORRECTO.
-        if (req.cpu) detailsHtml += `<li><img src="Imagenes/Cpu_icon.png" alt="${getText('gameDetail_alt_cpuIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_cpu')}:</strong> ${getText(req.cpu)}</li>`;
-        if (req.gfx) detailsHtml += `<li><img src="Imagenes/Video_icon.png" alt="${getText('gameDetail_alt_gpuIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_graphics')}:</strong> ${getText(req.gfx)}</li>`;
-        if (req.hdd) detailsHtml += `<li><img src="Imagenes/HDD_icon.png" alt="${getText('gameDetail_alt_hddIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_hdd')}:</strong> ${getText(req.hdd)}</li>`;
-        if (req.controller) detailsHtml += `<li><img src="Imagenes/Joy_icon.png" alt="${getText('gameDetail_alt_controllerIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_controller')}:</strong> ${getText(req.controller)}</li>`;
+        if (req.cpu) detailsHtml += `<li><img src="imagenes/Cpu_icon.png" alt="${getText('gameDetail_alt_cpuIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_cpu')}:</strong> ${getText(req.cpu)}</li>`;
+        if (req.gfx) detailsHtml += `<li><img src="imagenes/Video_icon.png" alt="${getText('gameDetail_alt_gpuIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_graphics')}:</strong> ${getText(req.gfx)}</li>`;
+        if (req.hdd) detailsHtml += `<li><img src="imagenes/HDD_icon.png" alt="${getText('gameDetail_alt_hddIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_hdd')}:</strong> ${getText(req.hdd)}</li>`;
+        if (req.controller) detailsHtml += `<li><img src="imagenes/Joy_icon.png" alt="${getText('gameDetail_alt_controllerIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_controller')}:</strong> ${getText(req.controller)}</li>`;
         
         // --- INICIO DE LA CORRECCIÓN ---
         // En estos campos de texto libre, eliminamos escapeHtml() para que '&' se vea bien.
-        if (req.memory) detailsHtml += `<li><img src="Imagenes/Mem_icon.png" alt="${getText('gameDetail_alt_ramIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_memory')}:</strong> ${req.memory}</li>`;
-        if (req.sound) detailsHtml += `<li><img src="Imagenes/Nota_icon.png" alt="${getText('gameDetail_alt_soundIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_sound')}:</strong> ${req.sound}</li>`;
+        if (req.memory) detailsHtml += `<li><img src="imagenes/Mem_icon.png" alt="${getText('gameDetail_alt_ramIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_memory')}:</strong> ${req.memory}</li>`;
+        if (req.sound) detailsHtml += `<li><img src="imagenes/Nota_icon.png" alt="${getText('gameDetail_alt_soundIcon')}" class="requirement-icon" style="${iconStyle}"><strong>${getText('gameDetail_label_sound')}:</strong> ${req.sound}</li>`;
         // --- FIN DE LA CORRECCIÓN ---
         
         detailsHtml += `</ul></div>`;
@@ -230,17 +230,17 @@ if (game.systemRequirements) {
                     case 'gameForm_format_diskette':
                         // --- INICIO DE CÓDIGO MODIFICADO ---
                         // Por defecto, usamos el ícono del disquete de 3.5"
-                        iconPath = 'Imagenes/disquete_icon.png';
+                        iconPath = 'imagenes/disquete_icon.png';
                         // Si la capacidad es de 5.25", cambiamos al ícono correspondiente
                         if (game.capacity === 'gameForm_capacity_dd360kb' || game.capacity === 'gameForm_capacity_hd12mb') {
-                            iconPath = 'Imagenes/disquete122_icon.png';
+                            iconPath = 'imagenes/disquete122_icon.png';
                         }
                         // --- FIN DE CÓDIGO MODIFICADO ---
                         altKey = 'gameDetail_alt_floppyIcon'; 
                         srTextKey = numericQuantity > 1 ? 'gameDetail_sr_floppies' : 'gameDetail_sr_floppy'; 
                         break;
-                    case 'gameForm_format_cd':       iconPath = 'Imagenes/cd_icon.png';       altKey = 'gameDetail_alt_cdIcon';    srTextKey = numericQuantity > 1 ? 'gameDetail_sr_cds'    : 'gameDetail_sr_cd';    break;
-                    case 'gameForm_format_dvd':      iconPath = 'Imagenes/dvd_icon.png';      altKey = 'gameDetail_alt_dvdIcon';   srTextKey = numericQuantity > 1 ? 'gameDetail_sr_dvds'   : 'gameDetail_sr_dvd';   break;
+                    case 'gameForm_format_cd':       iconPath = 'imagenes/cd_icon.png';       altKey = 'gameDetail_alt_cdIcon';    srTextKey = numericQuantity > 1 ? 'gameDetail_sr_cds'    : 'gameDetail_sr_cd';    break;
+                    case 'gameForm_format_dvd':      iconPath = 'imagenes/dvd_icon.png';      altKey = 'gameDetail_alt_dvdIcon';   srTextKey = numericQuantity > 1 ? 'gameDetail_sr_dvds'   : 'gameDetail_sr_dvd';   break;
                 }
                 if (iconPath) {
                     detailsHtml += `<div class="detail-quantity-container"><strong>${getText('gameDetail_label_quantity')}:</strong><div class="quantity-icons-wrapper">`;
