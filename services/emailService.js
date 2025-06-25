@@ -1,60 +1,43 @@
-// services/emailService.js
+// services/emailService.js (VERSIÓN FINAL PARA PRODUCCIÓN)
 const nodemailer = require('nodemailer');
 
-// Esta función crea una cuenta de prueba temporal en Ethereal
-const createTestAccount = async () => {
-    return new Promise((resolve, reject) => {
-        nodemailer.createTestAccount((err, account) => {
-            if (err) {
-                console.error('Failed to create a testing account. ' + err.message);
-                return reject(err);
-            }
-            console.log('>>> Cuenta de prueba de Ethereal creada exitosamente.');
-            resolve(account);
-        });
-    });
-};
-
 /**
- * Envía un correo electrónico usando una cuenta de prueba de Ethereal.
- * @param {object} options - Opciones del correo { to, subject, text, html }.
+ * Envía un correo electrónico usando las credenciales SMTP de producción
+ * configuradas en las variables de entorno.
+ * @param {object} options - Opciones del correo { to, subject, html }.
  */
-const sendEmail = async ({ to, subject, text, html }) => {
+const sendEmail = async ({ to, subject, html }) => {
     try {
-        const testAccount = await createTestAccount();
-
-        // --- BLOQUE ACTUALIZADO ---
+        // Se elimina la función createTestAccount(). Ahora se crea un transportador
+        // directamente con las variables de entorno que configuraste en Render.
         const transporter = nodemailer.createTransport({
-            host: testAccount.smtp.host,
-            port: testAccount.smtp.port,
-            secure: testAccount.smtp.secure,
+            host: process.env.SMTP_HOST,
+            port: parseInt(process.env.SMTP_PORT || '465', 10), // Usamos 465 por defecto
+            secure: parseInt(process.env.SMTP_PORT || '465', 10) === 465, // 'secure' es true si el puerto es 465
             auth: {
-                user: testAccount.user,
-                pass: testAccount.pass,
+                user: process.env.SMTP_USER, // El usuario SMTP de tu proveedor
+                pass: process.env.SMTP_PASS, // La contraseña SMTP (la de cPanel en tu caso)
             },
-            // --- INICIO: AÑADE ESTE BLOQUE PARA SOLUCIONAR EL ERROR ---
-            tls: {
-                // No rechazar certificados auto-firmados (para entornos de desarrollo/proxy)
-                rejectUnauthorized: false
-            }
-            // --- FIN: BLOQUE AÑADIDO ---
-        });
-        // --- FIN DEL BLOQUE ACTUALIZADO ---
-
-        let info = await transporter.sendMail({
-            from: '"Catalogador PRO (Pruebas)" <no-reply@catalogador.pro>',
-            to,
-            subject,
-            text,
-            html,
         });
 
-        console.log('>>> Correo de prueba enviado: %s', info.messageId);
-        // La siguiente línea es la más importante: te da el enlace para ver el correo.
-        console.log('>>> URL de previsualización: %s', nodemailer.getTestMessageUrl(info));
+        // Opciones del correo
+        const mailOptions = {
+            from: '"Catalogador PRO" <no-reply@arcamediapro.com>', // Un remitente profesional
+            to: to,
+            subject: subject,
+            html: html,
+        };
+
+        // Enviar el correo
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Correo real enviado con éxito. Message ID:', info.messageId);
+        
+        return { success: true, messageId: info.messageId };
 
     } catch (error) {
-        console.error('Error al enviar el correo de prueba:', error);
+        console.error('Error al enviar el correo real:', error);
+        // Devolvemos un objeto de error sin detener la aplicación
+        return { success: false, error: error };
     }
 };
 
