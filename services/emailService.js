@@ -15,8 +15,8 @@ const sendEmail = async ({ to, subject, html }) => {
             port: parseInt(process.env.SMTP_PORT || '465', 10), // Usamos 465 por defecto
             secure: parseInt(process.env.SMTP_PORT || '465', 10) === 465, // 'secure' es true si el puerto es 465
             auth: {
-                user: process.env.SMTP_USER, // El usuario SMTP de tu proveedor
-                pass: process.env.SMTP_PASS, // La contraseña SMTP (la de cPanel en tu caso)
+                user: 'contacto@arcamediapro.com', // El usuario SMTP de tu proveedor
+                pass: '19791983JaviSabri', // La contraseña SMTP (la de cPanel en tu caso)
             },
         });
 
