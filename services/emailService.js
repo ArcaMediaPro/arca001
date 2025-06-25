@@ -22,7 +22,7 @@ const sendEmail = async ({ to, subject, html }) => {
 
         // Opciones del correo
         const mailOptions = {
-            from: '"Catalogador PRO" <no-reply@arcamediapro.com>', // Un remitente profesional
+            from: '"Catalogador PRO" <contacto@arcamediapro.com>', // Un remitente profesional
             to: to,
             subject: subject,
             html: html,
