@@ -3,6 +3,7 @@
 import { loadTranslations, getText } from './i18n.js';
 // Importamos las funciones que necesitamos de authClient
 import { loginUser, registerUser, requestPasswordReset, displayAuthMessage, initAuthUI } from './authClient.js';
+
 /**
  * Actualiza todos los elementos del DOM que tienen una clave de traducción.
  */
@@ -59,8 +60,8 @@ const validatePassword = () => {
     let isValid = true;
 
     // 1. Validación de longitud mínima
-    if (pass.length > 0 && pass.length < 8) {
-        message = 'La contraseña debe tener al menos 8 caracteres.';
+    if (pass.length > 0 && pass.length < 7) {
+        message = 'La contraseña debe tener al menos 7 caracteres.';
         isValid = false;
     } 
     // 2. Validación de coincidencia (solo si ambos campos tienen texto)
@@ -98,7 +99,6 @@ registerForm?.addEventListener('submit', (e) => {
 });
 
 // --- FIN: Lógica de Validación de Contraseña ---
-
 
 
 
