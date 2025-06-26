@@ -151,8 +151,8 @@ function generatePlatformLogoHtml(platformKey) {
     let logoHtml = '';
     const logoBasePath = 'logos-os/';
     const platformLogos = {
-        'Amstrad': 'amstrad logo.png', 'Apple Macintosh': 'MacOS Logo 1995.png',
-        'Atari 2600': 'atari 2600 logo.png', 'Atari Jaguar': 'Atari Jaguar logo.png',
+        'Amstrad': 'Amstrad logo.png', 'Apple Macintosh': 'MacOS Logo 1995.png',
+        'Atari 2600': 'Atari 2600 logo.png', 'Atari Jaguar': 'Atari Jaguar logo.png',
         'Atari ST': 'Atari ST logo.png', 'Commodore 64': 'Commodore 64 logo.png',
         'Commodore AMIGA': 'Commodore Amiga logo.png', 'Game Gear': 'Game Gear logo.png',
         'Linux': 'linux logo.png', 'Microsoft X BOX': 'Microsoft Xbox logo.png',
@@ -175,7 +175,7 @@ function generatePlatformLogoHtml(platformKey) {
         'Sony PsP': 'PSP logo.png', 'Super Nintendo': 'Nintendo SNES logo.png',
         'Turbo 16 Grafx': 'Turbo Grafx logo.png', 'Windows 95': 'Microsoft Windows 95 logo.png',
         'Windows 98': 'Microsoft Windows 98 Logo.png', 'Windows Xp': 'Microsoft Windows Xp logo.png',
-        'Windows 10': 'Microsoft Windows 10 logo.png', 'ZX Spectrum': 'zx spectrum Logo.png',
+        'Windows 10': 'Microsoft Windows 10 Logo.png', 'ZX Spectrum': 'Zx Spectrum logo.png',
     };
     const multiPlatformLogos = {
         'PC DOS - Windows': [{ name: 'MS-DOS logo.png', title: 'PC DOS' }, { name: 'Microsoft Windows 95 logo.png', title: 'Windows' }],
