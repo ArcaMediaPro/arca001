@@ -46,94 +46,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+// --- INICIO: Lógica de Validación de Contraseña para el Registro ---
 
+const registerPasswordInput = document.getElementById('register-password');
+const registerPasswordConfirmInput = document.getElementById('register-password-confirm');
+const passwordValidationMessage = document.getElementById('password-validation-message');
+const registerSubmitBtn = document.getElementById('register-submit-btn');
 
+const validatePassword = () => {
+    const pass = registerPasswordInput.value;
+    const confirmPass = registerPasswordConfirmInput.value;
+    let message = '';
+    let isValid = true;
 
-// --- INICIO: Lógica de Validación y Envío para el Registro (Versión Robusta) ---
-
-document.addEventListener('DOMContentLoaded', () => {
-    // --- Selección de Elementos del DOM ---
-    const registerForm = document.getElementById('register-form');
-    const registerPasswordInput = document.getElementById('register-password');
-    const registerPasswordConfirmInput = document.getElementById('register-password-confirm');
-    const passwordValidationMessage = document.getElementById('password-validation-message');
-    const registerSubmitBtn = document.getElementById('register-submit-btn');
-    const authMessage = document.getElementById('auth-message'); // Mensaje general
-    const usernameInput = document.getElementById('register-username');
-
-    // --- Verificación de elementos esenciales ---
-    // Si falta alguno de los elementos clave, detenemos el script y avisamos en la consola.
-    if (!registerForm || !registerPasswordInput || !registerPasswordConfirmInput || !passwordValidationMessage || !registerSubmitBtn || !authMessage || !usernameInput) {
-        console.error("Error crítico: Uno o más elementos del formulario de registro no se encontraron en el DOM. El script no se ejecutará.");
-        return; // Detenemos la ejecución para prevenir más errores.
+    // 1. Validación de longitud mínima
+    if (pass.length > 0 && pass.length < 8) {
+        message = 'La contraseña debe tener al menos 8 caracteres.';
+        isValid = false;
+    } 
+    // 2. Validación de coincidencia (solo si ambos campos tienen texto)
+    else if (pass && confirmPass && pass !== confirmPass) {
+        message = 'Las contraseñas no coinciden.';
+        isValid = false;
     }
 
-    // --- Función para validar las contraseñas en tiempo real ---
-    const validatePasswords = () => {
-        const pass = registerPasswordInput.value;
-        const confirmPass = registerPasswordConfirmInput.value;
-        let message = '';
-        let passwordsAreValid = true;
+    // Mostrar u ocultar el mensaje
+    if (message) {
+        passwordValidationMessage.textContent = message;
+        passwordValidationMessage.className = 'auth-message error'; // Estilo de error
+        passwordValidationMessage.style.display = 'block';
+    } else {
+        passwordValidationMessage.style.display = 'none';
+    }
 
-        if (pass.length > 0 && pass.length < 7) {
-            message = 'La contraseña debe tener al menos 7 caracteres.';
-            passwordsAreValid = false;
-        } else if (pass && confirmPass && pass !== confirmPass) {
-            message = 'Las contraseñas no coinciden.';
-            passwordsAreValid = false;
-        }
+    // Habilitar o deshabilitar el botón de envío
+    registerSubmitBtn.disabled = !isValid;
+};
 
-        if (message) {
-            passwordValidationMessage.textContent = message;
-            passwordValidationMessage.style.display = 'block';
-        } else {
-            passwordValidationMessage.style.display = 'none';
-        }
+// Añadir listeners para que la validación ocurra mientras el usuario escribe
+registerPasswordInput?.addEventListener('keyup', validatePassword);
+registerPasswordConfirmInput?.addEventListener('keyup', validatePassword);
 
-        registerSubmitBtn.disabled = !passwordsAreValid || !pass || !confirmPass;
-    };
-
-    // --- Listeners para validación en tiempo real ---
-    registerPasswordInput.addEventListener('keyup', validatePasswords);
-    registerPasswordConfirmInput.addEventListener('keyup', validatePasswords);
-
-    // --- Manejador del envío del formulario ---
-    registerForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-        validatePasswords();
-
-        if (!registerSubmitBtn.disabled) {
-            handleSuccessfulRegistration();
-        } else {
-            console.warn("Envío bloqueado por validación fallida.");
-        }
-    });
-
-    // --- Función para manejar el proceso POST-registro ---
-    const handleSuccessfulRegistration = () => {
-        const username = usernameInput.value;
-
-        // 1. Mostrar estado de "cargando"
-        registerSubmitBtn.disabled = true;
-        registerSubmitBtn.textContent = 'Registrando...';
-        authMessage.style.display = 'none';
-
-        // 2. SIMULAMOS una llamada al servidor
-        setTimeout(() => {
-            // 3. Mostramos el mensaje de éxito en el div correcto
-            authMessage.textContent = `¡Gracias por registrarte, ${username}! Revisa tu correo para confirmar tu cuenta.`;
-            authMessage.className = 'auth-message success'; // Asignamos clase para estilos (ej. color verde)
-            authMessage.style.display = 'block';
-
-            // 4. Limpiamos y reseteamos el formulario
-            registerForm.reset();
-            passwordValidationMessage.style.display = 'none';
-            registerSubmitBtn.textContent = 'Crear Cuenta';
-            validatePasswords(); // Esto re-evaluará y deshabilitará el botón correctamente
-
-        }, 1000); // 1 segundo de espera
-    };
+// También podrías añadir esta lógica al 'submit' del formulario para una doble verificación
+const registerForm = document.getElementById('register-form');
+registerForm?.addEventListener('submit', (e) => {
+    // Re-valida una última vez antes de enviar
+    validatePassword();
+    if (registerSubmitBtn.disabled) {
+        e.preventDefault(); // Detiene el envío si el botón está deshabilitado
+        console.log("Envío de registro detenido por validación fallida.");
+    }
 });
+
+// --- FIN: Lógica de Validación de Contraseña ---
 
 
 
