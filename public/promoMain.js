@@ -43,6 +43,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+
+
+
+
+// --- INICIO: Lógica de Validación de Contraseña para el Registro ---
+
+const registerPasswordInput = document.getElementById('register-password');
+const registerPasswordConfirmInput = document.getElementById('register-password-confirm');
+const passwordValidationMessage = document.getElementById('password-validation-message');
+const registerSubmitBtn = document.getElementById('register-submit-btn');
+
+const validatePassword = () => {
+    const pass = registerPasswordInput.value;
+    const confirmPass = registerPasswordConfirmInput.value;
+    let message = '';
+    let isValid = true;
+
+    // 1. Validación de longitud mínima
+    if (pass.length > 0 && pass.length < 8) {
+        message = 'La contraseña debe tener al menos 8 caracteres.';
+        isValid = false;
+    } 
+    // 2. Validación de coincidencia (solo si ambos campos tienen texto)
+    else if (pass && confirmPass && pass !== confirmPass) {
+        message = 'Las contraseñas no coinciden.';
+        isValid = false;
+    }
+
+    // Mostrar u ocultar el mensaje
+    if (message) {
+        passwordValidationMessage.textContent = message;
+        passwordValidationMessage.className = 'auth-message error'; // Estilo de error
+        passwordValidationMessage.style.display = 'block';
+    } else {
+        passwordValidationMessage.style.display = 'none';
+    }
+
+    // Habilitar o deshabilitar el botón de envío
+    registerSubmitBtn.disabled = !isValid;
+};
+
+// Añadir listeners para que la validación ocurra mientras el usuario escribe
+registerPasswordInput?.addEventListener('keyup', validatePassword);
+registerPasswordConfirmInput?.addEventListener('keyup', validatePassword);
+
+// También podrías añadir esta lógica al 'submit' del formulario para una doble verificación
+const registerForm = document.getElementById('register-form');
+registerForm?.addEventListener('submit', (e) => {
+    // Re-valida una última vez antes de enviar
+    validatePassword();
+    if (registerSubmitBtn.disabled) {
+        e.preventDefault(); // Detiene el envío si el botón está deshabilitado
+        console.log("Envío de registro detenido por validación fallida.");
+    }
+});
+
+// --- FIN: Lógica de Validación de Contraseña ---
+
+
+
+
+
+
     // --- Lógica del Modal de Autenticación ---
     const authModal = document.getElementById('auth-modal-overlay');
     const closeModalBtn = document.getElementById('auth-modal-close');
