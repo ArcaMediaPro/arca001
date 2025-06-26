@@ -239,7 +239,7 @@ if (game.systemRequirements) {
                         altKey = 'gameDetail_alt_floppyIcon'; 
                         srTextKey = numericQuantity > 1 ? 'gameDetail_sr_floppies' : 'gameDetail_sr_floppy'; 
                         break;
-                    case 'gameForm_format_cd':       iconPath = 'imagenes/cd_icon.png';       altKey = 'gameDetail_alt_cdIcon';    srTextKey = numericQuantity > 1 ? 'gameDetail_sr_cds'    : 'gameDetail_sr_cd';    break;
+                    case 'gameForm_format_cd':       iconPath = 'imagenes/Cd_icon.png';       altKey = 'gameDetail_alt_cdIcon';    srTextKey = numericQuantity > 1 ? 'gameDetail_sr_cds'    : 'gameDetail_sr_cd';    break;
                     case 'gameForm_format_dvd':      iconPath = 'imagenes/dvd_icon.png';      altKey = 'gameDetail_alt_dvdIcon';   srTextKey = numericQuantity > 1 ? 'gameDetail_sr_dvds'   : 'gameDetail_sr_dvd';   break;
                 }
                 if (iconPath) {

@@ -151,9 +151,9 @@ function generatePlatformLogoHtml(platformKey) {
     let logoHtml = '';
     const logoBasePath = 'logos-os/';
     const platformLogos = {
-        'Amstrad': 'amstrad Logo.png', 'Apple Macintosh': 'MacOS Logo 1995.png',
+        'Amstrad': 'amstrad logo.png', 'Apple Macintosh': 'MacOS Logo 1995.png',
         'Atari 2600': 'atari 2600 logo.png', 'Atari Jaguar': 'Atari Jaguar logo.png',
-        'Atari ST': 'atari st logo.png', 'Commodore 64': 'commodore 64 logo.png',
+        'Atari ST': 'Atari ST logo.png', 'Commodore 64': 'Commodore 64 logo.png',
         'Commodore AMIGA': 'Commodore Amiga logo.png', 'Game Gear': 'Game Gear logo.png',
         'Linux': 'linux logo.png', 'Microsoft X BOX': 'Microsoft Xbox logo.png',
         'Microsoft X BOX 360': 'Microsoft Xbox 360 logo.png', 'Microsoft X BOX ONE': 'Microsoft Xbox ONE logo.png',
@@ -164,17 +164,17 @@ function generatePlatformLogoHtml(platformKey) {
         'Nintendo Game BOY Color': 'Nintendo GameBoy Color logo.png', 'Nintendo Game CUBE': 'Nintendo GameCube logo.png',
         'Nintendo NES': 'Nintendo NES logo.png', 'Nintendo Switch': 'Nintendo SWITCH logo.png',
         'Nintendo Switch 2': 'Nintendo SWITCH 2 logo.png', 'Nintendo Wii': 'Nintendo Wii logo.png',
-        'Nintendo Wii U': 'Nintendo Wii U logo.png', 'Panasonic 3DO': '3DO logo.png',
-        'PC DOS': 'MS-DOS logo.png', 'PC Engine': 'pc engine logo.png',
-        'Sega 32X': 'Sega 32x logo.png', 'Sega CD': 'sega cd logo.png',
-        'Sega Genesis': 'sega genesis logo.png', 'Sega Master System': 'Sega Master System logo.png',
-        'Sega Megadrive': 'sega mega drive logo.png', 'Sega Saturn': 'sega saturn logo.png',
+        'Nintendo Wii U': 'Nintendo Wii U logo.png', 'Panasonic 3DO': '3DO Logo.png',
+        'PC DOS': 'MS-DOS logo.png', 'PC Engine': 'PC Engine logo.png',
+        'Sega 32X': 'Sega 32x logo.png', 'Sega CD': 'Sega CD logo.png',
+        'Sega Genesis': 'Sega Genesis logo.png', 'Sega Master System': 'Sega Master System logo.png',
+        'Sega Megadrive': 'Sega Mega Drive logo.png', 'Sega Saturn': 'Sega Saturn logo.png',
         'Sony PS Vita': 'PS VITA logo.png', 'Sony Play Station 2': 'PS2 logo.png',
         'Sony PlayStation': 'PS1 logo.png', 'Sony PlayStation 3': 'PS3 logo.png',
         'Sony PlayStation 4': 'PS4 logo.png', 'Sony PlayStation 5': 'PS5 logo.png',
         'Sony PsP': 'PSP logo.png', 'Super Nintendo': 'Nintendo SNES logo.png',
-        'Turbo 16 Grafx': 'turbo grafx logo.png', 'Windows 95': 'Microsoft Windows 95 logo.png',
-        'Windows 98': 'Microsoft Windows 98 logo.png', 'Windows Xp': 'Microsoft Windows xp logo.png',
+        'Turbo 16 Grafx': 'Turbo Grafx logo.png', 'Windows 95': 'Microsoft Windows 95 logo.png',
+        'Windows 98': 'Microsoft Windows 98 Logo.png', 'Windows Xp': 'Microsoft Windows Xp logo.png',
         'Windows 10': 'Microsoft Windows 10 logo.png', 'ZX Spectrum': 'zx spectrum Logo.png',
     };
     const multiPlatformLogos = {
