@@ -49,20 +49,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// --- INICIO: Lógica de Validación y Envío para el Registro ---
+// --- INICIO: Lógica de Validación y Envío para el Registro (Versión Robusta) ---
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- Selección de Elementos del DOM ---
     const registerForm = document.getElementById('register-form');
-    if (!registerForm) return; // Si no estamos en la página del formulario, no hacer nada
-
     const registerPasswordInput = document.getElementById('register-password');
     const registerPasswordConfirmInput = document.getElementById('register-password-confirm');
     const passwordValidationMessage = document.getElementById('password-validation-message');
     const registerSubmitBtn = document.getElementById('register-submit-btn');
-    
-    // Obtenemos el contenedor de mensajes generales que ya existía en tu HTML
-    const authMessage = document.getElementById('auth-message');
+    const authMessage = document.getElementById('auth-message'); // Mensaje general
+    const usernameInput = document.getElementById('register-username');
+
+    // --- Verificación de elementos esenciales ---
+    // Si falta alguno de los elementos clave, detenemos el script y avisamos en la consola.
+    if (!registerForm || !registerPasswordInput || !registerPasswordConfirmInput || !passwordValidationMessage || !registerSubmitBtn || !authMessage || !usernameInput) {
+        console.error("Error crítico: Uno o más elementos del formulario de registro no se encontraron en el DOM. El script no se ejecutará.");
+        return; // Detenemos la ejecución para prevenir más errores.
+    }
 
     // --- Función para validar las contraseñas en tiempo real ---
     const validatePasswords = () => {
@@ -82,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (message) {
             passwordValidationMessage.textContent = message;
             passwordValidationMessage.style.display = 'block';
-            passwordValidationMessage.className = 'auth-message error'; // Estilo de error
         } else {
             passwordValidationMessage.style.display = 'none';
         }
@@ -91,48 +94,44 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Listeners para validación en tiempo real ---
-    registerPasswordInput?.addEventListener('keyup', validatePasswords);
-    registerPasswordConfirmInput?.addEventListener('keyup', validatePasswords);
+    registerPasswordInput.addEventListener('keyup', validatePasswords);
+    registerPasswordConfirmInput.addEventListener('keyup', validatePasswords);
 
     // --- Manejador del envío del formulario ---
     registerForm.addEventListener('submit', (event) => {
-        // SIEMPRE prevenimos el envío por defecto para manejarlo con JavaScript
-        event.preventDefault(); 
-        
-        // Hacemos una última validación
+        event.preventDefault();
         validatePasswords();
 
-        // Si el botón NO está deshabilitado, el formulario es válido y podemos proceder
         if (!registerSubmitBtn.disabled) {
             handleSuccessfulRegistration();
         } else {
-            console.error("Envío bloqueado. El formulario no es válido.");
+            console.warn("Envío bloqueado por validación fallida.");
         }
     });
 
     // --- Función para manejar el proceso POST-registro ---
     const handleSuccessfulRegistration = () => {
-        const username = document.getElementById('register-username').value;
+        const username = usernameInput.value;
 
-        // 1. Mostrar un estado de "cargando" para mejor experiencia de usuario
+        // 1. Mostrar estado de "cargando"
         registerSubmitBtn.disabled = true;
         registerSubmitBtn.textContent = 'Registrando...';
-        authMessage.style.display = 'none'; // Ocultar mensajes anteriores
+        authMessage.style.display = 'none';
 
-        // 2. SIMULAMOS una llamada al servidor (en un caso real, aquí iría fetch, axios, etc.)
+        // 2. SIMULAMOS una llamada al servidor
         setTimeout(() => {
-            // 3. Cuando el servidor responde "OK", mostramos el mensaje de éxito
-            authMessage.textContent = `¡Gracias por registrarte, ${username}! Te hemos enviado un correo de confirmación.`;
-            authMessage.className = 'auth-message success'; // Asignamos una clase para estilo de éxito (verde)
+            // 3. Mostramos el mensaje de éxito en el div correcto
+            authMessage.textContent = `¡Gracias por registrarte, ${username}! Revisa tu correo para confirmar tu cuenta.`;
+            authMessage.className = 'auth-message success'; // Asignamos clase para estilos (ej. color verde)
             authMessage.style.display = 'block';
 
-            // 4. Limpiamos el formulario y reseteamos el botón
+            // 4. Limpiamos y reseteamos el formulario
             registerForm.reset();
             passwordValidationMessage.style.display = 'none';
             registerSubmitBtn.textContent = 'Crear Cuenta';
-            // El botón seguirá deshabilitado por la función validatePasswords hasta que se empiece a escribir de nuevo
+            validatePasswords(); // Esto re-evaluará y deshabilitará el botón correctamente
 
-        }, 1500); // Simulamos una espera de 1.5 segundos
+        }, 1000); // 1 segundo de espera
     };
 });
 
