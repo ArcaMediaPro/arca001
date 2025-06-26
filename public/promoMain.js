@@ -31,6 +31,7 @@ const setLanguage = async (lang) => {
  * Lógica que se ejecuta cuando el DOM está completamente cargado.
  */
 document.addEventListener('DOMContentLoaded', () => {
+
     // --- Configuración de Idioma ---
     const langSelector = document.getElementById('language-selector');
     const savedLang = localStorage.getItem('userLanguage') || 'es';
@@ -42,8 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setLanguage(e.target.value);
         });
     }
-
-
 
 
 
