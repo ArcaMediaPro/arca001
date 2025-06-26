@@ -49,59 +49,92 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// --- Lógica de Validación de Contraseña para el Registro ---
+// --- INICIO: Lógica de Validación y Envío para el Registro ---
 
-// Seleccionamos los elementos del formulario de registro
-const registerPasswordInput = document.getElementById('register-password');
-const registerPasswordConfirmInput = document.getElementById('register-password-confirm');
-const passwordValidationMessage = document.getElementById('password-validation-message');
-const registerSubmitBtn = document.getElementById('register-submit-btn');
-const registerForm = document.getElementById('register-form');
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Selección de Elementos del DOM ---
+    const registerForm = document.getElementById('register-form');
+    if (!registerForm) return; // Si no estamos en la página del formulario, no hacer nada
 
-// Función para validar las contraseñas
-const validatePasswords = () => {
-    const pass = registerPasswordInput.value;
-    const confirmPass = registerPasswordConfirmInput.value;
-    let message = '';
-    let passwordsAreValid = true;
+    const registerPasswordInput = document.getElementById('register-password');
+    const registerPasswordConfirmInput = document.getElementById('register-password-confirm');
+    const passwordValidationMessage = document.getElementById('password-validation-message');
+    const registerSubmitBtn = document.getElementById('register-submit-btn');
+    
+    // Obtenemos el contenedor de mensajes generales que ya existía en tu HTML
+    const authMessage = document.getElementById('auth-message');
 
-    // 1. Validar que la contraseña principal tenga al menos 7 caracteres
-    if (pass.length > 0 && pass.length < 7) {
-        message = 'La contraseña debe tener al menos 7 caracteres.';
-        passwordsAreValid = false;
-    } 
-    // 2. Validar que las contraseñas coincidan (si ambos campos tienen texto)
-    else if (pass && confirmPass && pass !== confirmPass) {
-        message = 'Las contraseñas no coinciden.';
-        passwordsAreValid = false;
-    }
+    // --- Función para validar las contraseñas en tiempo real ---
+    const validatePasswords = () => {
+        const pass = registerPasswordInput.value;
+        const confirmPass = registerPasswordConfirmInput.value;
+        let message = '';
+        let passwordsAreValid = true;
 
-    // Mostrar u ocultar el mensaje de validación
-    if (message) {
-        passwordValidationMessage.textContent = message;
-        passwordValidationMessage.style.display = 'block';
-    } else {
-        passwordValidationMessage.style.display = 'none';
-    }
+        if (pass.length > 0 && pass.length < 7) {
+            message = 'La contraseña debe tener al menos 7 caracteres.';
+            passwordsAreValid = false;
+        } else if (pass && confirmPass && pass !== confirmPass) {
+            message = 'Las contraseñas no coinciden.';
+            passwordsAreValid = false;
+        }
 
-    // Habilitar o deshabilitar el botón de "Crear Cuenta"
-    // El botón solo se activa si la validación es correcta y ambos campos están llenos
-    registerSubmitBtn.disabled = !passwordsAreValid || !pass || !confirmPass;
-};
+        if (message) {
+            passwordValidationMessage.textContent = message;
+            passwordValidationMessage.style.display = 'block';
+            passwordValidationMessage.className = 'auth-message error'; // Estilo de error
+        } else {
+            passwordValidationMessage.style.display = 'none';
+        }
 
-// Añadimos listeners para que la validación ocurra en tiempo real al escribir
-registerPasswordInput?.addEventListener('keyup', validatePasswords);
-registerPasswordConfirmInput?.addEventListener('keyup', validatePasswords);
+        registerSubmitBtn.disabled = !passwordsAreValid || !pass || !confirmPass;
+    };
 
-// Prevenimos el envío del formulario si la validación final no es correcta
-registerForm?.addEventListener('submit', (event) => {
-    validatePasswords(); // Re-validamos por si acaso
-    if (registerSubmitBtn.disabled) {
-        event.preventDefault(); // Detenemos el envío del formulario
-        console.error("Intento de envío de formulario de registro bloqueado por validación fallida.");
-    }
+    // --- Listeners para validación en tiempo real ---
+    registerPasswordInput?.addEventListener('keyup', validatePasswords);
+    registerPasswordConfirmInput?.addEventListener('keyup', validatePasswords);
+
+    // --- Manejador del envío del formulario ---
+    registerForm.addEventListener('submit', (event) => {
+        // SIEMPRE prevenimos el envío por defecto para manejarlo con JavaScript
+        event.preventDefault(); 
+        
+        // Hacemos una última validación
+        validatePasswords();
+
+        // Si el botón NO está deshabilitado, el formulario es válido y podemos proceder
+        if (!registerSubmitBtn.disabled) {
+            handleSuccessfulRegistration();
+        } else {
+            console.error("Envío bloqueado. El formulario no es válido.");
+        }
+    });
+
+    // --- Función para manejar el proceso POST-registro ---
+    const handleSuccessfulRegistration = () => {
+        const username = document.getElementById('register-username').value;
+
+        // 1. Mostrar un estado de "cargando" para mejor experiencia de usuario
+        registerSubmitBtn.disabled = true;
+        registerSubmitBtn.textContent = 'Registrando...';
+        authMessage.style.display = 'none'; // Ocultar mensajes anteriores
+
+        // 2. SIMULAMOS una llamada al servidor (en un caso real, aquí iría fetch, axios, etc.)
+        setTimeout(() => {
+            // 3. Cuando el servidor responde "OK", mostramos el mensaje de éxito
+            authMessage.textContent = `¡Gracias por registrarte, ${username}! Te hemos enviado un correo de confirmación.`;
+            authMessage.className = 'auth-message success'; // Asignamos una clase para estilo de éxito (verde)
+            authMessage.style.display = 'block';
+
+            // 4. Limpiamos el formulario y reseteamos el botón
+            registerForm.reset();
+            passwordValidationMessage.style.display = 'none';
+            registerSubmitBtn.textContent = 'Crear Cuenta';
+            // El botón seguirá deshabilitado por la función validatePasswords hasta que se empiece a escribir de nuevo
+
+        }, 1500); // Simulamos una espera de 1.5 segundos
+    };
 });
-
 
 
 
