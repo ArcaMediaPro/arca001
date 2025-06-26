@@ -195,12 +195,6 @@ export function generateDisplayStars10(rating) {
     for (let i = 1; i <= 10; i++) {
         const isActive = i <= currentRating ? 'active' : '';
         starsHTML += `<label class="star-10 ${isActive}" title="${titleText}"></label>`;
-
-
-
-
-
     }
     return `<div class="rating-display-stars-10" aria-label="${ariaLabelText}">${starsHTML}</div>`;
 }
-
