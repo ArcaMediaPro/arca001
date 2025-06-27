@@ -40,7 +40,24 @@ document.addEventListener('DOMContentLoaded', () => {
         langSelector.addEventListener('change', (e) => {
             e.preventDefault();
             setLanguage(e.target.value);
-        });
+
+
+
+
+// --- INICIO: Lógica para los botones de los planes de precios ---
+const planButtons = document.querySelectorAll('.promo-price-plan button');
+
+planButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        // Sin importar en qué plan hagan clic, abrimos el modal de registro.
+        // La elección del plan se podría manejar después del registro.
+        showModal('register');
+    });
+});
+
+// --- FIN: Lógica para los botones de los planes de precios ---
+
+//});
 
 
 
@@ -97,12 +114,6 @@ registerForm?.addEventListener('submit', (e) => {
 });
 
 // --- FIN: Lógica de Validación de Contraseña ---
-
-
-
-
-
-
 
 
     }
