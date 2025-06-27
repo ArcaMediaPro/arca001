@@ -89,8 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let message = '';
         let isValid = true;
 
-        if (pass.length > 0 && pass.length < 8) { // Ajustado a 8 caracteres como en el HTML
-            message = 'La contraseña debe tener al menos 8 caracteres.';
+        if (pass.length > 0 && pass.length < 7) { // Ajustado a 7 caracteres como en el HTML
+            message = 'La contraseña debe tener al menos 7 caracteres.';
             isValid = false;
         } else if (pass && confirmPass && pass !== confirmPass) {
             message = 'Las contraseñas no coinciden.';
