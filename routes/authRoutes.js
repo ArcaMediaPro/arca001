@@ -1,4 +1,4 @@
-// routes/authRoutes.js (MODIFICADO)
+// routes/authRoutes.js (VERSIÓN FINAL, SEGURA Y ROBUSTA)
 
 const express = require('express');
 const router = express.Router();
@@ -8,7 +8,6 @@ const Game = require('../models/Game');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const authMiddleware = require('../middleware/auth');
-// --- MODIFICADO: Apuntamos a nuestro nuevo servicio de correo ---
 const { sendEmail } = require('../services/emailService');
 
 const PLAN_LIMITS = {
@@ -32,7 +31,8 @@ const DEFAULT_THEME_SETTINGS_BACKEND = {
     '--font-size-ui': '0.9'
 };
 
-// --- RUTA DE REGISTRO (MODIFICADA PARA VERIFICACIÓN POR EMAIL) ---
+
+// --- RUTA DE REGISTRO (CON TOKEN HASHEADO) ---
 router.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -40,28 +40,31 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Se requiere nombre de usuario, correo electrónico y contraseña.' });
         }
 
-        // Validar si el usuario o el correo ya existen
         const existingUser = await User.findOne({ $or: [{ email: email.toLowerCase() }, { username }] });
         if (existingUser) {
             return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya existe.' });
         }
         
-        // Crear instancia del nuevo usuario (la contraseña se hashea en el pre-save)
-        const newUser = new User({ username, email, password });
-
-        // Generar token de verificación
+        // <<< INICIO DE LA MEJORA DE SEGURIDAD >>>
+        // 1. Se crea un token legible para enviar en la URL del correo.
         const verificationToken = crypto.randomBytes(32).toString('hex');
-        newUser.emailVerificationToken = verificationToken;
 
+        // 2. Se crea una versión "hasheada" del token para guardar de forma segura en la base de datos.
+        const emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
+
+        // 3. Se guarda el usuario con el token hasheado.
+        const newUser = new User({ username, email, password, emailVerificationToken });
+        // <<< FIN DE LA MEJORA DE SEGURIDAD >>>
+        
         await newUser.save();
 
-        // Crear preferencias de usuario (se mantiene tu lógica)
         const defaultSettingsMap = new Map(Object.entries(DEFAULT_THEME_SETTINGS_BACKEND));
         const newPrefs = new UserPreferences({ user: newUser._id, themeSettings: defaultSettingsMap });
         await newPrefs.save();
 
-        // Enviar correo de verificación
-        const verificationURL = `http://${req.headers.host}/api/auth/verify-email/${verificationToken}`;
+        // Se usa la URL del frontend y el token sin hashear para el enlace del correo.
+        const verificationURL = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/verify-email.html?token=${verificationToken}`;
+        
         await sendEmail({
             to: newUser.email,
             subject: 'Verificación de Correo Electrónico - Catalogador PRO',
@@ -71,10 +74,7 @@ router.post('/register', async (req, res) => {
         res.status(201).json({ message: '¡Registro exitoso! Por favor, revisa tu correo para verificar tu cuenta.' });
 
     } catch (error) {
-        // Tu manejo de errores existente es bueno, lo mantenemos
-        if (error.code === 11000) {
-            return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya está en uso.' });
-        }
+        if (error.code === 11000) return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya está en uso.' });
         if (error.name === 'ValidationError') {
             let messages = Object.values(error.errors).map(val => val.message);
             return res.status(400).json({ message: messages.join('. ') });
@@ -84,74 +84,32 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// --- NUEVA RUTA: PARA MANEJAR EL LINK DE VERIFICACIÓN ---
+
+// --- RUTA: VERIFICACIÓN DE CORREO (CORREGIDA Y SEGURA) ---
 router.get('/verify-email/:token', async (req, res) => {
     try {
-        const user = await User.findOne({ emailVerificationToken: req.params.token });
+        // 1. Hashear el token que viene de la URL para poder buscarlo en la BD.
+        const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+
+        // 2. Buscar al usuario por el token hasheado y pedir explícitamente el campo.
+        const user = await User.findOne({ 
+            emailVerificationToken: hashedToken 
+        }).select('+emailVerificationToken');
 
         if (!user) {
+            // Esta página se puede personalizar creando un archivo `public/verification-result.html`
             return res.status(400).send('<h1>Token de verificación inválido o ya utilizado.</h1><p>Intenta registrarte de nuevo o iniciar sesión.</p>');
         }
 
         user.isVerified = true;
-        user.emailVerificationToken = undefined; // Limpiar el token
+        user.emailVerificationToken = undefined; // Limpiar el token para que no se pueda usar de nuevo
         await user.save();
 
-        // Puedes personalizar esta página de éxito como quieras
         res.send('<h1>¡Correo verificado con éxito!</h1><p>Tu cuenta ha sido activada. Ya puedes cerrar esta ventana e iniciar sesión en la aplicación.</p>');
         
     } catch (error) {
         console.error("Error en /verify-email:", error);
         res.status(500).send('<h1>Error del servidor durante la verificación.</h1>');
-    }
-});
-
-// --- RUTA DE INICIO DE SESIÓN (MODIFICADA PARA CHEQUEAR VERIFICACIÓN) ---
-router.post('/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        if (!username || !password) {
-            return res.status(400).json({ message: 'Se requiere nombre de usuario y contraseña.' });
-        }
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(401).json({ message: 'Credenciales inválidas.' });
-        }
-        
-        // --- ¡NUEVA COMPROBACIÓN! ---
-        if (!user.isVerified) {
-            return res.status(401).json({ message: 'Tu cuenta no ha sido verificada. Por favor, revisa el correo que te enviamos al registrarte.' });
-        }
-
-        const isMatch = await user.comparePassword(password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Credenciales inválidas.' });
-        }
-        // El resto de tu lógica de login es correcta y se mantiene...
-        const payload = { id: user._id, username: user.username, role: user.role, email: user.email, plan: user.subscriptionPlan };
-        const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.cookie('authToken', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', maxAge: 3600000, path: '/' });
-        const csrfTokenToUse = res.locals._csrfToken || req.cookies._csrfToken;
-        const gameCount = await Game.countDocuments({ owner: user._id });
-        const planLimit = PLAN_LIMITS[user.subscriptionPlan] || 0;
-        let userPrefsDoc = await UserPreferences.findOne({ user: user._id });
-        let userLanguage = userPrefsDoc?.language || 'es';
-        let themeSettingsToReturn = {};
-        if (userPrefsDoc && userPrefsDoc.themeSettings && userPrefsDoc.themeSettings.size > 0) {
-            themeSettingsToReturn = Object.fromEntries(userPrefsDoc.themeSettings);
-        } else {
-            themeSettingsToReturn = { ...DEFAULT_THEME_SETTINGS_BACKEND };
-            // (Tu lógica para crear/actualizar preferencias está bien)
-        }
-        res.status(200).json({
-            message: 'Login exitoso',
-            user: { id: user._id, username: user.username, email: user.email, role: user.role, planName: user.subscriptionPlan, gameCount: gameCount, planLimit: planLimit, language: userLanguage },
-            csrfToken: csrfTokenToUse,
-            themeSettings: themeSettingsToReturn
-        });
-    } catch (error) {
-        console.error('Error en /login:', error);
-        res.status(500).json({ message: 'Error en el inicio de sesión.' });
     }
 });
 
