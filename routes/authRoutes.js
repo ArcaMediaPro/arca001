@@ -31,7 +31,6 @@ const DEFAULT_THEME_SETTINGS_BACKEND = {
     '--font-size-ui': '0.9'
 };
 
-
 // --- RUTA DE REGISTRO (CON TOKEN HASHEADO) ---
 router.post('/register', async (req, res) => {
     try {
@@ -45,16 +44,12 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya existe.' });
         }
         
-        // <<< INICIO DE LA MEJORA DE SEGURIDAD >>>
         // 1. Se crea un token legible para enviar en la URL del correo.
         const verificationToken = crypto.randomBytes(32).toString('hex');
-
         // 2. Se crea una versión "hasheada" del token para guardar de forma segura en la base de datos.
         const emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-
         // 3. Se guarda el usuario con el token hasheado.
         const newUser = new User({ username, email, password, emailVerificationToken });
-        // <<< FIN DE LA MEJORA DE SEGURIDAD >>>
         
         await newUser.save();
 
@@ -86,32 +81,85 @@ router.post('/register', async (req, res) => {
 
 
 // --- RUTA: VERIFICACIÓN DE CORREO (CORREGIDA Y SEGURA) ---
-router.get('/verify-email/:token', async (req, res) => {
+// Ahora es POST para que el token vaya en el cuerpo de la petición.
+router.post('/verify-email', async (req, res) => { 
     try {
-        // 1. Hashear el token que viene de la URL para poder buscarlo en la BD.
-        const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
+        const { token } = req.body;
+        if (!token) {
+            return res.status(400).json({ message: 'Token de verificación no proporcionado.' });
+        }
 
-        // 2. Buscar al usuario por el token hasheado y pedir explícitamente el campo.
+        // Hashear el token que viene del frontend para poder buscarlo en la BD.
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+        // Buscar al usuario por el token hasheado y pedir explícitamente el campo.
         const user = await User.findOne({ 
             emailVerificationToken: hashedToken 
-        }).select('+emailVerificationToken');
+        }).select('+emailVerificationToken'); // <-- CORRECCIÓN CLAVE
 
         if (!user) {
-            // Esta página se puede personalizar creando un archivo `public/verification-result.html`
-            return res.status(400).send('<h1>Token de verificación inválido o ya utilizado.</h1><p>Intenta registrarte de nuevo o iniciar sesión.</p>');
+            return res.status(400).json({ message: 'Token de verificación inválido o ya utilizado.' });
         }
 
         user.isVerified = true;
-        user.emailVerificationToken = undefined; // Limpiar el token para que no se pueda usar de nuevo
+        user.emailVerificationToken = undefined;
         await user.save();
 
-        res.send('<h1>¡Correo verificado con éxito!</h1><p>Tu cuenta ha sido activada. Ya puedes cerrar esta ventana e iniciar sesión en la aplicación.</p>');
+        res.status(200).json({ message: '¡Correo verificado con éxito! Ya puedes iniciar sesión.' });
         
     } catch (error) {
         console.error("Error en /verify-email:", error);
-        res.status(500).send('<h1>Error del servidor durante la verificación.</h1>');
+        res.status(500).json({ message: 'Error del servidor durante la verificación.' });
     }
 });
+
+
+// --- RUTA DE INICIO DE SESIÓN ---
+router.post('/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Se requiere nombre de usuario y contraseña.' });
+        }
+        // Se añade .select('+password') para asegurar que se traiga la contraseña
+        const user = await User.findOne({ username }).select('+password');
+        if (!user) {
+            return res.status(401).json({ message: 'Credenciales inválidas.' });
+        }
+        
+        if (!user.isVerified) {
+            return res.status(401).json({ 
+                message: 'Tu cuenta no ha sido verificada. Por favor, revisa el correo que te enviamos.',
+                notVerified: true // Flag para que el frontend sepa qué mensaje mostrar
+            });
+        }
+
+        const isMatch = await user.comparePassword(password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'Credenciales inválidas.' });
+        }
+
+        const payload = { id: user._id, username: user.username, role: user.role, email: user.email, plan: user.subscriptionPlan };
+        const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.cookie('authToken', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', maxAge: 3600000 });
+        
+        const csrfTokenToUse = res.locals._csrfToken || req.cookies._csrfToken;
+        const gameCount = await Game.countDocuments({ owner: user._id });
+        const planLimit = PLAN_LIMITS[user.subscriptionPlan] || 0;
+        const userPrefsDoc = await UserPreferences.findOne({ user: user._id });
+        
+        res.status(200).json({
+            message: 'Login exitoso',
+            user: { id: user._id, username: user.username, email: user.email, role: user.role, planName: user.subscriptionPlan, gameCount, planLimit, language: userPrefsDoc?.language || 'es' },
+            csrfToken: csrfTokenToUse,
+            themeSettings: userPrefsDoc?.themeSettings ? Object.fromEntries(userPrefsDoc.themeSettings) : DEFAULT_THEME_SETTINGS_BACKEND
+        });
+    } catch (error) {
+        console.error('Error en /login:', error);
+        res.status(500).json({ message: 'Error en el inicio de sesión.' });
+    }
+});
+
 
 // El resto de tus rutas (/logout, /status, /request-password-reset, etc.) se mantienen como están,
 // ya que su lógica es sólida. El cambio en la importación de 'sendEmail' hará que la recuperación
