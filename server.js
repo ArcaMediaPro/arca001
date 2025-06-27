@@ -1,4 +1,4 @@
-// server.js (COMPLETO CON LA RUTA PARA CAMBIAR PLAN)
+// server.js (VERSIÓN FINAL, ORGANIZADA Y ROBUSTA)
 
 require('dotenv').config();
 const express = require('express');
@@ -9,17 +9,12 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 
-// --- REQUIRES DE MODELOS Y RUTAS ---
-mongoose.set('strictQuery', true);
-
-const User = require('./models/User');
-const Game = require('./models/Game');
-const UserPreferences = require('./models/UserPreferences');
-
+// --- REQUIRES DE RUTAS Y MIDDLEWARE ---
 const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const preferenceRoutes = require('./routes/preferenceRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // <-- AÑADIDO
 const authMiddleware = require('./middleware/auth');
 const isAdmin = require('./middleware/adminAuth');
 
@@ -33,11 +28,9 @@ const connectDB = async () => {
         process.exit(1);
     }
 };
-
 connectDB();
 
 const app = express();
-
 
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
 app.use(helmet({
@@ -50,7 +43,6 @@ app.use(helmet({
     },
   },
 }));
-
 app.use(cors({
     origin: function (origin, callback) {
         const allowedOriginsConfig = [
@@ -59,7 +51,6 @@ app.use(cors({
             'http://localhost:5173',
             process.env.FRONTEND_URL
         ].filter(Boolean);
-
         if (!origin || allowedOriginsConfig.includes(origin)) {
             callback(null, true);
         } else {
@@ -70,11 +61,9 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'X-CSRF-Token', 'Authorization']
 }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 app.use((req, res, next) => {
     let csrfToken = req.cookies._csrfToken;
     if (!csrfToken) {
@@ -95,7 +84,30 @@ app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
 app.use('/api/auth', authRoutes); 
 app.use('/api/games', gameRoutes);
 app.use('/api/collections', collectionRoutes); 
-app.use('/api/preferences', preferenceRoutes); 
+app.use('/api/preferences', preferenceRoutes);
+app.use('/api/admin', authMiddleware, isAdmin, adminRoutes); // <-- USAMOS EL NUEVO ARCHIVO 
+
+// 2. SERVIDOR DE ARCHIVOS ESTÁTICOS
+app.use(express.static(path.join(__dirname, 'public')));
+
+// 3. RUTAS "CATCH-ALL" PARA EL FRONTEND
+app.get('/app', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'main.html'));
+});
+
+app.get('/verify-email.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'verify-email.html'));
+});
+
+app.get('/reset-password.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'promocional.html'));
+});
+
+// <<< FIN: ESTRUCTURA DE RUTAS DEFINITIVA >>>
 
 // --- RUTAS DE ADMINISTRADOR ---
 app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
@@ -195,11 +207,11 @@ app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res)
 
 // --- MANEJO DE ERRORES Y ARRANQUE ---
 app.use((err, req, res, next) => {
+    console.error("Error no manejado:", err);
     res.status(err.status || 500).json({ message: err.message || 'Ocurrió un error inesperado.' });
 });
 
 const PORT = process.env.PORT || 5000;
-
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`>>> Servidor corriendo y escuchando en el puerto ${PORT}`);
 });
