@@ -209,9 +209,9 @@ app.get('/app', (req, res) => {
 });
 // <<< FIN: AÑADE ESTE BLOQUE >>>
 
-
+// --- Iniciar el servidor ---
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`>>> Servidor corriendo y escuchando en el puerto ${PORT}`);
 });
-
 module.exports = app;
