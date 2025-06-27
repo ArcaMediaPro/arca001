@@ -200,18 +200,8 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-
-/ <<< INICIO: AÑADE ESTE BLOQUE >>>
-// --- RUTA PARA SERVIR LA APLICACIÓN PRINCIPAL ---
-// Cuando un usuario navegue a /app, le enviaremos el archivo HTML principal.
-app.get('/app', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'main.html'));
-});
-// <<< FIN: AÑADE ESTE BLOQUE >>>
-
-// --- Iniciar el servidor ---
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`>>> Servidor corriendo y escuchando en el puerto ${PORT}`);
 });
+
 module.exports = app;
