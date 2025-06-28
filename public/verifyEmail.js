@@ -1,22 +1,18 @@
-// public/verifyEmail.js
+// public/verifyEmail.js (ACTUALIZADO PARA USAR POST)
 
 document.addEventListener('DOMContentLoaded', async () => {
     const messageContainer = document.getElementById('verification-container');
     
-    // Función para mostrar mensajes
     const showMessage = (title, text, showLoginButton = false) => {
         let buttonHtml = '';
         if (showLoginButton) {
-            // Apunta a /app, la ruta que definimos para la app principal
-            buttonHtml = `<a href="/app">Iniciar Sesión</a>`;
+            buttonHtml = `<a href="/app">Ir a Iniciar Sesión</a>`;
         }
         messageContainer.innerHTML = `<h1>${title}</h1><p>${text}</p>${buttonHtml}`;
     };
 
-    // 1. Mostrar un mensaje de "cargando" inicial
     showMessage('Verificando...', 'Estamos validando tu cuenta. Por favor, espera un momento.');
-
-    // 2. Extraer el token de la URL
+    
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
 
@@ -25,8 +21,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // 3. Enviar el token al backend usando un método POST
     try {
+        // <<< CAMBIO CLAVE: Ahora usamos fetch con método POST y enviamos el token en el cuerpo >>>
         const response = await fetch('/api/auth/verify-email', {
             method: 'POST',
             headers: {
