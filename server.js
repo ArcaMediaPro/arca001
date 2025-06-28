@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
+const adminRoutes = require('./routes/adminRoutes');
 
 // --- REQUIRES DE MODELOS Y RUTAS ---
 mongoose.set('strictQuery', true);
@@ -36,7 +37,7 @@ const connectDB = async () => {
 connectDB();
 
 const app = express();
-
+app.use('/api/admin', authMiddleware, isAdmin, adminRoutes);
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
