@@ -14,11 +14,9 @@ const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const preferenceRoutes = require('./routes/preferenceRoutes');
-const adminRoutes = require('./routes/adminRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // <-- AÑADIDO
 const authMiddleware = require('./middleware/auth');
 const isAdmin = require('./middleware/adminAuth');
-
-
 
 // --- CONEXIÓN A LA BASE DE DATOS ---
 const connectDB = async () => {
@@ -33,7 +31,6 @@ const connectDB = async () => {
 connectDB();
 
 const app = express();
-
 
 
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
@@ -77,41 +74,45 @@ app.use((req, res, next) => {
     res.locals._csrfToken = csrfToken;
     next();
 });
-
 // --- RUTAS ---
 //app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
 
 
 
-app.use(express.static(path.join(__dirname, 'public')));
+// 1. RUTAS DE LA API
 app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
-app.use('/api/auth', authRoutes); 
+app.use('/api/auth', authRoutes);
 app.use('/api/games', gameRoutes);
-app.use('/api/collections', collectionRoutes); 
+app.use('/api/collections', collectionRoutes);
 app.use('/api/preferences', preferenceRoutes);
-app.use('/api/admin', authMiddleware, isAdmin, adminRoutes); // <-- USAMOS EL NUEVO ARCHIVO 
+app.use('/api/admin', authMiddleware, isAdmin, adminRoutes); // <-- USAMOS EL NUEVO ARCHIVO
 
 // 2. SERVIDOR DE ARCHIVOS ESTÁTICOS
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 3. RUTAS "CATCH-ALL" PARA EL FRONTEND
+// Esta sección maneja todas las demás peticiones GET y sirve el HTML correspondiente.
+// Esto es crucial para que las rutas del lado del cliente funcionen bien.
 app.get('/app', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'main.html'));
+    res.sendFile(path.resolve(__dirname, 'public', 'main.html'));
 });
 
 app.get('/verify-email.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'verify-email.html'));
+    res.sendFile(path.resolve(__dirname, 'public', 'verify-email.html'));
 });
 
 app.get('/reset-password.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'reset-password.html'));
+    res.sendFile(path.resolve(__dirname, 'public', 'reset-password.html'));
 });
 
+// Cualquier otra ruta que no sea de la API o un archivo, servirá la página promocional.
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'promocional.html'));
+    res.sendFile(path.resolve(__dirname, 'public', 'promocional.html'));
 });
 
 // <<< FIN: ESTRUCTURA DE RUTAS DEFINITIVA >>>
+
+
 
 // --- RUTAS DE ADMINISTRADOR ---
 app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
