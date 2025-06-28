@@ -1,4 +1,4 @@
-// server.js (COMPLETO Y CON RUTAS REORGANIZADAS)
+// server.js (COMPLETO CON LA RUTA PARA CAMBIAR PLAN)
 
 require('dotenv').config();
 const express = require('express');
@@ -8,7 +8,6 @@ const mongoose = require('mongoose');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
-const adminRoutes = require('./routes/adminRoutes');
 
 // --- REQUIRES DE MODELOS Y RUTAS ---
 mongoose.set('strictQuery', true);
@@ -34,10 +33,12 @@ const connectDB = async () => {
         process.exit(1);
     }
 };
+
 connectDB();
 
 const app = express();
-app.use('/api/admin', authMiddleware, isAdmin, adminRoutes);
+
+
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
@@ -49,6 +50,7 @@ app.use(helmet({
     },
   },
 }));
+
 app.use(cors({
     origin: function (origin, callback) {
         const allowedOriginsConfig = [
@@ -57,6 +59,7 @@ app.use(cors({
             'http://localhost:5173',
             process.env.FRONTEND_URL
         ].filter(Boolean);
+
         if (!origin || allowedOriginsConfig.includes(origin)) {
             callback(null, true);
         } else {
@@ -67,9 +70,11 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'X-CSRF-Token', 'Authorization']
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
 app.use((req, res, next) => {
     let csrfToken = req.cookies._csrfToken;
     if (!csrfToken) {
@@ -80,16 +85,19 @@ app.use((req, res, next) => {
     next();
 });
 
-// <<< INICIO: ESTRUCTURA DE RUTAS CORREGIDA >>>
+// --- RUTAS ---
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
 
-// 1. RUTAS DE LA API (procesadas primero)
+
+
+app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
 app.use('/api/auth', authRoutes); 
 app.use('/api/games', gameRoutes);
 app.use('/api/collections', collectionRoutes); 
 app.use('/api/preferences', preferenceRoutes); 
 
-// 2. RUTAS DE ADMINISTRADOR (agrupadas con las de la API)
+// --- RUTAS DE ADMINISTRADOR ---
 app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
     try {
         const { username, email } = req.query;
@@ -102,15 +110,18 @@ app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor.' });
     }
 });
+
 app.put('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
+
         const { username, email, role, newPassword } = req.body;
         if (username) user.username = username;
         if (email) user.email = email.toLowerCase();
         if (role) user.role = role;
         if (newPassword) user.password = newPassword;
+
         const updatedUser = await user.save();
         const userObject = updatedUser.toObject();
         delete userObject.password;
@@ -120,27 +131,35 @@ app.put('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
         res.status(500).json({ message: 'Error interno del servidor al actualizar el usuario.' });
     }
 });
+
 app.delete('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
         if (user._id.equals(req.user.id)) return res.status(400).json({ message: 'No puedes eliminar tu propia cuenta.' });
+        
         await User.findByIdAndDelete(req.params.id);
         res.json({ message: 'Usuario eliminado correctamente.' });
     } catch (error) {
         res.status(500).json({ message: 'Error interno del servidor al eliminar el usuario.' });
     }
 });
+
+// <<< INICIO DE LA NUEVA RUTA PARA ACTUALIZAR PLANES >>>
 app.put('/api/admin/users/:id/plan', authMiddleware, isAdmin, async (req, res) => {
     const { id } = req.params;
     const { plan } = req.body;
     const allowedPlans = ['free', 'medium', 'premium'];
+
     if (!allowedPlans.includes(plan)) {
         return res.status(400).json({ message: 'Plan de suscripción inválido.' });
     }
+
     try {
         const user = await User.findById(id);
-        if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
         user.subscriptionPlan = plan;
         await user.save();
         res.json({ message: 'Plan de usuario actualizado correctamente.' });
@@ -149,6 +168,8 @@ app.put('/api/admin/users/:id/plan', authMiddleware, isAdmin, async (req, res) =
         res.status(500).json({ message: 'Error interno del servidor al actualizar el plan.' });
     }
 });
+// <<< FIN DE LA NUEVA RUTA >>>
+
 app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res) => {
     try {
         const allGames = await Game.find({}).populate('owner', 'username');
@@ -172,36 +193,13 @@ app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res)
     }
 });
 
-// 3. SERVIDOR DE ARCHIVOS ESTÁTICOS
-// Sirve CSS, JS del frontend, imágenes, etc., desde la carpeta 'public'.
-app.use(express.static(path.join(__dirname, 'public')));
-
-// 4. RUTAS "CATCH-ALL" PARA LAS PÁGINAS DEL FRONTEND
-// Cualquier otra petición GET que no sea de la API o un archivo, se maneja aquí.
-app.get('/app', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'public', 'main.html'));
-});
-app.get('/verify-email.html', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'public', 'verify-email.html'));
-});
-app.get('/reset-password.html', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'public', 'reset-password.html'));
-});
-// Cualquier otra ruta (*) sirve la página promocional. Debe ir al final.
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'public', 'promocional.html'));
-});
-
-// <<< FIN: ESTRUCTURA DE RUTAS CORREGIDA >>>
-
-
 // --- MANEJO DE ERRORES Y ARRANQUE ---
 app.use((err, req, res, next) => {
-    console.error("Error no manejado:", err);
     res.status(err.status || 500).json({ message: err.message || 'Ocurrió un error inesperado.' });
 });
 
 const PORT = process.env.PORT || 5000;
+
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`>>> Servidor corriendo y escuchando en el puerto ${PORT}`);
 });
