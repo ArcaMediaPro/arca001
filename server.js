@@ -14,9 +14,11 @@ const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const preferenceRoutes = require('./routes/preferenceRoutes');
-const adminRoutes = require('./routes/adminRoutes'); // <-- AÑADIDO
+const adminRoutes = require('./routes/adminRoutes');
 const authMiddleware = require('./middleware/auth');
 const isAdmin = require('./middleware/adminAuth');
+
+
 
 // --- CONEXIÓN A LA BASE DE DATOS ---
 const connectDB = async () => {
@@ -31,6 +33,8 @@ const connectDB = async () => {
 connectDB();
 
 const app = express();
+
+
 
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
 app.use(helmet({
@@ -75,7 +79,7 @@ app.use((req, res, next) => {
 });
 
 // --- RUTAS ---
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
+//app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
 
 
 
