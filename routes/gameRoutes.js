@@ -8,6 +8,7 @@ const { body, param, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const authMiddleware = require('../middleware/auth');
 const Game = require('../models/Game');
+const axios = require('axios');
 
 const {
     createGame,
@@ -330,5 +331,45 @@ router.put('/:id/screenshots',
     },
     deleteScreenshots 
 );
+
+					// --- INICIO: RUTA PARA BÚSQUEDA EXTERNA ---
+
+router.get('/search-external', authMiddleware, async (req, res) => {
+    const { query } = req.query;
+    if (!query) {
+        return res.status(400).json({ message: 'Se necesita un término de búsqueda.' });
+    }
+
+    const RAWG_API_KEY = process.env.RAWG_API_KEY;
+    if (!RAWG_API_KEY) {
+        return res.status(500).json({ message: 'La clave de API para el servicio de juegos no está configurada en el servidor.' });
+    }
+
+    try {
+        const url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=10`;
+        const response = await axios.get(url);
+
+        // Simplificamos los datos antes de enviarlos al frontend
+        const simplifiedResults = response.data.results.map(game => ({
+            id: game.id,
+            name: game.name,
+            released: game.released,
+            background_image: game.background_image,
+            platforms: game.platforms.map(p => p.platform.name),
+            genres: game.genres.map(g => g.name),
+            // Guardamos los desarrolladores y distribuidores para el autocompletado
+            developers: game.developers?.map(d => d.name) || [],
+            publishers: game.publishers?.map(p => p.name) || []
+        }));
+
+        res.json(simplifiedResults);
+
+    } catch (error) {
+        console.error('Error al buscar juegos en la API externa:', error.message);
+        res.status(500).json({ message: 'Error al comunicarse con el servicio externo de búsqueda de juegos.' });
+    }
+});
+
+						// --- FIN: RUTA PARA BÚSQUEDA EXTERNA ---
 
 module.exports = router;
