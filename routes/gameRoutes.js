@@ -1,14 +1,15 @@
-// routes/gameRoutes.js (VERSIÓN COMPLETA Y FINAL PARA CLOUDINARY)
+// routes/gameRoutes.js (ACTUALIZADO CON BÚSQUEDA EN RAWG.IO)
+
 const express = require('express');
+const router = express.Router();
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../config/cloudinaryConfig'); // Importamos nuestra config de Cloudinary
-const router = express.Router();
+const cloudinary = require('../config/cloudinaryConfig');
 const { body, param, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
+const axios = require('axios'); // <-- Se importa la nueva librería
 const authMiddleware = require('../middleware/auth');
 const Game = require('../models/Game');
-
 const {
     createGame,
     getGameById,
@@ -179,6 +180,89 @@ const gameUploadFields = upload.fields([
     { name: 'backCover', maxCount: 1 },
     { name: 'screenshots', maxCount: 6 }
 ]);
+
+
+
+
+// ========================================================================
+// --- NUEVAS RUTAS PARA LA INTEGRACIÓN CON RAWG.IO ---
+// ========================================================================
+
+/**
+ * GET /api/games/search-external
+ * Busca juegos en la API de RAWG.io.
+ */
+router.get('/search-external', authMiddleware, async (req, res) => {
+    const { query } = req.query; // El término de búsqueda que envía el frontend
+    if (!query) {
+        return res.status(400).json({ message: 'Se necesita un término de búsqueda.' });
+    }
+
+    const RAWG_API_KEY = process.env.RAWG_API_KEY;
+    if (!RAWG_API_KEY) {
+        return res.status(500).json({ message: 'La clave de API para el servicio de juegos no está configurada en el servidor.' });
+    }
+
+    try {
+        const url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=10`;
+        const response = await axios.get(url);
+        
+        // Simplificamos los datos que enviamos al frontend
+        const simplifiedResults = response.data.results.map(game => ({
+            id: game.id,
+            name: game.name,
+            released: game.released,
+            background_image: game.background_image,
+            platforms: game.platforms.map(p => p.platform.name)
+        }));
+
+        res.json(simplifiedResults);
+
+    } catch (error) {
+        console.error('Error al buscar juegos en la API externa:', error.message);
+        res.status(500).json({ message: 'Error al comunicarse con el servicio externo de búsqueda de juegos.' });
+    }
+});
+
+
+/**
+ * GET /api/games/details-external/:id
+ * Obtiene los detalles completos de un juego específico desde la API de RAWG.io.
+ */
+router.get('/details-external/:id', authMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const RAWG_API_KEY = process.env.RAWG_API_KEY;
+
+    if (!RAWG_API_KEY) {
+        return res.status(500).json({ message: 'La clave de API no está configurada.' });
+    }
+
+    try {
+        const url = `https://api.rawg.io/api/games/${id}?key=${RAWG_API_KEY}`;
+        const response = await axios.get(url);
+        const gameDetails = response.data;
+
+        // Mapeamos los datos de RAWG al formato de nuestro formulario
+        const mappedData = {
+            title: gameDetails.name,
+            platform: gameDetails.platforms?.map(p => p.platform.name).join(', ') || '',
+            year: gameDetails.released ? new Date(gameDetails.released).getFullYear() : '',
+            developer: gameDetails.developers?.map(d => d.name).join(', ') || '',
+            publisher: gameDetails.publishers?.map(p => p.name).join(', ') || '',
+            genre: gameDetails.genres?.map(g => g.name).join(', ') || '',
+            cover: gameDetails.background_image || '' // La imagen principal de RAWG puede ser la carátula
+            // Otros campos se pueden dejar en blanco para que el usuario los complete
+        };
+
+        res.json(mappedData);
+
+    } catch (error) {
+        console.error(`Error al obtener detalles del juego ${id}:`, error.message);
+        res.status(500).json({ message: 'Error al obtener los detalles del juego desde el servicio externo.' });
+    }
+});
+
+
 
 
 // --- Definición de Rutas CRUD ---
