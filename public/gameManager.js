@@ -115,13 +115,11 @@ export function initGameManager() {
     loanDetailsContainerElement = getElem('loanDetailsContainer', false);
     loanedToInputElement = getElem('loanedTo', false);
     loanDateInputElement = getElem('loanDate', false);
-    setupExternalSearch();
     infiniteScrollLoaderElement = getElem('infiniteScrollLoader', false);
 if (addGameBtnElement) {
         addGameBtnElement.addEventListener('click', () => {
             clearAndResetGameForm();
             openGameFormModalCallback(false);
-
         });
     }
     if (deleteSelectedBtnElement) {
@@ -201,113 +199,6 @@ if (addGameBtnElement) {
         }
     });
 }
-
-
-
-
-
-// =============================================================
-// === LÓGICA PARA LA BÚSQUEDA DE JUEGOS EXTERNOS (AÑADIR ESTE BLOQUE) ===
-// =============================================================
-
-function setupExternalSearch() {
-    const searchButton = getElem('external-game-search-button', false);
-    const searchInput = getElem('external-game-search-input', false);
-    if (!searchButton || !searchInput) return;
-
-    searchButton.addEventListener('click', performExternalSearch);
-    searchInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            performExternalSearch();
-        }
-    });
-}
-
-async function performExternalSearch() {
-    const searchInput = getElem('external-game-search-input');
-    const query = searchInput.value.trim();
-    if (!query) {
-        notificationService.warn('Por favor, ingresa un título para buscar.');
-        return;
-    }
-    const loadingIndicator = getElem('search-loading-indicator');
-    const resultsContainer = getElem('external-search-results');
-    loadingIndicator.style.display = 'block';
-    resultsContainer.innerHTML = '';
-    try {
-        const results = await gameService.searchExternalGames(query);
-        renderExternalSearchResults(results);
-    } catch (error) {
-        notificationService.error(error.message);
-    } finally {
-        loadingIndicator.style.display = 'none';
-    }
-}
-
-function renderExternalSearchResults(results) {
-    const resultsContainer = getElem('external-search-results');
-    if (!results || results.length === 0) {
-        resultsContainer.innerHTML = '<p>No se encontraron resultados.</p>';
-        return;
-    }
-    const resultList = document.createElement('ul');
-    resultList.className = 'search-result-list';
-    results.forEach(game => {
-        const li = document.createElement('li');
-        li.className = 'search-result-item';
-        li.dataset.id = game.id;
-        li.innerHTML = `
-            <img src="${game.background_image || 'imagenes/placeholder_box.png'}" alt="Cover de ${escapeHtml(game.name)}">
-            <div class="result-info">
-                <strong>${escapeHtml(game.name)}</strong>
-                <span>(${game.released ? game.released.split('-')[0] : 'N/A'})</span>
-            </div>
-        `;
-        li.addEventListener('click', () => selectExternalGame(game.id));
-        resultList.appendChild(li);
-    });
-    resultsContainer.innerHTML = '';
-    resultsContainer.appendChild(resultList);
-}
-
-async function selectExternalGame(gameId) {
-    notificationService.info('Obteniendo detalles del juego...', null, 2000);
-    getElem('external-search-results').innerHTML = '';
-    try {
-        const gameDetails = await gameService.getExternalGameDetails(gameId);
-        // Rellenamos el formulario directamente
-        getElem('title').value = gameDetails.title || '';
-        getElem('year').value = gameDetails.year || '';
-        getElem('developer').value = gameDetails.developer || '';
-        getElem('publisher').value = gameDetails.publisher || '';
-        getElem('genre').value = gameDetails.genre || '';
-        const platformInput = getElem('platform');
-        if (platformInput && gameDetails.platform) {
-            const apiPlatforms = gameDetails.platform.toLowerCase();
-            let bestMatch = '';
-            for (let option of platformInput.options) {
-                if (apiPlatforms.includes(option.text.toLowerCase())) {
-                    bestMatch = option.value;
-                    break;
-                }
-            }
-            platformInput.value = bestMatch;
-        }
-        notificationService.success('¡Datos cargados! Revisa y completa los campos restantes.');
-    } catch (error) {
-        notificationService.error(error.message);
-    }
-}
-
-
-
-
-
-
-
-
-
 
 
 function handleIsLoanedChangeInManager() {

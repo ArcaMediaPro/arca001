@@ -1,18 +1,23 @@
-// routes/gameRoutes.js (VERSIÓN FINAL CON BÚSQUEDA EXTERNA)
-
+// routes/gameRoutes.js (VERSIÓN COMPLETA Y FINAL PARA CLOUDINARY)
 const express = require('express');
-const router = express.Router();
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
-const cloudinary = require('../config/cloudinaryConfig');
-const { body, param } = require('express-validator');
+const cloudinary = require('../config/cloudinaryConfig'); // Importamos nuestra config de Cloudinary
+const router = express.Router();
+const { body, param, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
-const axios = require('axios'); // Asegúrate de haber hecho 'npm install axios'
 const authMiddleware = require('../middleware/auth');
 const Game = require('../models/Game');
-const { createGame, getGameById, updateGame, deleteGame, deleteScreenshots } = require('../controllers/gameController');
 
-				// ... (Tu función slugify y la configuración de multer)
+const {
+    createGame,
+    getGameById,
+    updateGame,
+    deleteGame,
+    deleteScreenshots
+} = require('../controllers/gameController');
+
+
 function slugify(text) {
     if (!text) return 'sin-titulo';
     return text
@@ -28,7 +33,7 @@ function slugify(text) {
 
 
 
-			// --- NUEVA Configuración de Multer con CloudinaryStorage ---
+// --- NUEVA Configuración de Multer con CloudinaryStorage ---
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: async (req, file) => {
@@ -67,7 +72,8 @@ const storage = new CloudinaryStorage({
             // 4. Se crea el public_id final, que ahora es válido y muy descriptivo.
             public_id: `${fileName}-${uniqueSuffix}`
         };
-     },
+        // --- FIN DE LA CORRECCIÓN ---
+    },
 });
 
 const fileFilter = (req, file, cb) => {
@@ -84,69 +90,8 @@ const upload = multer({
     fileFilter: fileFilter,
 });
 
+
 // --- FIN DE LA NUEVA CONFIGURACIÓN ---
-
-
-
-// ========================================================================
-// === INICIO: NUEVAS RUTAS PARA LA INTEGRACIÓN CON RAWG.IO ===
-// ========================================================================
-
-// GET /api/games/search-external -> Busca juegos en la API de RAWG.io.
-router.get('/search-external', authMiddleware, async (req, res) => {
-    const { query } = req.query;
-    if (!query) {
-        return res.status(400).json({ message: 'Se necesita un término de búsqueda.' });
-    }
-    const RAWG_API_KEY = process.env.RAWG_API_KEY;
-    if (!RAWG_API_KEY) {
-        return res.status(500).json({ message: 'La clave de API para el servicio de juegos no está configurada en el servidor.' });
-    }
-    try {
-        const url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=10`;
-        const response = await axios.get(url);
-        
-        const simplifiedResults = response.data.results.map(game => ({
-            id: game.id,
-            name: game.name,
-            released: game.released,
-            background_image: game.background_image
-        }));
-        res.json(simplifiedResults);
-    } catch (error) {
-        console.error('Error al buscar juegos en la API externa:', error.message);
-        res.status(500).json({ message: 'Error al comunicarse con el servicio externo.' });
-    }
-});
-
-// GET /api/games/details-external/:id -> Obtiene los detalles de un juego desde RAWG.io.
-router.get('/details-external/:id', authMiddleware, async (req, res) => {
-    const { id } = req.params;
-    const RAWG_API_KEY = process.env.RAWG_API_KEY;
-    if (!RAWG_API_KEY) {
-        return res.status(500).json({ message: 'La clave de API no está configurada.' });
-    }
-    try {
-        const url = `https://api.rawg.io/api/games/${id}?key=${RAWG_API_KEY}`;
-        const response = await axios.get(url);
-        const gameDetails = response.data;
-        // Mapeamos los datos de RAWG al formato que nuestro formulario entiende
-        const mappedData = {
-            title: gameDetails.name || '',
-            platform: gameDetails.platforms?.map(p => p.platform.name).join(', ') || '',
-            year: gameDetails.released ? new Date(gameDetails.released).getFullYear() : '',
-            developer: gameDetails.developers?.map(d => d.name).join(', ') || '',
-            publisher: gameDetails.publishers?.map(p => p.name).join(', ') || '',
-            genre: gameDetails.genres?.map(g => g.name).join(', ') || '',
-        };
-        res.json(mappedData);
-    } catch (error) {
-        console.error(`Error al obtener detalles del juego ${id}:`, error.message);
-        res.status(500).json({ message: 'Error al obtener los detalles del juego.' });
-    }
-});
-
-
 
 
 // --- Middleware para verificar el token CSRF (Tu código original) ---
@@ -385,29 +330,5 @@ router.put('/:id/screenshots',
     },
     deleteScreenshots 
 );
-
-// --- INICIO: RUTA PARA BÚSQUEDA EXTERNA ---
-router.get('/search-external', authMiddleware, async (req, res) => {
-    const { query } = req.query;
-    if (!query) {
-        return res.status(400).json({ message: 'Se necesita un término de búsqueda.' });
-    }
-
-    const RAWG_API_KEY = process.env.RAWG_API_KEY;
-    if (!RAWG_API_KEY) {
-        return res.status(500).json({ message: 'La clave de API externa no está configurada.' });
-    }
-
-    try {
-        const url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=5`;
-        const response = await axios.get(url);
-        res.json(response.data.results); // Enviamos los resultados directamente
-
-    } catch (error) {
-        console.error('Error al buscar en API externa:', error.message);
-        res.status(500).json({ message: 'Error al comunicarse con el servicio externo.' });
-    }
-});
-// --- FIN: RUTA PARA BÚSQUEDA EXTERNA ---					
 
 module.exports = router;

@@ -340,18 +340,4 @@ export async function fetchAllUniqueGenres() {
     console.log(`>>> [gameService.js] Géneros únicos recibidos del backend: ${genres.length}`);
     return genres;
 }
-
-// DENTRO DE public/gameService.js (añadir al final)
-
-export async function searchExternalGames(query) {
-    const response = await fetchAuthenticated(`${API_BASE_URL}/games/search-external?query=${encodeURIComponent(query)}`);
-    if (!response.ok) throw new Error('Error al buscar juegos externamente.');
-    return response.json();
-}
-
-export async function getExternalGameDetails(gameId) {
-    const response = await fetchAuthenticated(`${API_BASE_URL}/games/details-external/${gameId}`);
-    if (!response.ok) throw new Error('Error al obtener los detalles del juego.');
-    return response.json();
-}
 // --- FIN: NUEVA FUNCIÓN PARA OBTENER TODOS LOS GÉNEROS ÚNICOS ---
