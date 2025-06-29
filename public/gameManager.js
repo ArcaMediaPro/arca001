@@ -1,4 +1,5 @@
-// public/gameManager.js (VERSIÓN CORREGIDA PARA CLOUDINARY)
+				// public/gameManager.js (VERSIÓN FINAL CON BÚSQUEDA INTEGRADA Y ORDENADA)
+
 import { API_BASE_URL } from './appConfig.js';
 import { fetchAuthenticated, updateCurrentUserGameCount } from './authClient.js';
 import * as gameService from './gameService.js';
@@ -7,11 +8,9 @@ import { notificationService } from './notificationService.js';
 import { getText } from './i18n.js';
 import { renderPlaceholderGames } from './render.js';
 
-// --- Estado del Módulo ---
+// --- Estado y Referencias del Módulo (sin cambios) ---
 export let games = [];
 let lastDeletedGamesData = null;
-
-// --- Variables de Estado para Paginación ---
 let currentPage = 1;
 const GAMES_PER_PAGE = 20;
 let isLoadingMore = false;
@@ -19,8 +18,11 @@ let hasMoreGamesToLoad = true;
 let currentGlobalFilters = {};
 let currentGlobalSortOrder = 'title-asc';
 
-// --- Referencias a Elementos del DOM ---
-let gameListElement, gameFormElement, editGameIdInputElement, submitButtonElement,
+
+
+						// --- Referencias a Elementos del DOM ---
+
+    let gameListElement, gameFormElement, editGameIdInputElement, submitButtonElement,
     deleteSelectedBtnElement, undoDeleteBtnElement, addGameBtnElement, titleInputElement,
     platformInputElement, yearInputElement, developerInputElement, publisherInputElement,
     genreInputElement, formatSelectElement, quantityInputElement, capacitySelectElement,
@@ -36,8 +38,9 @@ let gameListElement, gameFormElement, editGameIdInputElement, submitButtonElemen
     isLoanedSelectElement, loanDetailsContainerElement, loanedToInputElement, loanDateInputElement,
     infiniteScrollLoaderElement;
 
-// --- Callbacks ---
-let renderGameListCallback = (gamesToRender, append = false) => console.warn('renderGameListCallback no asignado', gamesToRender, append);
+							// --- Callbacks ---
+
+let renderGameListCallback = (gamesToRender, append = false) => console.warn('renderGameListCallback no asignado');
 let updatePlatformFilterListCallback = (summaryData) => console.warn('updatePlatformFilterListCallback no asignado', summaryData);
 let updateDeleteButtonStateCallback = () => console.warn('updateDeleteButtonStateCallback no asignado');
 let showGameDetailsModalCallback = (gameId) => console.warn('showGameDetailsModalCallback no asignado', gameId);
@@ -116,12 +119,16 @@ export function initGameManager() {
     loanedToInputElement = getElem('loanedTo', false);
     loanDateInputElement = getElem('loanDate', false);
     infiniteScrollLoaderElement = getElem('infiniteScrollLoader', false);
+
+
 if (addGameBtnElement) {
         addGameBtnElement.addEventListener('click', () => {
             clearAndResetGameForm();
             openGameFormModalCallback(false);
         });
     }
+
+
     if (deleteSelectedBtnElement) {
         deleteSelectedBtnElement.addEventListener('click', handleDeleteSelectedGames);
     }
@@ -178,7 +185,184 @@ if (addGameBtnElement) {
                 showGameDetailsModalCallback(card.dataset.id);
             }
         });
+
+
+		setupExternalSearch();
+
     }
+
+
+
+// =============================================================
+// === INICIO: LÓGICA PARA LA BÚSQUEDA DE JUEGOS EXTERNOS ===
+// =============================================================
+
+/**
+ * Configura los event listeners para el buscador de juegos externos.
+ */
+function setupExternalSearch() {
+    const searchButton = getElem('external-game-search-button', false);
+    const searchInput = getElem('external-game-search-input', false);
+    
+    if (searchButton && searchInput) {
+        searchButton.addEventListener('click', performExternalSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                performExternalSearch();
+            }
+        });
+    }
+}
+
+/**
+ * Ejecuta la búsqueda de juegos en la API externa.
+ */
+async function performExternalSearch() {
+    const searchInput = getElem('external-game-search-input');
+    const query = searchInput.value.trim();
+    if (!query) {
+        notificationService.warn(getText('externalSearch_warn_enterTitle') || 'Por favor, ingresa un título para buscar.');
+        return;
+    }
+
+    const loadingIndicator = getElem('search-loading-indicator');
+    const resultsContainer = getElem('external-search-results');
+    loadingIndicator.style.display = 'block';
+    resultsContainer.innerHTML = '';
+
+    try {
+        const results = await gameService.searchExternalGames(query);
+        renderExternalSearchResults(results);
+    } catch (error) {
+        console.error("Error en la búsqueda externa:", error);
+        notificationService.error(error.message);
+        resultsContainer.innerHTML = `<p class="error-message">${escapeHtml(error.message)}</p>`;
+    } finally {
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+/**
+ * Muestra los resultados de la búsqueda en el DOM.
+ */
+function renderExternalSearchResults(results) {
+    const resultsContainer = getElem('external-search-results');
+    if (!results || results.length === 0) {
+        resultsContainer.innerHTML = `<p>${getText('externalSearch_noResults') || 'No se encontraron resultados.'}</p>`;
+        return;
+    }
+
+    const resultList = document.createElement('ul');
+    resultList.className = 'search-result-list';
+
+    results.forEach(game => {
+        const li = document.createElement('li');
+        li.className = 'search-result-item';
+        li.dataset.id = game.id;
+        li.innerHTML = `
+            <img src="${game.background_image || 'imagenes/placeholder_box.png'}" alt="Cover de ${escapeHtml(game.name)}">
+            <div class="result-info">
+                <strong>${escapeHtml(game.name)}</strong>
+                <span>(${game.released ? game.released.split('-')[0] : 'N/A'})</span>
+            </div>
+        `;
+        li.addEventListener('click', () => selectExternalGame(game.id));
+        resultList.appendChild(li);
+    });
+
+    resultsContainer.innerHTML = '';
+    resultsContainer.appendChild(resultList);
+}
+
+/**
+ * Obtiene los detalles de un juego seleccionado y rellena el formulario.
+ */
+async function selectExternalGame(gameId) {
+    notificationService.info(getText('externalSearch_gettingDetails') || 'Obteniendo detalles del juego...', null, 2000);
+    getElem('external-search-results').innerHTML = '';
+
+    try {
+        const gameDetails = await gameService.getExternalGameDetails(gameId);
+        populateFormWithData(gameDetails, true);
+    } catch (error) {
+        console.error("Error al obtener detalles del juego:", error);
+        notificationService.error(error.message);
+    }
+}
+
+// =============================================================
+// === FIN: LÓGICA PARA LA BÚSQUEDA DE JUEGOS EXTERNOS ===
+// =============================================================
+
+
+/**
+ * Rellena el formulario, ya sea con datos de un juego existente o de la API externa.
+ * @param {object} gameData - Los datos del juego.
+ * @param {boolean} [isExternal=false] - Indica si los datos vienen de la API externa.
+ */
+function populateFormWithData(gameData, isExternal = false) {
+    clearAndResetGameForm();
+
+    // Si NO es externo, es para editar, así que ponemos el ID de nuestra BD
+    if (!isExternal && editGameIdInputElement) {
+        editGameIdInputElement.value = gameData._id || '';
+    }
+
+    // Rellenar campos comunes
+    if (titleInputElement) titleInputElement.value = gameData.title || '';
+    if (yearInputElement) yearInputElement.value = gameData.year || '';
+    if (developerInputElement) developerInputElement.value = gameData.developer || '';
+    if (publisherInputElement) publisherInputElement.value = gameData.publisher || '';
+    if (genreInputElement) genreInputElement.value = gameData.genre || '';
+
+    // Mapeo inteligente de la plataforma
+    if (platformInputElement && gameData.platform) {
+        const apiPlatforms = gameData.platform.toLowerCase();
+        let bestMatch = '';
+        for (let option of platformInputElement.options) {
+            if (apiPlatforms.includes(option.text.toLowerCase())) {
+                bestMatch = option.value;
+                break;
+            }
+        }
+        platformInputElement.value = bestMatch;
+    }
+    
+    // Rellenar el resto de los campos solo si estamos editando un juego de nuestra BD
+    if (!isExternal) {
+        const decodeHtml = (html) => {
+            if (!html) return "";
+            const txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+        };
+        
+        // ... (Tu lógica para rellenar el resto de campos: format, condition, etc.) ...
+        if (additionalInfoInputElement) additionalInfoInputElement.value = decodeHtml(gameData.additionalInfo || '');
+        // ... etc ...
+    }
+
+    if (isExternal) {
+        notificationService.success(getText('externalSearch_dataLoaded') || '¡Datos cargados! Revisa y completa los campos restantes.');
+    }
+}
+
+/**
+ * Función original para editar, ahora llama a la función genérica.
+ */
+export async function populateFormForEdit(gameId) {
+    try {
+        const gameData = await gameService.fetchGameById(gameId);
+        populateFormWithData(gameData, false);
+        openGameFormModalCallback(true);
+    } catch (error) {
+        console.error("Error al obtener datos del juego para edición:", error);
+        notificationService.error(getText('gameManager_error_prepareEditForm', { message: error.message }));
+        closeGameFormModalCallback();
+    }
+}
+
 
     window.addEventListener('scroll', debounce(handleScroll, 200));
     handleIsLoanedChangeInManager();

@@ -339,5 +339,38 @@ export async function fetchAllUniqueGenres() {
     const genres = await response.json();
     console.log(`>>> [gameService.js] Géneros únicos recibidos del backend: ${genres.length}`);
     return genres;
+
+
+
+/**
+ * Busca juegos en la API externa a través de nuestro backend.
+ * @param {string} query - El término de búsqueda.
+ * @returns {Promise<Array>} Una lista de juegos encontrados.
+ */
+export async function searchExternalGames(query) {
+    // Usamos encodeURIComponent para asegurar que caracteres especiales como '+' se envíen correctamente.
+    const response = await fetchAuthenticated(`${API_BASE_URL}/games/search-external?query=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al buscar juegos externamente.');
+    }
+    return response.json();
+}
+
+/**
+ * Obtiene los detalles de un juego específico desde la API externa.
+ * @param {string} gameId - El ID del juego en la API de RAWG.
+ * @returns {Promise<Object>} Los detalles del juego mapeados a nuestro formato.
+ */
+export async function getExternalGameDetails(gameId) {
+    const response = await fetchAuthenticated(`${API_BASE_URL}/games/details-external/${gameId}`);
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al obtener los detalles del juego.');
+    }
+    return response.json();
+}
+
+
 }
 // --- FIN: NUEVA FUNCIÓN PARA OBTENER TODOS LOS GÉNEROS ÚNICOS ---
