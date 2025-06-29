@@ -386,6 +386,28 @@ router.put('/:id/screenshots',
     deleteScreenshots 
 );
 
-					
+// --- INICIO: RUTA PARA BÚSQUEDA EXTERNA ---
+router.get('/search-external', authMiddleware, async (req, res) => {
+    const { query } = req.query;
+    if (!query) {
+        return res.status(400).json({ message: 'Se necesita un término de búsqueda.' });
+    }
+
+    const RAWG_API_KEY = process.env.RAWG_API_KEY;
+    if (!RAWG_API_KEY) {
+        return res.status(500).json({ message: 'La clave de API externa no está configurada.' });
+    }
+
+    try {
+        const url = `https://api.rawg.io/api/games?key=${RAWG_API_KEY}&search=${encodeURIComponent(query)}&page_size=5`;
+        const response = await axios.get(url);
+        res.json(response.data.results); // Enviamos los resultados directamente
+
+    } catch (error) {
+        console.error('Error al buscar en API externa:', error.message);
+        res.status(500).json({ message: 'Error al comunicarse con el servicio externo.' });
+    }
+});
+// --- FIN: RUTA PARA BÚSQUEDA EXTERNA ---					
 
 module.exports = router;
