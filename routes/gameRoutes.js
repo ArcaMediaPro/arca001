@@ -4,7 +4,6 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('../config/cloudinaryConfig'); // Importamos nuestra config de Cloudinary
 const router = express.Router();
-
 const { body, param, validationResult } = require('express-validator');
 const mongoose = require('mongoose');
 const authMiddleware = require('../middleware/auth');

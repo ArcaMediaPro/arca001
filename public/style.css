@@ -1644,3 +1644,59 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     height: auto;
     object-fit: contain;
 }
+
+/* --- Estilos para la Búsqueda Externa en el Modal --- */
+.search-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+#external-game-search-input {
+    flex-grow: 1;
+}
+.search-results-container {
+    margin-top: 1rem;
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid var(--clr-border);
+    border-radius: 4px;
+}
+.search-result-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--clr-border);
+}
+.search-result-item:last-child {
+    border-bottom: none;
+}
+.search-result-item:hover {
+    background-color: var(--clr-sidebar-hover-bg);
+}
+.search-result-item img {
+    width: 45px;
+    height: 60px;
+    object-fit: cover;
+    margin-right: 15px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    background-color: #1a1a1a;
+}
+.result-info {
+    overflow: hidden;
+}
+.result-info strong {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.result-info span {
+    font-size: 0.85em;
+    color: var(--clr-text-secondary);
+}

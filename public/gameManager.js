@@ -1,5 +1,4 @@
-// public/gameManager.js (VERSIÓN FINAL COMPLETA E INTEGRADA)
-
+// public/gameManager.js (VERSIÓN CORREGIDA PARA CLOUDINARY)
 import { API_BASE_URL } from './appConfig.js';
 import { fetchAuthenticated, updateCurrentUserGameCount } from './authClient.js';
 import * as gameService from './gameService.js';
@@ -65,7 +64,6 @@ export async function loadAndSetPlatformSummaries() {
 }
 
 export function initGameManager() {
-    // Referencias al DOM
     gameListElement = getElem('gameList');
     gameFormElement = getElem('gameForm', false);
     editGameIdInputElement = getElem('editGameId', false);
@@ -118,164 +116,90 @@ export function initGameManager() {
     loanedToInputElement = getElem('loanedTo', false);
     loanDateInputElement = getElem('loanDate', false);
     infiniteScrollLoaderElement = getElem('infiniteScrollLoader', false);
-    
-    // Asignación de Event Listeners
-    addGameBtnElement?.addEventListener('click', openAddGameWizard);
-    deleteSelectedBtnElement?.addEventListener('click', handleDeleteSelectedGames);
-    undoDeleteBtnElement?.addEventListener('click', handleUndoLastDeletion);
-    gameFormElement?.addEventListener('submit', handleGameFormSubmit);
-    coverInputElement?.addEventListener('change', () => previewImage(coverInputElement, coverPreviewElement));
-    backCoverInputElement?.addEventListener('change', () => previewImage(backCoverInputElement, backCoverPreviewElement));
-    screenshotsInputElement?.addEventListener('change', () => handleScreenshotPreview(screenshotsInputElement, screenshotsPreviewContainerElement));
-    formRatingStarsContainerElement && createFormStars(formRatingStarsContainerElement);
-    formatSelectElement?.addEventListener('change', handleFormatChangeInManager);
-    multiplayerInputElement?.addEventListener('change', handleMultiplayerChangeInManager);
-    platformInputElement?.addEventListener('change', updateCintaOptionStateInManager);
-    isLoanedSelectElement?.addEventListener('change', handleIsLoanedChangeInManager);
-    deleteSelectedScreenshotsBtnElement?.addEventListener('click', handleDeleteSelectedScreenshots);
-    gameListElement?.addEventListener('click', handleGameListClick);
-    window.addEventListener('scroll', debounce(handleScroll, 200));
+if (addGameBtnElement) {
+        addGameBtnElement.addEventListener('click', () => {
+            clearAndResetGameForm();
+            openGameFormModalCallback(false);
+        });
+    }
+    if (deleteSelectedBtnElement) {
+        deleteSelectedBtnElement.addEventListener('click', handleDeleteSelectedGames);
+    }
+    if (undoDeleteBtnElement) {
+        undoDeleteBtnElement.addEventListener('click', handleUndoLastDeletion);
+    }
+    if (gameFormElement) {
+        gameFormElement.addEventListener('submit', handleGameFormSubmit);
+    }
+    if (coverInputElement && coverPreviewElement) {
+        coverInputElement.addEventListener('change', () => previewImage(coverInputElement, coverPreviewElement));
+    }
+    if (backCoverInputElement && backCoverPreviewElement) {
+        backCoverInputElement.addEventListener('change', () => previewImage(backCoverInputElement, backCoverPreviewElement));
+    }
+    if (screenshotsInputElement && screenshotsPreviewContainerElement) {
+        screenshotsInputElement.addEventListener('change', () => handleScreenshotPreview(screenshotsInputElement, screenshotsPreviewContainerElement));
+    }
+    if (formRatingStarsContainerElement) {
+        createFormStars(formRatingStarsContainerElement);
+    }
+    if (formatSelectElement) {
+        formatSelectElement.addEventListener('change', handleFormatChangeInManager);
+    }
+    if (multiplayerInputElement) {
+        multiplayerInputElement.addEventListener('change', handleMultiplayerChangeInManager);
+    }
+    if (platformInputElement) {
+        platformInputElement.addEventListener('change', updateCintaOptionStateInManager);
+        updateCintaOptionStateInManager();
+    }
+    if (isLoanedSelectElement) {
+        isLoanedSelectElement.addEventListener('change', handleIsLoanedChangeInManager);
+    }
 
-    document.querySelectorAll('.custom-file-upload-btn').forEach(button => {
+    if (deleteSelectedScreenshotsBtnElement) {
+        deleteSelectedScreenshotsBtnElement.addEventListener('click', handleDeleteSelectedScreenshots);
+    }
+
+    if (gameListElement) {
+        gameListElement.addEventListener('click', (ev) => {
+            const editBtn = ev.target.closest('.btn-edit-game');
+            if (editBtn && editBtn.dataset.id) {
+                ev.stopPropagation();
+                populateFormForEdit(editBtn.dataset.id);
+                return;
+            }
+            if (ev.target.classList.contains('game-delete-checkbox')) {
+                updateDeleteButtonStateCallback();
+                return;
+            }
+            const card = ev.target.closest('.game-card-simple');
+            if (card && card.dataset.id && !editBtn) {
+                showGameDetailsModalCallback(card.dataset.id);
+            }
+        });
+    }
+
+    window.addEventListener('scroll', debounce(handleScroll, 200));
+    handleIsLoanedChangeInManager();
+
+    const uploadButtons = document.querySelectorAll('.custom-file-upload-btn');
+    uploadButtons.forEach(button => {
         if (!button.dataset.listenerAttached) {
             button.addEventListener('click', () => {
                 const targetInputId = button.dataset.targetInput;
-                if (targetInputId) document.getElementById(targetInputId)?.click();
+                if (targetInputId) {
+                    const targetInput = document.getElementById(targetInputId);
+                    if (targetInput) {
+                        targetInput.click();
+                    }
+                }
             });
             button.dataset.listenerAttached = 'true';
         }
     });
-
-    setupModalWizardListeners();
 }
 
-// --- LÓGICA DEL ASISTENTE DEL MODAL (NUEVO) ---
-
-function openAddGameWizard() {
-    clearAndResetGameForm();
-    showGameFormView('initial');
-    openGameFormModalCallback(false);
-}
-
-function showGameFormView(viewName) {
-    getElem('initial-view', false)?.style.setProperty('display', 'none');
-    getElem('external-search-view', false)?.style.setProperty('display', 'none');
-    getElem('manual-form-view', false)?.style.setProperty('display', 'none');
-    
-    const viewToShow = getElem(`${viewName}-view`, false);
-    if (viewToShow) {
-        viewToShow.style.setProperty('display', 'block');
-    }
-}
-
-function setupModalWizardListeners() {
-    getElem('show-manual-form-btn', false)?.addEventListener('click', () => showGameFormView('manual-form'));
-    getElem('show-external-search-btn', false)?.addEventListener('click', () => showGameFormView('external-search'));
-    
-    const searchButton = getElem('external-game-search-button', false);
-    const searchInput = getElem('external-game-search-input', false);
-    if (searchButton && searchInput) {
-        searchButton.addEventListener('click', performExternalSearch);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') { e.preventDefault(); performExternalSearch(); }
-        });
-    }
-}
-
-// --- LÓGICA DE BÚSQUEDA EXTERNA (NUEVO) ---
-
-async function performExternalSearch() {
-    const searchInput = getElem('external-game-search-input');
-    const query = searchInput.value.trim();
-    if (!query) {
-        notificationService.warn('Por favor, ingresa un título para buscar.');
-        return;
-    }
-    const loadingIndicator = getElem('search-loading-indicator');
-    const resultsContainer = getElem('external-search-results');
-    loadingIndicator.style.display = 'block';
-    resultsContainer.innerHTML = '';
-    try {
-        const results = await gameService.searchExternalGames(query);
-        renderExternalSearchResults(results);
-    } catch (error) {
-        notificationService.error(error.message);
-    } finally {
-        loadingIndicator.style.display = 'none';
-    }
-}
-
-function renderExternalSearchResults(results) {
-    const resultsContainer = getElem('external-search-results');
-    if (!results || results.length === 0) {
-        resultsContainer.innerHTML = '<p>No se encontraron resultados.</p>';
-        return;
-    }
-    const resultList = document.createElement('ul');
-    resultList.className = 'search-result-list';
-    results.forEach(game => {
-        const li = document.createElement('li');
-        li.className = 'search-result-item';
-        li.dataset.gameData = JSON.stringify(game);
-        li.innerHTML = `
-            <img src="${game.background_image || 'imagenes/placeholder_box.png'}" alt="Cover de ${escapeHtml(game.name)}">
-            <div class="result-info">
-                <strong>${escapeHtml(game.name)}</strong>
-                <span>(${game.released ? game.released.split('-')[0] : 'N/A'})</span>
-            </div>
-        `;
-        li.addEventListener('click', () => selectExternalGame(li));
-        resultList.appendChild(li);
-    });
-    resultsContainer.innerHTML = '';
-    resultsContainer.appendChild(resultList);
-}
-
-function selectExternalGame(listItem) {
-    const gameData = JSON.parse(listItem.dataset.gameData);
-    
-    clearAndResetGameForm();
-
-    if (titleInputElement) titleInputElement.value = gameData.name || '';
-    if (yearInputElement) yearInputElement.value = gameData.released ? new Date(gameData.released).getFullYear() : '';
-    if (developerInputElement) developerInputElement.value = gameData.developers.join(', ') || '';
-    if (publisherInputElement) publisherInputElement.value = gameData.publishers.join(', ') || '';
-    if (genreInputElement) genreInputElement.value = gameData.genres.join(', ') || '';
-    
-    if (platformInputElement && gameData.platforms) {
-        const apiPlatforms = gameData.platforms.map(p => p.toLowerCase());
-        let bestMatch = '';
-        for (let option of platformInputElement.options) {
-            const optionText = option.text.toLowerCase();
-            if (apiPlatforms.some(p => p.includes(optionText))) {
-                bestMatch = option.value;
-                break;
-            }
-        }
-        platformInputElement.value = bestMatch;
-    }
-    notificationService.success('¡Datos cargados! Revisa y completa los campos restantes.');
-    showGameFormView('manual-form');
-}
-
-// --- FUNCIONES ORIGINALES (SIN MODIFICACIONES) ---
-
-function handleGameListClick(ev) {
-    const editBtn = ev.target.closest('.btn-edit-game');
-    if (editBtn && editBtn.dataset.id) {
-        ev.stopPropagation();
-        populateFormForEdit(editBtn.dataset.id);
-        return;
-    }
-    if (ev.target.classList.contains('game-delete-checkbox')) {
-        updateDeleteButtonStateCallback();
-        return;
-    }
-    const card = ev.target.closest('.game-card-simple');
-    if (card && card.dataset.id && !editBtn) {
-        showGameDetailsModalCallback(card.dataset.id);
-    }
-}
 
 function handleIsLoanedChangeInManager() {
     if (!isLoanedSelectElement || !loanDetailsContainerElement || !loanedToInputElement || !loanDateInputElement) return;
@@ -367,6 +291,7 @@ export async function loadInitialGames(filters = currentGlobalFilters, sortOrder
                 gameListElement.innerHTML = `<li style="list-style:none; text-align:center; grid-column:1/-1; color: var(--clr-text-secondary); padding-top: 2rem;">${escapeHtml(getText(msgKey))}</li>`;
             }
         }
+
     } catch (error) {
         console.error("Error cargando juegos iniciales:", error);
         notificationService.error(getText('gameManager_errorLoadGames_notification'), error);
@@ -402,6 +327,7 @@ async function loadMoreGames() {
 
         currentPage = response.currentPage || currentPage + 1;
         hasMoreGamesToLoad = response.hasNextPage || false;
+
     } catch (error) {
         console.error("Error cargando más juegos:", error);
         notificationService.error(getText('gameManager_errorLoadMoreGames'), error);
@@ -428,7 +354,9 @@ async function handleGameFormSubmit(event) {
         notificationService.error(getText('gameManager_error_formInternal'));
         return;
     }
+
     notificationService.clearFieldErrors(gameFormElement);
+
     const titleValue = titleInputElement.value.trim();
     const platformValue = platformInputElement.value;
     const genreValue = genreInputElement.value;
@@ -452,13 +380,65 @@ async function handleGameFormSubmit(event) {
         notificationService.error(getText('gameManager_formErrorsReview'), null, 7000);
         return;
     }
+
     const editingId = editGameIdInputElement?.value;
     const confirmationMessageKey = editingId ? 'gameManager_confirmUpdateGame' : 'gameManager_confirmAddGame';
+
     if (!confirm(getText(confirmationMessageKey))) {
         return;
     }
+
     if (submitButtonElement) submitButtonElement.disabled = true;
-    const formData = new FormData(gameFormElement);
+
+    const formData = new FormData();
+    formData.append('title', titleValue);
+    formData.append('platform', platformValue);
+    formData.append('year', yearInputElement?.value || '');
+    formData.append('developer', developerInputElement?.value.trim() || '');
+    formData.append('publisher', publisherInputElement?.value.trim() || '');
+    formData.append('genre', genreValue);
+    formData.append('format', formatValue);
+    const reqQty = ['gameForm_format_diskette', 'gameForm_format_cd', 'gameForm_format_dvd'].includes(formatValue);
+    const reqCap = formatValue === 'gameForm_format_diskette';
+    if (reqQty && quantityInputElement?.value) formData.append('quantity', quantityInputElement.value);
+    if (reqCap && capacitySelectElement?.value) formData.append('capacity', capacitySelectElement.value);
+    formData.append('language', languageInputElement?.value || '');
+    formData.append('region', regionInputElement?.value || '');
+    formData.append('ageRating', ageRatingInputElement?.value || '');
+    formData.append('barcode', barcodeInputElement?.value.trim() || '');
+    formData.append('condition', conditionInputElement?.value.trim() || '');
+    formData.append('progress', progressSelectElement?.value || '');
+    formData.append('multiplayer', (multiplayerInputElement?.value === 'true').toString());
+    if (multiplayerInputElement?.value === 'true' && numPlayersInputElement?.value) {
+        formData.append('numPlayers', parseInt(numPlayersInputElement.value, 10) || '');
+    }
+    formData.append('additionalInfo', additionalInfoInputElement?.value.trim() || '');
+    formData.append('copyProtection', copyProtectionInputElement?.value.trim() || '');
+    formData.append('rating', hiddenRatingInputElement?.value || '0');
+    const systemRequirements = {
+        cpu: reqCpuInputElement?.value || '', sound: reqSoundInputElement?.value.trim() || '',
+        controller: reqControllerInputElement?.value || '', gfx: reqGfxInputElement?.value || '',
+        memory: reqMemoryInputElement?.value.trim() || '', hdd: reqHddInputElement?.value.trim() || ''
+    };
+    formData.append('systemRequirements', JSON.stringify(systemRequirements));
+    if (coverInputElement?.files[0]) formData.append('cover', coverInputElement.files[0]);
+    if (backCoverInputElement?.files[0]) formData.append('backCover', backCoverInputElement.files[0]);
+    if (screenshotsInputElement?.files && screenshotsInputElement.files.length > 0) {
+        for (let i = 0; i < screenshotsInputElement.files.length; i++) {
+            formData.append('screenshots', screenshotsInputElement.files[i]);
+        }
+    }
+    if (isLoanedSelectElement) {
+        const isLoanedValue = isLoanedSelectElement.value === 'true';
+        formData.append('isLoaned', isLoanedValue.toString());
+        if (isLoanedValue) {
+            if (loanedToInputElement?.value) formData.append('loanedTo', loanedToInputElement.value.trim());
+            if (loanDateInputElement?.value) formData.append('loanDate', loanDateInputElement.value);
+        } else {
+            formData.append('loanedTo', '');
+            formData.append('loanDate', '');
+        }
+    }
     
     try {
         let resultData;
@@ -473,32 +453,36 @@ async function handleGameFormSubmit(event) {
         await loadInitialGames(currentGlobalFilters, currentGlobalSortOrder);
         closeGameFormModalCallback();
     } catch (error) {
-        console.error(`Error al ${editingId ? 'actualizar' : 'crear'} juego:`, error);
-        if (error.response && error.response.status === 403) {
-            const errorData = error.data || {};
-            if (errorData.messageKey && errorData.messageParams) {
-                const message = getText(errorData.messageKey, errorData.messageParams);
-                notificationService.warn(message, 8000);
-            } else {
-                notificationService.warn(error.message || 'Límite del plan alcanzado.', 8000);
-            }
-        } else if (error.errors && Array.isArray(error.errors)) {
-            notificationService.clearFieldErrors(gameFormElement);
-            notificationService.displayFieldErrors(error.errors, gameFormElement);
-            notificationService.error(getText("gameManager_validationErrorsSaving"), null, 7000);
-        } else if (error.message && error.message.toLowerCase().includes(getText('server_error_titleInUse_snippet'))) {
-            notificationService.error(error.message, error);
+    console.error(`Error al ${editingId ? 'actualizar' : 'crear'} juego:`, error);
+    
+    if (error.response && error.response.status === 403) {
+        const errorData = error.data || {}; 
+        
+        if (errorData.messageKey && errorData.messageParams) {
+            const message = getText(errorData.messageKey, errorData.messageParams);
+            notificationService.warn(message, 8000);
         } else {
-            let userMessageKey = 'gameManager_errorSavingGame';
-            if (error.message && error.message.includes("CSRF")) {
-                userMessageKey = "gameManager_securityErrorSaving";
-            }
-            notificationService.error(getText(userMessageKey), error);
+            notificationService.warn(error.message || 'Límite del plan alcanzado.', 8000);
         }
-        if (submitButtonElement) {
-            submitButtonElement.disabled = false;
+    
+    } else if (error.errors && Array.isArray(error.errors)) {
+        notificationService.clearFieldErrors(gameFormElement);
+        notificationService.displayFieldErrors(error.errors, gameFormElement);
+        notificationService.error(getText("gameManager_validationErrorsSaving"), null, 7000);
+    } else if (error.message && error.message.toLowerCase().includes(getText('server_error_titleInUse_snippet'))) {
+        notificationService.error(error.message, error);
+    } else {
+        let userMessageKey = 'gameManager_errorSavingGame';
+        if (error.message && error.message.includes("CSRF")) {
+            userMessageKey = "gameManager_securityErrorSaving";
         }
+        notificationService.error(getText(userMessageKey), error);
     }
+    
+    if (submitButtonElement) {
+        submitButtonElement.disabled = false;
+    }
+}
 }
 
 export function clearAndResetGameForm() {
@@ -523,8 +507,12 @@ export function clearAndResetGameForm() {
         submitButtonElement.disabled = false;
     }
     if (isLoanedSelectElement) isLoanedSelectElement.value = 'false';
-    if (loanedToInputElement) loanedToInputElement.value = '';
-    if (loanDateInputElement) loanDateInputElement.value = '';
+    if (loanedToInputElement) {
+        loanedToInputElement.value = '';
+    }
+    if (loanDateInputElement) {
+        loanDateInputElement.value = '';
+    }
     handleIsLoanedChangeInManager();
     handleFormatChangeInManager();
     handleMultiplayerChangeInManager();
@@ -536,6 +524,7 @@ export async function populateFormForEdit(gameId) {
         const gameData = await gameService.fetchGameById(gameId);
         clearAndResetGameForm();
 
+        // Pequeña función para decodificar entidades HTML a texto plano.
         const decodeHtml = (html) => {
             if (!html) return "";
             const txt = document.createElement("textarea");
@@ -563,24 +552,36 @@ export async function populateFormForEdit(gameId) {
         if (multiplayerInputElement) multiplayerInputElement.value = gameData.multiplayer ? 'true' : 'false';
         handleMultiplayerChangeInManager();
         if (numPlayersInputElement) numPlayersInputElement.value = gameData.numPlayers || '';
+        
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Se decodifican los campos de texto libre antes de asignarlos al formulario.
         if (additionalInfoInputElement) additionalInfoInputElement.value = decodeHtml(gameData.additionalInfo || '');
         if (copyProtectionInputElement) copyProtectionInputElement.value = decodeHtml(gameData.copyProtection || '');
+        // --- FIN DE LA CORRECCIÓN ---
+
         if (hiddenRatingInputElement) hiddenRatingInputElement.value = gameData.rating || '0';
         if (formRatingStarsContainerElement && hiddenRatingInputElement) {
             updateFormStarsVisual(hiddenRatingInputElement.value, formRatingStarsContainerElement);
         }
         if (gameData.systemRequirements) {
+            // Los campos que usan claves (selects) no se decodifican.
             if (reqCpuInputElement) reqCpuInputElement.value = gameData.systemRequirements.cpu || '';
             if (reqControllerInputElement) reqControllerInputElement.value = gameData.systemRequirements.controller || '';
             if (reqGfxInputElement) reqGfxInputElement.value = gameData.systemRequirements.gfx || '';
             if (reqHddInputElement) reqHddInputElement.value = gameData.systemRequirements.hdd || '';
+            
+            // --- INICIO DE LA CORRECCIÓN ---
+            // Los campos de texto libre se decodifican.
             if (reqSoundInputElement) reqSoundInputElement.value = decodeHtml(gameData.systemRequirements.sound || '');
             if (reqMemoryInputElement) reqMemoryInputElement.value = decodeHtml(gameData.systemRequirements.memory || '');
+             // --- FIN DE LA CORRECCIÓN ---
         }
         if (coverPreviewElement) {
+            // CORRECCIÓN 1: Usar directamente la URL de Cloudinary.
             coverPreviewElement.innerHTML = gameData.cover ? `<img src="${gameData.cover}" alt="${getText('alt_coverPreview', { title: gameData.title })}">` : '';
         }
         if (backCoverPreviewElement) {
+            // CORRECCIÓN 2: Usar directamente la URL de Cloudinary.
             backCoverPreviewElement.innerHTML = gameData.backCover ? `<img src="${gameData.backCover}" alt="${getText('alt_backCoverPreview', { title: gameData.title })}">` : '';
         }
         if (existingScreenshotsPreviewElement && existingScreenshotsLabelElement && deleteScreenshotsControlsElement && deleteSelectedScreenshotsBtnElement) {
@@ -590,6 +591,7 @@ export async function populateFormForEdit(gameId) {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'existing-screenshot-item-wrapper';
                     const img = document.createElement('img');
+                    // CORRECCIÓN 3: Usar directamente la URL de Cloudinary.
                     img.src = scrPath;
                     img.alt = getText('gameManager_alt_existingScreenshot').replace('{index}', index + 1);
                     img.className = 'existing-screenshot-image';
@@ -633,7 +635,6 @@ export async function populateFormForEdit(gameId) {
         closeGameFormModalCallback();
     }
 }
-
 async function handleDeleteSelectedGames() {
     if (!gameListElement || !deleteSelectedBtnElement) return;
     const checkedBoxes = gameListElement.querySelectorAll('.game-delete-checkbox:checked');
@@ -687,7 +688,8 @@ async function handleDeleteSelectedGames() {
         } else {
             lastDeletedGamesData = null;
             if (undoDeleteBtnElement) undoDeleteBtnElement.disabled = true;
-            if (errorCount === 0 && successCount === 0) {
+            if (errorCount > 0 && successCount === 0) {
+            } else if (errorCount === 0 && successCount === 0) {
                 notificationService.info(getText('gameManager_deleteNone'));
             }
         }
