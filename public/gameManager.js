@@ -1,4 +1,5 @@
-// public/gameManager.js (VERSIÓN CORREGIDA PARA CLOUDINARY)
+// public/gameManager.js (VERSIÓN FINAL CON ASISTENTE INTEGRADO)
+
 import { API_BASE_URL } from './appConfig.js';
 import { fetchAuthenticated, updateCurrentUserGameCount } from './authClient.js';
 import * as gameService from './gameService.js';
@@ -44,7 +45,6 @@ let showGameDetailsModalCallback = (gameId) => console.warn('showGameDetailsModa
 let openGameFormModalCallback = (isEditing = false) => console.warn('openGameFormModalCallback no ha sido configurado en gameManager', isEditing);
 let closeGameFormModalCallback = () => console.warn('closeGameFormModalCallback no ha sido configurado en gameManager');
 
-
 export function setRenderGameListCallback(callback) { renderGameListCallback = callback; }
 export function setUpdatePlatformFilterListCallback(callback) { updatePlatformFilterListCallback = callback; }
 export function setUpdateDeleteButtonStateCallback(callback) { updateDeleteButtonStateCallback = callback; }
@@ -64,6 +64,7 @@ export async function loadAndSetPlatformSummaries() {
 }
 
 export function initGameManager() {
+    // Referencias al DOM
     gameListElement = getElem('gameList');
     gameFormElement = getElem('gameForm', false);
     editGameIdInputElement = getElem('editGameId', false);
@@ -116,89 +117,172 @@ export function initGameManager() {
     loanedToInputElement = getElem('loanedTo', false);
     loanDateInputElement = getElem('loanDate', false);
     infiniteScrollLoaderElement = getElem('infiniteScrollLoader', false);
-if (addGameBtnElement) {
-        addGameBtnElement.addEventListener('click', () => {
-            clearAndResetGameForm();
-            openGameFormModalCallback(false);
-        });
-    }
-    if (deleteSelectedBtnElement) {
-        deleteSelectedBtnElement.addEventListener('click', handleDeleteSelectedGames);
-    }
-    if (undoDeleteBtnElement) {
-        undoDeleteBtnElement.addEventListener('click', handleUndoLastDeletion);
-    }
-    if (gameFormElement) {
-        gameFormElement.addEventListener('submit', handleGameFormSubmit);
-    }
-    if (coverInputElement && coverPreviewElement) {
-        coverInputElement.addEventListener('change', () => previewImage(coverInputElement, coverPreviewElement));
-    }
-    if (backCoverInputElement && backCoverPreviewElement) {
-        backCoverInputElement.addEventListener('change', () => previewImage(backCoverInputElement, backCoverPreviewElement));
-    }
-    if (screenshotsInputElement && screenshotsPreviewContainerElement) {
-        screenshotsInputElement.addEventListener('change', () => handleScreenshotPreview(screenshotsInputElement, screenshotsPreviewContainerElement));
-    }
-    if (formRatingStarsContainerElement) {
-        createFormStars(formRatingStarsContainerElement);
-    }
-    if (formatSelectElement) {
-        formatSelectElement.addEventListener('change', handleFormatChangeInManager);
-    }
-    if (multiplayerInputElement) {
-        multiplayerInputElement.addEventListener('change', handleMultiplayerChangeInManager);
-    }
-    if (platformInputElement) {
-        platformInputElement.addEventListener('change', updateCintaOptionStateInManager);
-        updateCintaOptionStateInManager();
-    }
-    if (isLoanedSelectElement) {
-        isLoanedSelectElement.addEventListener('change', handleIsLoanedChangeInManager);
-    }
-
-    if (deleteSelectedScreenshotsBtnElement) {
-        deleteSelectedScreenshotsBtnElement.addEventListener('click', handleDeleteSelectedScreenshots);
-    }
-
-    if (gameListElement) {
-        gameListElement.addEventListener('click', (ev) => {
-            const editBtn = ev.target.closest('.btn-edit-game');
-            if (editBtn && editBtn.dataset.id) {
-                ev.stopPropagation();
-                populateFormForEdit(editBtn.dataset.id);
-                return;
-            }
-            if (ev.target.classList.contains('game-delete-checkbox')) {
-                updateDeleteButtonStateCallback();
-                return;
-            }
-            const card = ev.target.closest('.game-card-simple');
-            if (card && card.dataset.id && !editBtn) {
-                showGameDetailsModalCallback(card.dataset.id);
-            }
-        });
-    }
-
+    
+    // Asignación de Event Listeners
+    addGameBtnElement?.addEventListener('click', openAddGameWizard); // <--- CAMBIO IMPORTANTE
+    deleteSelectedBtnElement?.addEventListener('click', handleDeleteSelectedGames);
+    undoDeleteBtnElement?.addEventListener('click', handleUndoLastDeletion);
+    gameFormElement?.addEventListener('submit', handleGameFormSubmit);
+    coverInputElement?.addEventListener('change', () => previewImage(coverInputElement, coverPreviewElement));
+    backCoverInputElement?.addEventListener('change', () => previewImage(backCoverInputElement, backCoverPreviewElement));
+    screenshotsInputElement?.addEventListener('change', () => handleScreenshotPreview(screenshotsInputElement, screenshotsPreviewContainerElement));
+    formRatingStarsContainerElement && createFormStars(formRatingStarsContainerElement);
+    formatSelectElement?.addEventListener('change', handleFormatChangeInManager);
+    multiplayerInputElement?.addEventListener('change', handleMultiplayerChangeInManager);
+    platformInputElement?.addEventListener('change', updateCintaOptionStateInManager);
+    isLoanedSelectElement?.addEventListener('change', handleIsLoanedChangeInManager);
+    deleteSelectedScreenshotsBtnElement?.addEventListener('click', handleDeleteSelectedScreenshots);
+    gameListElement?.addEventListener('click', handleGameListClick);
     window.addEventListener('scroll', debounce(handleScroll, 200));
-    handleIsLoanedChangeInManager();
 
-    const uploadButtons = document.querySelectorAll('.custom-file-upload-btn');
-    uploadButtons.forEach(button => {
+    document.querySelectorAll('.custom-file-upload-btn').forEach(button => {
         if (!button.dataset.listenerAttached) {
             button.addEventListener('click', () => {
                 const targetInputId = button.dataset.targetInput;
-                if (targetInputId) {
-                    const targetInput = document.getElementById(targetInputId);
-                    if (targetInput) {
-                        targetInput.click();
-                    }
-                }
+                if (targetInputId) document.getElementById(targetInputId)?.click();
             });
             button.dataset.listenerAttached = 'true';
         }
     });
+
+    // Se conecta la nueva funcionalidad del asistente
+    setupModalWizardListeners();
 }
+
+function handleGameListClick(ev) {
+    const editBtn = ev.target.closest('.btn-edit-game');
+    if (editBtn && editBtn.dataset.id) {
+        ev.stopPropagation();
+        populateFormForEdit(editBtn.dataset.id);
+        return;
+    }
+    if (ev.target.classList.contains('game-delete-checkbox')) {
+        updateDeleteButtonStateCallback();
+        return;
+    }
+    const card = ev.target.closest('.game-card-simple');
+    if (card && card.dataset.id && !editBtn) {
+        showGameDetailsModalCallback(card.dataset.id);
+    }
+}
+
+// --- LÓGICA DEL NUEVO ASISTENTE DEL MODAL ---
+
+function openAddGameWizard() {
+    clearAndResetGameForm();
+    showGameFormView('initial'); // Muestra la primera vista con los dos botones
+    openGameFormModalCallback(false);
+}
+
+function showGameFormView(viewName) {
+    getElem('initial-view', false)?.style.setProperty('display', 'none');
+    getElem('external-search-view', false)?.style.setProperty('display', 'none');
+    getElem('manual-form-view', false)?.style.setProperty('display', 'none');
+    
+    const viewToShow = getElem(`${viewName}-view`, false);
+    if (viewToShow) {
+        viewToShow.style.setProperty('display', 'block');
+    }
+}
+
+function setupModalWizardListeners() {
+    getElem('show-manual-form-btn', false)?.addEventListener('click', () => showGameFormView('manual-form'));
+    getElem('show-external-search-btn', false)?.addEventListener('click', () => showGameFormView('external-search'));
+    
+    const searchButton = getElem('external-game-search-button', false);
+    const searchInput = getElem('external-game-search-input', false);
+    if (searchButton && searchInput) {
+        searchButton.addEventListener('click', performExternalSearch);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); performExternalSearch(); }
+        });
+    }
+}
+
+// --- LÓGICA DE BÚSQUEDA EXTERNA ---
+
+async function performExternalSearch() {
+    const searchInput = getElem('external-game-search-input');
+    const query = searchInput.value.trim();
+    if (!query) {
+        notificationService.warn('Por favor, ingresa un título para buscar.');
+        return;
+    }
+    const loadingIndicator = getElem('search-loading-indicator');
+    const resultsContainer = getElem('external-search-results');
+    loadingIndicator.style.display = 'block';
+    resultsContainer.innerHTML = '';
+    try {
+        const results = await gameService.searchExternalGames(query);
+        renderExternalSearchResults(results);
+    } catch (error) {
+        notificationService.error(error.message);
+    } finally {
+        loadingIndicator.style.display = 'none';
+    }
+}
+
+function renderExternalSearchResults(results) {
+    const resultsContainer = getElem('external-search-results');
+    if (!results || results.length === 0) {
+        resultsContainer.innerHTML = '<p>No se encontraron resultados.</p>';
+        return;
+    }
+    const resultList = document.createElement('ul');
+    resultList.className = 'search-result-list';
+    results.forEach(game => {
+        const li = document.createElement('li');
+        li.className = 'search-result-item';
+        li.dataset.gameData = JSON.stringify(game);
+        li.innerHTML = `
+            <img src="${game.background_image || 'imagenes/placeholder_box.png'}" alt="Cover de ${escapeHtml(game.name)}">
+            <div class="result-info">
+                <strong>${escapeHtml(game.name)}</strong>
+                <span>(${game.released ? game.released.split('-')[0] : 'N/A'})</span>
+            </div>
+        `;
+        li.addEventListener('click', () => selectExternalGame(li));
+        resultList.appendChild(li);
+    });
+    resultsContainer.innerHTML = '';
+    resultsContainer.appendChild(resultList);
+}
+
+function selectExternalGame(listItem) {
+    const gameData = JSON.parse(listItem.dataset.gameData);
+    
+    // Rellenamos el formulario directamente
+    getElem('title').value = gameData.name || '';
+    if (getElem('year')) getElem('year').value = gameData.released ? new Date(gameData.released).getFullYear() : '';
+    if (getElem('developer')) getElem('developer').value = gameData.developers.join(', ') || '';
+    if (getElem('publisher')) getElem('publisher').value = gameData.publishers.join(', ') || '';
+    if (getElem('genre')) getElem('genre').value = gameData.genres.join(', ') || '';
+    
+    const platformInput = getElem('platform');
+    if (platformInput && gameData.platforms) {
+        const apiPlatforms = gameData.platforms.map(p => p.toLowerCase());
+        let bestMatch = '';
+        for (let option of platformInput.options) {
+            const optionText = option.text.toLowerCase();
+            if (apiPlatforms.some(p => p.includes(optionText))) {
+                bestMatch = option.value;
+                break;
+            }
+        }
+        platformInput.value = bestMatch;
+    }
+
+    notificationService.success('¡Datos cargados! Revisa y completa los campos restantes.');
+    showGameFormView('manual-form'); // Mostramos el formulario ya rellenado
+}
+
+
+
+
+
+
+
+
 
 
 function handleIsLoanedChangeInManager() {

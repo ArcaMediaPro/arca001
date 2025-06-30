@@ -204,14 +204,60 @@
     <p>&copy; <span id="currentYear"></span> <span data-i18n-key="footer_appName">Catalogador de Videojuegos</span></p>
     </footer>
 
+
+
+
     <div id="gameFormModal" class="modal" style="z-index: 1002; display: none;">
     <div class="modal-content" style="width: 70vw; max-width: 900px;">
-        <span class="close-game-form close" title="Cerrar" data-i18n-key="gameForm_closeBtnTitle" data-i18n-target-attr="title">&times;</span>
-        <div class="form-section" id="formSectionInModal" style="display: block; margin-bottom: 0; box-shadow: none; padding: 0;">
-            <fieldset>
-                <legend id="gameFormLegend" data-i18n-key="gameForm_legend">Agregar/Editar Juego</legend> <form id="gameForm" novalidate>
-                    <input type="hidden" id="editGameId" name="editGameId" value="">
-                    <div> <label for="title" data-i18n-key="gameForm_labelTitle">Título:</label> <input type="text" id="title" name="title" required> </div>
+        <span class="close-game-form close" title="Cerrar">&times;</span>
+        <h2 id="gameFormLegend">Añadir Nuevo Juego</h2>
+
+        <div id="initial-view">
+            <p>¿Cómo quieres añadir el juego?</p>
+            <div class="form-choice-buttons" style="display: flex; justify-content: center; gap: 20px; margin: 2rem 0;">
+                <button type="button" id="show-manual-form-btn" class="admin-button secondary" style="font-size: 1em; padding: 12px 24px;">Carga Manual</button>
+                <button type="button" id="show-external-search-btn" class="admin-button primary" style="font-size: 1em; padding: 12px 24px;">Carga Automática (Búsqueda)</button>
+            </div>
+        </div>
+
+        <div id="external-search-view" style="display: none;">
+            <fieldset class="config-section" style="border: none; padding: 0;">
+                <legend class="config-section-legend">Búsqueda Automática</legend>
+                <p class="search-description">Escribe el nombre de un juego para buscarlo.</p>
+                <div class="search-input-group" style="display: flex; gap: 10px;">
+                    <input type="text" id="external-game-search-input" class="admin-input" placeholder="Ej: The Witcher 3, Elden Ring..." style="flex-grow: 1;">
+                    <button type="button" id="external-game-search-button" class="admin-button primary" style="flex-shrink: 0; padding: 8px 15px;">Buscar</button>
+                </div>
+                <div id="search-loading-indicator" class="loading-indicator" style="display: none; margin-top: 1rem;">Buscando...</div>
+                <div id="external-search-results" class="search-results-container" style="margin-top: 1rem;"></div>
+            </fieldset>
+        </div>
+        
+        <div id="manual-form-view" style="display: none;">
+             <hr class="section-divider" style="margin: 1.5rem 0;">
+             <h3 style="text-align:center; margin-bottom:1.5rem;">Datos del Juego</h3>
+             <form id="gameForm" novalidate>
+                <input type="hidden" id="editGameId" name="editGameId" value="">
+                <div> <label for="title">Título:</label> <input type="text" id="title" name="title" required> </div>
+                <div>
+                    <label for="platform">Plataforma:</label>
+                    <select id="platform" name="platform" required>
+                        <option value="">-- Seleccionar Plataforma --</option>
+                        </select>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" id="submitGameFormBtn" title="Guardar Juego"><img src="imagenes/Actualizar Juego.png" alt="Guardar"></button>
+                    </div>
+             </form>
+        </div>
+        
+    </div>
+</div>
+
+
+
+
+
                     <div>
                         <label for="platform" data-i18n-key="gameForm_labelPlatform">Plataforma:</label>
                         <select id="platform" name="platform" required>
