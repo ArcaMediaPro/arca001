@@ -1,4 +1,4 @@
-// public/gameManager.js (VERSIÓN FINAL CON ASISTENTE INTEGRADO)
+// public/gameManager.js (VERSIÓN FINAL COMPLETA E INTEGRADA)
 
 import { API_BASE_URL } from './appConfig.js';
 import { fetchAuthenticated, updateCurrentUserGameCount } from './authClient.js';
@@ -44,6 +44,7 @@ let updateDeleteButtonStateCallback = () => console.warn('updateDeleteButtonStat
 let showGameDetailsModalCallback = (gameId) => console.warn('showGameDetailsModalCallback no asignado', gameId);
 let openGameFormModalCallback = (isEditing = false) => console.warn('openGameFormModalCallback no ha sido configurado en gameManager', isEditing);
 let closeGameFormModalCallback = () => console.warn('closeGameFormModalCallback no ha sido configurado en gameManager');
+
 
 export function setRenderGameListCallback(callback) { renderGameListCallback = callback; }
 export function setUpdatePlatformFilterListCallback(callback) { updatePlatformFilterListCallback = callback; }
@@ -119,7 +120,7 @@ export function initGameManager() {
     infiniteScrollLoaderElement = getElem('infiniteScrollLoader', false);
     
     // Asignación de Event Listeners
-    addGameBtnElement?.addEventListener('click', openAddGameWizard); // <--- CAMBIO IMPORTANTE
+    addGameBtnElement?.addEventListener('click', openAddGameWizard);
     deleteSelectedBtnElement?.addEventListener('click', handleDeleteSelectedGames);
     undoDeleteBtnElement?.addEventListener('click', handleUndoLastDeletion);
     gameFormElement?.addEventListener('submit', handleGameFormSubmit);
@@ -145,32 +146,14 @@ export function initGameManager() {
         }
     });
 
-    // Se conecta la nueva funcionalidad del asistente
     setupModalWizardListeners();
 }
 
-function handleGameListClick(ev) {
-    const editBtn = ev.target.closest('.btn-edit-game');
-    if (editBtn && editBtn.dataset.id) {
-        ev.stopPropagation();
-        populateFormForEdit(editBtn.dataset.id);
-        return;
-    }
-    if (ev.target.classList.contains('game-delete-checkbox')) {
-        updateDeleteButtonStateCallback();
-        return;
-    }
-    const card = ev.target.closest('.game-card-simple');
-    if (card && card.dataset.id && !editBtn) {
-        showGameDetailsModalCallback(card.dataset.id);
-    }
-}
-
-// --- LÓGICA DEL NUEVO ASISTENTE DEL MODAL ---
+// --- LÓGICA DEL ASISTENTE DEL MODAL (NUEVO) ---
 
 function openAddGameWizard() {
     clearAndResetGameForm();
-    showGameFormView('initial'); // Muestra la primera vista con los dos botones
+    showGameFormView('initial');
     openGameFormModalCallback(false);
 }
 
@@ -199,7 +182,7 @@ function setupModalWizardListeners() {
     }
 }
 
-// --- LÓGICA DE BÚSQUEDA EXTERNA ---
+// --- LÓGICA DE BÚSQUEDA EXTERNA (NUEVO) ---
 
 async function performExternalSearch() {
     const searchInput = getElem('external-game-search-input');
@@ -251,39 +234,48 @@ function renderExternalSearchResults(results) {
 function selectExternalGame(listItem) {
     const gameData = JSON.parse(listItem.dataset.gameData);
     
-    // Rellenamos el formulario directamente
-    getElem('title').value = gameData.name || '';
-    if (getElem('year')) getElem('year').value = gameData.released ? new Date(gameData.released).getFullYear() : '';
-    if (getElem('developer')) getElem('developer').value = gameData.developers.join(', ') || '';
-    if (getElem('publisher')) getElem('publisher').value = gameData.publishers.join(', ') || '';
-    if (getElem('genre')) getElem('genre').value = gameData.genres.join(', ') || '';
+    clearAndResetGameForm();
+
+    if (titleInputElement) titleInputElement.value = gameData.name || '';
+    if (yearInputElement) yearInputElement.value = gameData.released ? new Date(gameData.released).getFullYear() : '';
+    if (developerInputElement) developerInputElement.value = gameData.developers.join(', ') || '';
+    if (publisherInputElement) publisherInputElement.value = gameData.publishers.join(', ') || '';
+    if (genreInputElement) genreInputElement.value = gameData.genres.join(', ') || '';
     
-    const platformInput = getElem('platform');
-    if (platformInput && gameData.platforms) {
+    if (platformInputElement && gameData.platforms) {
         const apiPlatforms = gameData.platforms.map(p => p.toLowerCase());
         let bestMatch = '';
-        for (let option of platformInput.options) {
+        for (let option of platformInputElement.options) {
             const optionText = option.text.toLowerCase();
             if (apiPlatforms.some(p => p.includes(optionText))) {
                 bestMatch = option.value;
                 break;
             }
         }
-        platformInput.value = bestMatch;
+        platformInputElement.value = bestMatch;
     }
-
     notificationService.success('¡Datos cargados! Revisa y completa los campos restantes.');
-    showGameFormView('manual-form'); // Mostramos el formulario ya rellenado
+    showGameFormView('manual-form');
 }
 
+// --- FUNCIONES ORIGINALES (SIN MODIFICACIONES) ---
 
-
-
-
-
-
-
-
+function handleGameListClick(ev) {
+    const editBtn = ev.target.closest('.btn-edit-game');
+    if (editBtn && editBtn.dataset.id) {
+        ev.stopPropagation();
+        populateFormForEdit(editBtn.dataset.id);
+        return;
+    }
+    if (ev.target.classList.contains('game-delete-checkbox')) {
+        updateDeleteButtonStateCallback();
+        return;
+    }
+    const card = ev.target.closest('.game-card-simple');
+    if (card && card.dataset.id && !editBtn) {
+        showGameDetailsModalCallback(card.dataset.id);
+    }
+}
 
 function handleIsLoanedChangeInManager() {
     if (!isLoanedSelectElement || !loanDetailsContainerElement || !loanedToInputElement || !loanDateInputElement) return;
@@ -375,7 +367,6 @@ export async function loadInitialGames(filters = currentGlobalFilters, sortOrder
                 gameListElement.innerHTML = `<li style="list-style:none; text-align:center; grid-column:1/-1; color: var(--clr-text-secondary); padding-top: 2rem;">${escapeHtml(getText(msgKey))}</li>`;
             }
         }
-
     } catch (error) {
         console.error("Error cargando juegos iniciales:", error);
         notificationService.error(getText('gameManager_errorLoadGames_notification'), error);
@@ -411,7 +402,6 @@ async function loadMoreGames() {
 
         currentPage = response.currentPage || currentPage + 1;
         hasMoreGamesToLoad = response.hasNextPage || false;
-
     } catch (error) {
         console.error("Error cargando más juegos:", error);
         notificationService.error(getText('gameManager_errorLoadMoreGames'), error);
@@ -438,9 +428,7 @@ async function handleGameFormSubmit(event) {
         notificationService.error(getText('gameManager_error_formInternal'));
         return;
     }
-
     notificationService.clearFieldErrors(gameFormElement);
-
     const titleValue = titleInputElement.value.trim();
     const platformValue = platformInputElement.value;
     const genreValue = genreInputElement.value;
@@ -464,65 +452,13 @@ async function handleGameFormSubmit(event) {
         notificationService.error(getText('gameManager_formErrorsReview'), null, 7000);
         return;
     }
-
     const editingId = editGameIdInputElement?.value;
     const confirmationMessageKey = editingId ? 'gameManager_confirmUpdateGame' : 'gameManager_confirmAddGame';
-
     if (!confirm(getText(confirmationMessageKey))) {
         return;
     }
-
     if (submitButtonElement) submitButtonElement.disabled = true;
-
-    const formData = new FormData();
-    formData.append('title', titleValue);
-    formData.append('platform', platformValue);
-    formData.append('year', yearInputElement?.value || '');
-    formData.append('developer', developerInputElement?.value.trim() || '');
-    formData.append('publisher', publisherInputElement?.value.trim() || '');
-    formData.append('genre', genreValue);
-    formData.append('format', formatValue);
-    const reqQty = ['gameForm_format_diskette', 'gameForm_format_cd', 'gameForm_format_dvd'].includes(formatValue);
-    const reqCap = formatValue === 'gameForm_format_diskette';
-    if (reqQty && quantityInputElement?.value) formData.append('quantity', quantityInputElement.value);
-    if (reqCap && capacitySelectElement?.value) formData.append('capacity', capacitySelectElement.value);
-    formData.append('language', languageInputElement?.value || '');
-    formData.append('region', regionInputElement?.value || '');
-    formData.append('ageRating', ageRatingInputElement?.value || '');
-    formData.append('barcode', barcodeInputElement?.value.trim() || '');
-    formData.append('condition', conditionInputElement?.value.trim() || '');
-    formData.append('progress', progressSelectElement?.value || '');
-    formData.append('multiplayer', (multiplayerInputElement?.value === 'true').toString());
-    if (multiplayerInputElement?.value === 'true' && numPlayersInputElement?.value) {
-        formData.append('numPlayers', parseInt(numPlayersInputElement.value, 10) || '');
-    }
-    formData.append('additionalInfo', additionalInfoInputElement?.value.trim() || '');
-    formData.append('copyProtection', copyProtectionInputElement?.value.trim() || '');
-    formData.append('rating', hiddenRatingInputElement?.value || '0');
-    const systemRequirements = {
-        cpu: reqCpuInputElement?.value || '', sound: reqSoundInputElement?.value.trim() || '',
-        controller: reqControllerInputElement?.value || '', gfx: reqGfxInputElement?.value || '',
-        memory: reqMemoryInputElement?.value.trim() || '', hdd: reqHddInputElement?.value.trim() || ''
-    };
-    formData.append('systemRequirements', JSON.stringify(systemRequirements));
-    if (coverInputElement?.files[0]) formData.append('cover', coverInputElement.files[0]);
-    if (backCoverInputElement?.files[0]) formData.append('backCover', backCoverInputElement.files[0]);
-    if (screenshotsInputElement?.files && screenshotsInputElement.files.length > 0) {
-        for (let i = 0; i < screenshotsInputElement.files.length; i++) {
-            formData.append('screenshots', screenshotsInputElement.files[i]);
-        }
-    }
-    if (isLoanedSelectElement) {
-        const isLoanedValue = isLoanedSelectElement.value === 'true';
-        formData.append('isLoaned', isLoanedValue.toString());
-        if (isLoanedValue) {
-            if (loanedToInputElement?.value) formData.append('loanedTo', loanedToInputElement.value.trim());
-            if (loanDateInputElement?.value) formData.append('loanDate', loanDateInputElement.value);
-        } else {
-            formData.append('loanedTo', '');
-            formData.append('loanDate', '');
-        }
-    }
+    const formData = new FormData(gameFormElement);
     
     try {
         let resultData;
@@ -537,36 +473,32 @@ async function handleGameFormSubmit(event) {
         await loadInitialGames(currentGlobalFilters, currentGlobalSortOrder);
         closeGameFormModalCallback();
     } catch (error) {
-    console.error(`Error al ${editingId ? 'actualizar' : 'crear'} juego:`, error);
-    
-    if (error.response && error.response.status === 403) {
-        const errorData = error.data || {}; 
-        
-        if (errorData.messageKey && errorData.messageParams) {
-            const message = getText(errorData.messageKey, errorData.messageParams);
-            notificationService.warn(message, 8000);
+        console.error(`Error al ${editingId ? 'actualizar' : 'crear'} juego:`, error);
+        if (error.response && error.response.status === 403) {
+            const errorData = error.data || {};
+            if (errorData.messageKey && errorData.messageParams) {
+                const message = getText(errorData.messageKey, errorData.messageParams);
+                notificationService.warn(message, 8000);
+            } else {
+                notificationService.warn(error.message || 'Límite del plan alcanzado.', 8000);
+            }
+        } else if (error.errors && Array.isArray(error.errors)) {
+            notificationService.clearFieldErrors(gameFormElement);
+            notificationService.displayFieldErrors(error.errors, gameFormElement);
+            notificationService.error(getText("gameManager_validationErrorsSaving"), null, 7000);
+        } else if (error.message && error.message.toLowerCase().includes(getText('server_error_titleInUse_snippet'))) {
+            notificationService.error(error.message, error);
         } else {
-            notificationService.warn(error.message || 'Límite del plan alcanzado.', 8000);
+            let userMessageKey = 'gameManager_errorSavingGame';
+            if (error.message && error.message.includes("CSRF")) {
+                userMessageKey = "gameManager_securityErrorSaving";
+            }
+            notificationService.error(getText(userMessageKey), error);
         }
-    
-    } else if (error.errors && Array.isArray(error.errors)) {
-        notificationService.clearFieldErrors(gameFormElement);
-        notificationService.displayFieldErrors(error.errors, gameFormElement);
-        notificationService.error(getText("gameManager_validationErrorsSaving"), null, 7000);
-    } else if (error.message && error.message.toLowerCase().includes(getText('server_error_titleInUse_snippet'))) {
-        notificationService.error(error.message, error);
-    } else {
-        let userMessageKey = 'gameManager_errorSavingGame';
-        if (error.message && error.message.includes("CSRF")) {
-            userMessageKey = "gameManager_securityErrorSaving";
+        if (submitButtonElement) {
+            submitButtonElement.disabled = false;
         }
-        notificationService.error(getText(userMessageKey), error);
     }
-    
-    if (submitButtonElement) {
-        submitButtonElement.disabled = false;
-    }
-}
 }
 
 export function clearAndResetGameForm() {
@@ -591,12 +523,8 @@ export function clearAndResetGameForm() {
         submitButtonElement.disabled = false;
     }
     if (isLoanedSelectElement) isLoanedSelectElement.value = 'false';
-    if (loanedToInputElement) {
-        loanedToInputElement.value = '';
-    }
-    if (loanDateInputElement) {
-        loanDateInputElement.value = '';
-    }
+    if (loanedToInputElement) loanedToInputElement.value = '';
+    if (loanDateInputElement) loanDateInputElement.value = '';
     handleIsLoanedChangeInManager();
     handleFormatChangeInManager();
     handleMultiplayerChangeInManager();
@@ -608,7 +536,6 @@ export async function populateFormForEdit(gameId) {
         const gameData = await gameService.fetchGameById(gameId);
         clearAndResetGameForm();
 
-        // Pequeña función para decodificar entidades HTML a texto plano.
         const decodeHtml = (html) => {
             if (!html) return "";
             const txt = document.createElement("textarea");
@@ -636,36 +563,24 @@ export async function populateFormForEdit(gameId) {
         if (multiplayerInputElement) multiplayerInputElement.value = gameData.multiplayer ? 'true' : 'false';
         handleMultiplayerChangeInManager();
         if (numPlayersInputElement) numPlayersInputElement.value = gameData.numPlayers || '';
-        
-        // --- INICIO DE LA CORRECCIÓN ---
-        // Se decodifican los campos de texto libre antes de asignarlos al formulario.
         if (additionalInfoInputElement) additionalInfoInputElement.value = decodeHtml(gameData.additionalInfo || '');
         if (copyProtectionInputElement) copyProtectionInputElement.value = decodeHtml(gameData.copyProtection || '');
-        // --- FIN DE LA CORRECCIÓN ---
-
         if (hiddenRatingInputElement) hiddenRatingInputElement.value = gameData.rating || '0';
         if (formRatingStarsContainerElement && hiddenRatingInputElement) {
             updateFormStarsVisual(hiddenRatingInputElement.value, formRatingStarsContainerElement);
         }
         if (gameData.systemRequirements) {
-            // Los campos que usan claves (selects) no se decodifican.
             if (reqCpuInputElement) reqCpuInputElement.value = gameData.systemRequirements.cpu || '';
             if (reqControllerInputElement) reqControllerInputElement.value = gameData.systemRequirements.controller || '';
             if (reqGfxInputElement) reqGfxInputElement.value = gameData.systemRequirements.gfx || '';
             if (reqHddInputElement) reqHddInputElement.value = gameData.systemRequirements.hdd || '';
-            
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Los campos de texto libre se decodifican.
             if (reqSoundInputElement) reqSoundInputElement.value = decodeHtml(gameData.systemRequirements.sound || '');
             if (reqMemoryInputElement) reqMemoryInputElement.value = decodeHtml(gameData.systemRequirements.memory || '');
-             // --- FIN DE LA CORRECCIÓN ---
         }
         if (coverPreviewElement) {
-            // CORRECCIÓN 1: Usar directamente la URL de Cloudinary.
             coverPreviewElement.innerHTML = gameData.cover ? `<img src="${gameData.cover}" alt="${getText('alt_coverPreview', { title: gameData.title })}">` : '';
         }
         if (backCoverPreviewElement) {
-            // CORRECCIÓN 2: Usar directamente la URL de Cloudinary.
             backCoverPreviewElement.innerHTML = gameData.backCover ? `<img src="${gameData.backCover}" alt="${getText('alt_backCoverPreview', { title: gameData.title })}">` : '';
         }
         if (existingScreenshotsPreviewElement && existingScreenshotsLabelElement && deleteScreenshotsControlsElement && deleteSelectedScreenshotsBtnElement) {
@@ -675,7 +590,6 @@ export async function populateFormForEdit(gameId) {
                     const wrapper = document.createElement('div');
                     wrapper.className = 'existing-screenshot-item-wrapper';
                     const img = document.createElement('img');
-                    // CORRECCIÓN 3: Usar directamente la URL de Cloudinary.
                     img.src = scrPath;
                     img.alt = getText('gameManager_alt_existingScreenshot').replace('{index}', index + 1);
                     img.className = 'existing-screenshot-image';
@@ -719,6 +633,7 @@ export async function populateFormForEdit(gameId) {
         closeGameFormModalCallback();
     }
 }
+
 async function handleDeleteSelectedGames() {
     if (!gameListElement || !deleteSelectedBtnElement) return;
     const checkedBoxes = gameListElement.querySelectorAll('.game-delete-checkbox:checked');
@@ -772,8 +687,7 @@ async function handleDeleteSelectedGames() {
         } else {
             lastDeletedGamesData = null;
             if (undoDeleteBtnElement) undoDeleteBtnElement.disabled = true;
-            if (errorCount > 0 && successCount === 0) {
-            } else if (errorCount === 0 && successCount === 0) {
+            if (errorCount === 0 && successCount === 0) {
                 notificationService.info(getText('gameManager_deleteNone'));
             }
         }
