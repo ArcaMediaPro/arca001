@@ -4,13 +4,12 @@ import { loadThemeSettings, saveThemeSettings, resetThemeSettings, applyThemePro
 import {
     initAuthUI as originalInitAuthUI,
     checkAuthStatus,
-    // Se elimina setLoadInitialGamesCallback ya que no se usará más
     getCurrentUserRole,
     showLoginFormView,
     showRegisterFormView,
     showRequestResetFormView,
-    showAuthUI, // Se importa showAuthUI para usarlo directamente
-    showGameUI, // Se importa showGameUI para usarlo directamente
+    showAuthUI, 
+    showGameUI, 
     updatePlanCounterUI,
     isAuthenticated,
     saveLanguagePreference,
@@ -44,17 +43,246 @@ import { fetchGameById, fetchAllUniqueGenres } from './gameService.js';
 import { notificationService } from './notificationService.js';
 import { loadTranslations, getText } from './i18n.js';
 
-// --- INICIO DE CÓDIGO AÑADIDO ---
-// Función para configurar la lógica común del footer
+
+
+
+
+// --- LÓGICA DEL MODAL DE BÚSQUEDA EXTERNA ---
+// Todas las funciones relacionadas con el modal se definen aquí, en el ámbito global del módulo.
+
+/**
+ * Abre el modal de búsqueda externa y actualiza sus textos al idioma actual.
+ */
+function openExternalSearchModal() {
+    const modal = getElem('externalSearchModal');
+    if (!modal) {
+        console.error("No se encontró el modal de búsqueda externa (#externalSearchModal).");
+        return;
+    }
+
+    // --- CORRECCIÓN DEFINITIVA v3: Traducción Manual y Directa ---
+    // En lugar de depender de applyPageTranslations(), traducimos cada elemento
+    // manualmente para asegurar que se actualicen.
+
+    try {
+        // 1. Traducir el Título (h2)
+        const titleElem = modal.querySelector('h2[data-i18n-key="externalSearch_title"]');
+        if (titleElem) {
+            titleElem.textContent = getText('externalSearch_title');
+        }
+
+        // 2. Traducir el Placeholder del Input
+        const searchInput = getElem('externalSearchInput', true, modal);
+        if (searchInput) {
+            searchInput.placeholder = getText('externalSearch_placeholder');
+        }
+
+        // 3. Traducir el Botón de Búsqueda
+        const searchButton = getElem('performExternalSearchBtn', true, modal);
+        if (searchButton) {
+            searchButton.textContent = getText('externalSearch_button');
+        }
+
+        // 4. Traducir el 'title' del botón de cerrar
+        const closeBtn = getElem('closeExternalSearchBtn', true, modal);
+        if (closeBtn) {
+            closeBtn.title = getText('gameForm_closeBtnTitle');
+        }
+
+        // 5. Traducir el mensaje inicial (que ya funcionaba)
+        const resultsContainer = getElem('externalSearchResultsContainer', true, modal);
+        resultsContainer.innerHTML = `<p class="search-placeholder-message" style="text-align: center; color: var(--clr-text-secondary);">${getText('externalSearch_initialPrompt')}</p>`;
+
+    } catch (e) {
+        console.error("Error al traducir el modal de búsqueda externa:", e);
+        // Si hay un error, se mostrarán los textos por defecto del HTML.
+    }
+    
+    // Limpiamos el input, mostramos el modal y ponemos el foco
+    const searchInputElem = getElem('externalSearchInput', true, modal);
+    if (searchInputElem) {
+        searchInputElem.value = '';
+    }
+    
+    modal.style.display = 'block';
+    
+    if (searchInputElem) {
+        searchInputElem.focus();
+    }
+}
+
+
+
+
+
+/**
+ * Cierra el modal de búsqueda externa.
+ */
+function closeExternalSearchModal() {
+    const modal = getElem('externalSearchModal');
+    if (modal) modal.style.display = 'none';
+}
+
+/**
+ * Realiza la búsqueda de juegos en la API de RAWG.
+ */
+const performSearch = async () => {
+    const externalSearchModal = getElem('externalSearchModal', false);
+    const searchInput = getElem('externalSearchInput', true, externalSearchModal);
+    const resultsContainer = getElem('externalSearchResultsContainer', true, externalSearchModal);
+
+    const searchTerm = searchInput.value.trim();
+    if (!searchTerm) {
+        resultsContainer.innerHTML = `<p style="text-align: center; color: var(--clr-btn-d-bg);">Por favor, escribe algo para buscar.</p>`;
+        return;
+    }
+    resultsContainer.innerHTML = `<p style="text-align: center;">${getText('externalSearch_searchingFor').replace('{term}', `<strong>${searchTerm}</strong>`)}</p>`;
+
+    const apiKey = 'f83533cf576947e6af8c959d9c6dd2ed';
+    const url = `https://api.rawg.io/api/games?key=${apiKey}&search=${encodeURIComponent(searchTerm)}`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Error de red: ${response.status}`);
+        
+        const data = await response.json();
+        if (!data.results || data.results.length === 0) {
+            resultsContainer.innerHTML = `<p style="text-align: center;">${getText('externalSearch_noResultsFor').replace('{term}', `<strong>${searchTerm}</strong>`)}</p>`;
+            return;
+        }
+
+        const resultsHTML = `<ul class="search-result-list">${data.results.map(game => {
+            const year = game.released ? new Date(game.released).getFullYear() : 'N/A';
+            const coverUrl = game.background_image || 'imagenes/placeholder.png';
+            const platforms = game.platforms ? game.platforms.map(p => p.platform.name).join(', ') : '';
+            const genres = game.genres ? game.genres.map(g => g.name).join(', ') : '';
+
+            return `
+                <li class="search-result-item" data-game-id="${game.id}">
+                    <img src="${coverUrl}" alt="Portada de ${game.name}">
+                    <div class="result-info">
+                        <div class="result-title">${game.name}</div>
+                        <div class="result-details-simple">
+                            <div><strong>${getText('externalSearch_yearLabel')}:</strong> ${year}</div>
+                            <div><strong>${getText('externalSearch_platformsLabel')}:</strong> ${platforms}</div>
+                            <div><strong>${getText('externalSearch_genresLabel')}:</strong> ${genres}</div>
+                        </div>
+                    </div>
+                </li>`;
+        }).join('')}</ul>`;
+        
+        resultsContainer.innerHTML = resultsHTML;
+
+        resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+            item.addEventListener('click', async (event) => {
+                const gameId = event.currentTarget.dataset.gameId;
+                notificationService.info(`Obteniendo detalles para el juego ID: ${gameId}...`);
+                closeExternalSearchModal();
+
+                try {
+                    const detailsUrl = `https://api.rawg.io/api/games/${gameId}?key=${apiKey}`;
+                    const detailsResponse = await fetch(detailsUrl);
+                    if (!detailsResponse.ok) throw new Error('No se pudieron obtener los detalles del juego.');
+                    
+                    const gameDetails = await detailsResponse.json();
+
+                    clearAndResetGameForm(); 
+
+                    getElem('title').value = gameDetails.name || '';
+                    getElem('year').value = gameDetails.released ? new Date(gameDetails.released).getFullYear() : '';
+                    getElem('developer').value = gameDetails.developers && gameDetails.developers.length > 0 ? gameDetails.developers[0].name : '';
+                    getElem('publisher').value = gameDetails.publishers && gameDetails.publishers.length > 0 ? gameDetails.publishers[0].name : '';
+                    getElem('additionalInfo').value = gameDetails.description_raw || '';
+                    
+                    const genreSelect = getElem('genre');
+                    if (gameDetails.genres && gameDetails.genres.length > 0) {
+                        const apiGenreName = gameDetails.genres[0].name.toLowerCase();
+                        for (let option of genreSelect.options) {
+                            if (option.value.toLowerCase().includes(apiGenreName)) {
+                                option.selected = true;
+                                break; 
+                            }
+                        }
+                    }
+
+                    const platformSelect = getElem('platform');
+                    if (gameDetails.platforms && gameDetails.platforms.length > 0) {
+                        let platformFound = false;
+                        for (const apiPlatform of gameDetails.platforms) {
+                            const apiPlatformName = apiPlatform.platform.name.toLowerCase();
+                            for (let option of platformSelect.options) {
+                                const optionValue = option.value.toLowerCase();
+                                const apiWords = apiPlatformName.split(' ');
+                                const allWordsMatch = apiWords.every(word => optionValue.includes(word));
+                                
+                                if (allWordsMatch) {
+                                    option.selected = true;
+                                    platformFound = true;
+                                    break;
+                                }
+                            }
+                            if (platformFound) break;
+                        }
+                    }
+
+                    const pcPlatform = gameDetails.platforms.find(p => p.platform.id === 4);
+                    if (pcPlatform && pcPlatform.requirements && pcPlatform.requirements.minimum) {
+                        const requirementsText = pcPlatform.requirements.minimum;
+                        
+                        const cpuMatch = requirementsText.match(/<strong>Processor:<\/strong>\s*(.*)/);
+                        const memoryMatch = requirementsText.match(/<strong>Memory:<\/strong>\s*(.*)/);
+                        const graphicsMatch = requirementsText.match(/<strong>Graphics:<\/strong>\s*(.*)/);
+                        const soundMatch = requirementsText.match(/<strong>Sound Card:<\/strong>\s*(.*)/);
+                        const storageMatch = requirementsText.match(/<strong>Storage:<\/strong>\s*(.*)/);
+
+                        if (cpuMatch && cpuMatch[1]) {
+                             const additionalInfoElem = getElem('additionalInfo');
+                             additionalInfoElem.value += `\n\n--- REQUISITOS ---\nCPU: ${cpuMatch[1]}`;
+                        }
+                        if (memoryMatch && memoryMatch[1]) {
+                            getElem('reqMemory').value = memoryMatch[1].replace(/<br>/g, '');
+                        }
+                        if (graphicsMatch && graphicsMatch[1]) {
+                             const additionalInfoElem = getElem('additionalInfo');
+                             if (!additionalInfoElem.value.includes('--- REQUISITOS ---')) {
+                                additionalInfoElem.value += '\n\n--- REQUISITOS ---';
+                             }
+                             additionalInfoElem.value += `\nGráfica: ${graphicsMatch[1]}`;
+                        }
+                        if (soundMatch && soundMatch[1]) {
+                            getElem('reqSound').value = soundMatch[1].replace(/<br>/g, '');
+                        }
+                        if (storageMatch && storageMatch[1]) {
+                            const hddSelect = getElem('reqHdd');
+                            if (hddSelect) hddSelect.value = 'gameForm_hdd_required';
+                        }
+                    }
+
+                    openGameFormModal(false);
+
+                } catch (error) {
+                    console.error('Error al obtener y rellenar detalles:', error);
+                    notificationService.error('No se pudo cargar la información detallada del juego.');
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error('Error al buscar juegos en RAWG:', error);
+        resultsContainer.innerHTML = `<p style="text-align: center; color: var(--clr-btn-d-bg);">${getText('externalSearch_error')}</p>`;
+    }
+};
+
+
+// --- FUNCIONES GENERALES Y DE INICIALIZACIÓN ---
+
 function setupFooter() {
     const yearSpan = getElem('currentYear', false);
     if (yearSpan) {
         yearSpan.textContent = new Date().getFullYear();
     }
 }
-// --- FIN DE CÓDIGO AÑADIDO ---
 
-// +++ FUNCIONES PARA MANEJAR COOKIES +++
 function setCookie(nombre, valor, dias) {
   let expires = "";
   if (dias) {
@@ -75,7 +303,6 @@ function getCookie(nombre) {
   }
   return null;
 }
-// +++ FIN DE FUNCIONES PARA COOKIES +++
 
 function applyPageTranslations() {
     const elements = document.querySelectorAll('[data-i18n-key]');
@@ -105,10 +332,6 @@ function applyPageTranslations() {
     });
 }
 
-/**
- * Actualiza la fuente (src) de las imágenes localizadas según el idioma seleccionado.
- * @param {string} lang - El código del idioma actual (ej: 'es', 'en', 'de').
- */
 function updateLocalizedImages(lang) {
     const imageMap = {
         'sidebarTitleImage': 'Plataforma',
@@ -220,8 +443,7 @@ async function initializeFilterData() {
     }
 }
 
-// Se elimina la llamada a setLoadInitialGamesCallback de aquí.
-
+// --- EVENTO PRINCIPAL DE CARGA DEL DOM ---
 document.addEventListener('DOMContentLoaded', async () => {
     if (domInitError) {
         notificationService.error("Error crítico al cargar la aplicación. Algunas funciones pueden no estar disponibles.", { name: "DOMInitError", message: "Elementos HTML REQUERIDOS no encontrados (ver consola)." });
@@ -230,9 +452,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     setupFooter();
     
-    // La lógica de idioma ahora depende del resultado de checkAuthStatus,
-    // por lo que se mueve más abajo.
-
     const promoPageContent = document.getElementById('promo-page-content');
     const gameAreaElement = document.getElementById('game-area');
     const isPromoPage = !!promoPageContent;
@@ -279,6 +498,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        // Asignación de eventos para el modal de búsqueda externa
+        const externalLoadBtn = getElem('externalLoadBtn', false);
+        const externalSearchModal = getElem('externalSearchModal', false);
+        if (externalLoadBtn && externalSearchModal) {
+            const closeBtn = getElem('closeExternalSearchBtn', true, externalSearchModal);
+            const searchBtn = getElem('performExternalSearchBtn', true, externalSearchModal);
+            const searchInput = getElem('externalSearchInput', true, externalSearchModal);
+            externalLoadBtn.addEventListener('click', openExternalSearchModal);
+            closeBtn.addEventListener('click', closeExternalSearchModal);
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') performSearch();
+            });
+        }
+
         const configBtnElement = getElem('configBtn', false);
         if (configBtnElement) {
             configBtnElement.addEventListener('click', () => {
@@ -302,34 +536,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
 
+        const requestResetFormIndex = getElem('request-reset-form', false);
+        if (requestResetFormIndex) {
+            requestResetFormIndex.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const emailInput = getElem('reset-email', false);
+                const email = emailInput ? emailInput.value.trim() : '';
+                const submitButton = e.target.querySelector('button[type="submit"]');
 
+                if (!email) {
+                    displayAuthMessage('Por favor, ingresa un correo electrónico.', true);
+                    return;
+                }
 
-const requestResetFormIndex = getElem('request-reset-form', false);
-if (requestResetFormIndex) {
-    requestResetFormIndex.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const emailInput = getElem('reset-email', false);
-        const email = emailInput ? emailInput.value.trim() : '';
-        const submitButton = e.target.querySelector('button[type="submit"]');
-
-        if (!email) {
-            displayAuthMessage('Por favor, ingresa un correo electrónico.', true);
-            return;
+                if (submitButton) submitButton.disabled = true;
+                const result = await requestPasswordReset(email);
+                displayAuthMessage(result.message, false, false); 
+                if (submitButton) submitButton.disabled = false;
+            });
         }
-
-        if (submitButton) submitButton.disabled = true;
-
-        // Se usa la misma función de authClient que en la página promocional
-        const result = await requestPasswordReset(email);
-
-        // Muestra el mensaje ("Si tu correo está registrado...") en el div de mensajes de autenticación
-        displayAuthMessage(result.message, false, false); // No es un error, y no se borra solo
-
-        if (submitButton) submitButton.disabled = false;
-    });
-}
-
-
 
         const showRegisterBtnIndex = getElem('show-register-from-login', false);
         if (showRegisterBtnIndex) showRegisterBtnIndex.addEventListener('click', (e) => { e.preventDefault(); showRegisterFormView(); });
@@ -451,7 +676,7 @@ if (requestResetFormIndex) {
 
     // --- NUEVO FLUJO DE INICIO CENTRALIZADO ---
     try {
-        const authStatus = await checkAuthStatus(); // Llama a la nueva versión que devuelve el estado
+        const authStatus = await checkAuthStatus(); 
 
         const supportedLanguages = ['es', 'en', 'it', 'pt', 'ja', 'ru', 'fr', 'hi', 'cn', 'de'];
         let idiomaAUsar = 'es';
@@ -470,25 +695,20 @@ if (requestResetFormIndex) {
         
         await loadTranslations(idiomaAUsar);
         applyPageTranslations();
-	updatePlanCounterUI(); // <--- AÑADE ESTA LÍNEA AQUÍ
-    updateLocalizedImages(idiomaAUsar);
+        updatePlanCounterUI();
         updateLocalizedImages(idiomaAUsar);
         const languageSwitcherElement = getElem('languageSwitcher', false);
         if (languageSwitcherElement) languageSwitcherElement.value = idiomaAUsar;
 
 
         if (authStatus.isAuthenticated) {
-            // 1. Muestra la UI del juego (esta función ya no carga datos)
             await showGameUI(authStatus.user.username);
-
-            // 2. Carga los datos necesarios AHORA, después de que toda la configuración está lista
             const configFormEl = getElem('configForm', false);
             await loadThemeSettings(configFormEl);
             await initializeFilterData();
             await loadInitialGames();
             configureUIAfterAuth();
         } else {
-            // Si no está autenticado, muestra el formulario de login
             showAuthUI();
             if(authStatus.error) {
                  notificationService.error(getText('auth_error_checkAuthStatusNotify'), authStatus.error);
@@ -515,6 +735,7 @@ if (requestResetFormIndex) {
                 else if (activeModal.id === 'gameDetailModal') closeGameDetailModal();
                 else if (activeModal.id === 'imageModal') closeImageModal();
                 else if (activeModal.id === 'configModal') closeConfigModal();
+                else if (activeModal.id === 'externalSearchModal') closeExternalSearchModal(); 
             }
         }
     });

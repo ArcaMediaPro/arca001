@@ -40,16 +40,23 @@ const app = express();
 
 
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
+
+// ===================== INICIO DEL BLOQUE MODIFICADO =====================
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
   contentSecurityPolicy: {
     directives: {
+      // Se mantienen los valores por defecto de Helmet
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      "img-src": ["'self'", "*.cloudinary.com", "data:"],
-      "connect-src": ["'self'", "*.cloudinary.com"], 
+      // Se permite cargar imágenes desde estos dominios
+      "img-src": ["'self'", "*.cloudinary.com", "media.rawg.io", "*.mobygames.com", "data:"],
+      // Se permite la conexión a estos dominios
+      "connect-src": ["'self'", "*.cloudinary.com", "https://api.rawg.io"], 
     },
   },
 }));
+// ===================== FIN DEL BLOQUE MODIFICADO =====================
+
 
 app.use(cors({
     origin: function (origin, callback) {

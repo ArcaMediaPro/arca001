@@ -689,6 +689,20 @@
     "modal_reset_title": "Restablecer Contraseña",
     "modal_reset_instructions": "Ingresa tu correo electrónico y te enviaremos un enlace para restablecer tu contraseña.",
     "modal_reset_submit_btn": "Enviar Enlace",
-    "modal_back_to_login_link": "Volver a Iniciar Sesión"
+    "modal_back_to_login_link": "Volver a Iniciar Sesión",
+
+
+  "header_externalLoadBtnTitle": "Carga Externa desde API",
+  "externalSearch_title": "Búsqueda Externa de Juegos",
+  "externalSearch_placeholder": "Escribe el nombre del juego...",
+  "externalSearch_button": "Buscar",
+  "externalSearch_initialPrompt": "Ingresa un término de búsqueda para encontrar juegos.",
+  "externalSearch_searchingFor": "Buscando coincidencias para {term}...",
+  "externalSearch_noResultsFor": "No se encontraron resultados para {term}.",
+  "externalSearch_yearLabel": "Año",
+  "externalSearch_platformsLabel": "Plataformas",
+  "externalSearch_genresLabel": "Géneros",
+  "externalSearch_error": "Ocurrió un error al conectar con el servicio.",
+  "gameForm_closeBtnTitle": "Cerrar"
 
 }

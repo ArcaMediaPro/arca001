@@ -684,7 +684,21 @@
     "modal_reset_title": "पासवर्ड रीसेट करें",
     "modal_reset_instructions": "अपना ईमेल दर्ज करें और हम आपको अपना पासवर्ड रीसेट करने के लिए एक लिंक भेजेंगे।",
     "modal_reset_submit_btn": "लिंक भेजें",
-    "modal_back_to_login_link": "लॉग इन पर वापस जाएं"
+    "modal_back_to_login_link": "लॉग इन पर वापस जाएं",
+
+
+  "header_externalLoadBtnTitle": "एपीआई से बाहरी लोड",
+  "externalSearch_title": "बाहरी गेम खोज",
+  "externalSearch_placeholder": "गेम का नाम टाइप करें...",
+  "externalSearch_button": "खोजें",
+  "externalSearch_initialPrompt": "गेम खोजने के लिए एक खोज शब्द दर्ज करें।",
+  "externalSearch_searchingFor": "{term} के लिए मिलान खोजा जा रहा है...",
+  "externalSearch_noResultsFor": "{term} के लिए कोई परिणाम नहीं मिला।",
+  "externalSearch_yearLabel": "वर्ष",
+  "externalSearch_platformsLabel": "प्लेटफार्म",
+  "externalSearch_genresLabel": "शैलियाँ",
+  "externalSearch_error": "सेवा से कनेक्ट करते समय एक त्रुटि हुई।",
+  "gameForm_closeBtnTitle": "बंद करें"
 
 
 }

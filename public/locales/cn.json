@@ -683,6 +683,20 @@
     "modal_reset_title": "重设密码",
     "modal_reset_instructions": "请输入您的电子邮件，我们将向您发送一个重设密码的链接。",
     "modal_reset_submit_btn": "发送链接",
-    "modal_back_to_login_link": "返回登录"
+    "modal_back_to_login_link": "返回登录",
+
+
+  "header_externalLoadBtnTitle": "从API外部加载",
+  "externalSearch_title": "外部游戏搜索",
+  "externalSearch_placeholder": "输入游戏名称...",
+  "externalSearch_button": "搜索",
+  "externalSearch_initialPrompt": "输入搜索词以查找游戏。",
+  "externalSearch_searchingFor": "正在搜索 {term} 的匹配项...",
+  "externalSearch_noResultsFor": "未找到 “{term}” 的结果。",
+  "externalSearch_yearLabel": "年份",
+  "externalSearch_platformsLabel": "平台",
+  "externalSearch_genresLabel": "类型",
+  "externalSearch_error": "连接服务时出错。",
+  "gameForm_closeBtnTitle": "关闭"
 
 }

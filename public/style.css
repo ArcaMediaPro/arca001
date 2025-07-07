@@ -102,6 +102,7 @@ header h1 {
 }
 
 #addGameBtn,
+#externalLoadBtn,
 #deleteSelectedBtn {
     width: 49px;
     height: 49px;
@@ -122,12 +123,14 @@ header h1 {
 }
 
 #addGameBtn:hover:not(:disabled),
+#externalLoadBtn:hover:not(:disabled),
 #deleteSelectedBtn:hover:not(:disabled) {
     background-color: transparent;
     opacity: 0.7;
 }
 
 #addGameBtn:disabled,
+#externalLoadBtn:disabled,
 #deleteSelectedBtn:disabled {
     background-color: transparent !important;
     opacity: 0.4;
@@ -136,6 +139,7 @@ header h1 {
 }
 
 #addGameBtn img,
+#externalLoadBtn img,
 #deleteSelectedBtn img {
     display: block;
     width: 100%;
@@ -1699,4 +1703,191 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
 .result-info span {
     font-size: 0.85em;
     color: var(--clr-text-secondary);
+}
+
+				/* --- Estilos para Modal de Búsqueda Externa --- */
+.search-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+#externalSearchInput {
+    padding: 0.6rem;
+    flex-grow: 1;
+    border: 1px solid var(--clr-input-border);
+    background-color: var(--clr-input-bg);
+    color: var(--clr-input-text);
+    border-radius: 4px;
+}
+
+#externalSearchInput:focus {
+    outline: none;
+    border-color: var(--clr-input-focus);
+    box-shadow: 0 0 5px var(--clr-input-focus);
+}
+
+#performExternalSearchBtn {
+    flex-shrink: 0; /* Evita que el botón se encoja */
+}
+
+.search-results-container {
+    margin-top: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--clr-border);
+    border-radius: 4px;
+    background-color: var(--clr-input-bg);
+    padding: 0.5rem;
+}
+
+.search-result-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--clr-border);
+    transition: background-color 0.2s ease;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background-color: var(--clr-sidebar-hover-bg);
+}
+
+.search-result-item img {
+    width: 50px;
+    height: 65px;
+    object-fit: cover;
+    margin-right: 15px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    background-color: #1a1a1a; /* Color de fondo mientras carga la imagen */
+}
+
+.search-result-item .result-info {
+    overflow: hidden; /* Para que el texto no se desborde */
+}
+
+.search-result-item .result-title {
+    font-weight: bold;
+    color: var(--clr-text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+}
+
+.search-result-item .result-year {
+    font-size: 0.85em;
+    color: var(--clr-text-secondary);
+}
+
+/*
+===================================================================
+=== PUNTOS DE RUPTURA RESPONSIVOS (BREAKPOINTS) ===
+===================================================================
+*/
+
+/* --- Pantallas de Tablet (hasta 992px) --- */
+@media (max-width: 992px) {
+    :root {
+        --sidebar-width: 220px; /* Hacemos la barra lateral un poco más estrecha */
+    }
+    .main-content {
+        padding: 1rem;
+    }
+}
+
+
+/* --- Pantallas de Tablet en vertical y móviles grandes (hasta 768px) --- */
+@media (max-width: 768px) {
+    /* Ocultamos la barra lateral y hacemos que el contenido principal ocupe todo el ancho */
+    .platform-sidebar {
+        display: none;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 1rem; /* Reducimos padding */
+    }
+    .filter-section {
+        width: 100%;
+        left: 0;
+        position: sticky; /* Aseguramos que se mantenga pegajoso */
+        padding: 1rem;
+    }
+
+    /* Apilamos los controles de filtro */
+    .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .sort-controls {
+        margin-left: 0;
+        width: 100%;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+    }
+
+    /* Ajustamos el formulario para que no sea tan ancho */
+    #gameFormModal .modal-content {
+        width: 90vw;
+        max-width: 600px;
+    }
+}
+
+
+/* --- Pantallas de Celular (hasta 480px) --- */
+@media (max-width: 480px) {
+    :root {
+        --header-height: auto; /* Permitimos que el header crezca si es necesario */
+    }
+    header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .header-content-wrapper, .user-info {
+        width: 100%;
+        justify-content: space-between;
+    }
+    #appLogo {
+        max-height: 80px !important;
+    }
+
+    /* Reducimos el tamaño de los botones del header */
+    #addGameBtn, #externalLoadBtn, #deleteSelectedBtn {
+        width: 38px;
+        height: 38px;
+    }
+
+    /* Hacemos que los modales ocupen casi toda la pantalla */
+    .modal-content {
+        padding: 1rem;
+        width: 95vw;
+    }
+    #gameForm {
+        grid-template-columns: 1fr; /* Forzamos una sola columna */
+    }
+    #gameForm > div, #gameForm > fieldset {
+        grid-column: 1 / -1 !important; /* Aseguramos que ocupen todo el ancho */
+    }
+
+    /* Ajustamos el tamaño de la fuente para mejor legibilidad */
+    body {
+        font-size: 14px;
+    }
+    .card-content .card-title {
+        font-size: 1rem;
+    }
 }

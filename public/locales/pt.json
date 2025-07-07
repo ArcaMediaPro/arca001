@@ -683,6 +683,20 @@
     "modal_reset_title": "Redefinir Senha",
     "modal_reset_instructions": "Digite seu e-mail e enviaremos um link para redefinir sua senha.",
     "modal_reset_submit_btn": "Enviar Link",
-    "modal_back_to_login_link": "Voltar para Entrar"
+    "modal_back_to_login_link": "Voltar para Entrar",
+
+
+  "header_externalLoadBtnTitle": "Carga Externa da API",
+  "externalSearch_title": "Pesquisa Externa de Jogos",
+  "externalSearch_placeholder": "Digite o nome do jogo...",
+  "externalSearch_button": "Pesquisar",
+  "externalSearch_initialPrompt": "Digite um termo de pesquisa para encontrar jogos.",
+  "externalSearch_searchingFor": "Procurando correspondências para {term}...",
+  "externalSearch_noResultsFor": "Nenhum resultado encontrado para {term}.",
+  "externalSearch_yearLabel": "Ano",
+  "externalSearch_platformsLabel": "Plataformas",
+  "externalSearch_genresLabel": "Gêneros",
+  "externalSearch_error": "Ocorreu um erro ao conectar-se ao serviço.",
+  "gameForm_closeBtnTitle": "Fechar"
 
 }

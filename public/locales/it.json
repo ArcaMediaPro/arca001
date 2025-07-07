@@ -684,6 +684,20 @@
     "modal_reset_title": "Reimposta Password",
     "modal_reset_instructions": "Inserisci la tua email e ti invieremo un link per reimpostare la password.",
     "modal_reset_submit_btn": "Invia Link",
-    "modal_back_to_login_link": "Torna ad Accedi"
+    "modal_back_to_login_link": "Torna ad Accedi",
+
+
+  "header_externalLoadBtnTitle": "Caricamento Esterno da API",
+  "externalSearch_title": "Ricerca Esterna di Giochi",
+  "externalSearch_placeholder": "Scrivi il nome del gioco...",
+  "externalSearch_button": "Cerca",
+  "externalSearch_initialPrompt": "Inserisci un termine di ricerca per trovare giochi.",
+  "externalSearch_searchingFor": "Ricerca di corrispondenze per {term}...",
+  "externalSearch_noResultsFor": "Nessun risultato trovato per {term}.",
+  "externalSearch_yearLabel": "Anno",
+  "externalSearch_platformsLabel": "Piattaforme",
+  "externalSearch_genresLabel": "Generi",
+  "externalSearch_error": "Si è verificato un errore durante la connessione al servizio.",
+  "gameForm_closeBtnTitle": "Chiudi"
 
 }

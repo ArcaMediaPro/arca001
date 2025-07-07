@@ -684,6 +684,20 @@
     "modal_reset_title": "Passwort zurücksetzen",
     "modal_reset_instructions": "Geben Sie Ihre E-Mail ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres Passworts.",
     "modal_reset_submit_btn": "Link senden",
-    "modal_back_to_login_link": "Zurück zum Anmelden"
+    "modal_back_to_login_link": "Zurück zum Anmelden",
+
+
+  "header_externalLoadBtnTitle": "Externes Laden von API",
+  "externalSearch_title": "Externe Spielsuche",
+  "externalSearch_placeholder": "Spielnamen eingeben...",
+  "externalSearch_button": "Suchen",
+  "externalSearch_initialPrompt": "Geben Sie einen Suchbegriff ein, um Spiele zu finden.",
+  "externalSearch_searchingFor": "Suche nach Übereinstimmungen für {term}...",
+  "externalSearch_noResultsFor": "Keine Ergebnisse für {term} gefunden.",
+  "externalSearch_yearLabel": "Jahr",
+  "externalSearch_platformsLabel": "Plattformen",
+  "externalSearch_genresLabel": "Genres",
+  "externalSearch_error": "Beim Verbinden mit dem Dienst ist ein Fehler aufgetreten.",
+  "gameForm_closeBtnTitle": "Schließen"
 
 }

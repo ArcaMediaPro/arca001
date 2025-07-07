@@ -687,6 +687,20 @@
     "modal_reset_title": "Reset Password",
     "modal_reset_instructions": "Enter your email and we will send you a link to reset your password.",
     "modal_reset_submit_btn": "Send Link",
-    "modal_back_to_login_link": "Back to Log In"
+    "modal_back_to_login_link": "Back to Log In",
+
+
+  "header_externalLoadBtnTitle": "External Load from API",
+  "externalSearch_title": "External Game Search",
+  "externalSearch_placeholder": "Type the name of the game...",
+  "externalSearch_button": "Search",
+  "externalSearch_initialPrompt": "Enter a search term to find games.",
+  "externalSearch_searchingFor": "Searching for matches for {term}...",
+  "externalSearch_noResultsFor": "No results found for {term}.",
+  "externalSearch_yearLabel": "Year",
+  "externalSearch_platformsLabel": "Platforms",
+  "externalSearch_genresLabel": "Genres",
+  "externalSearch_error": "An error occurred while connecting to the service.",
+  "gameForm_closeBtnTitle": "Close"
 
 }

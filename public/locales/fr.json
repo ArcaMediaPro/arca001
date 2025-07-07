@@ -683,6 +683,20 @@
     "modal_reset_title": "Réinitialiser le Mot de Passe",
     "modal_reset_instructions": "Entrez votre e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
     "modal_reset_submit_btn": "Envoyer le Lien",
-    "modal_back_to_login_link": "Retour à la Connexion"
+    "modal_back_to_login_link": "Retour à la Connexion",
+
+
+  "header_externalLoadBtnTitle": "Chargement Externe depuis API",
+  "externalSearch_title": "Recherche de jeu externe",
+  "externalSearch_placeholder": "Entrez le nom du jeu...",
+  "externalSearch_button": "Rechercher",
+  "externalSearch_initialPrompt": "Entrez un terme de recherche pour trouver des jeux.",
+  "externalSearch_searchingFor": "Recherche de correspondances pour {term}...",
+  "externalSearch_noResultsFor": "Aucun résultat trouvé pour {term}.",
+  "externalSearch_yearLabel": "Année",
+  "externalSearch_platformsLabel": "Plateformes",
+  "externalSearch_genresLabel": "Genres",
+  "externalSearch_error": "Une erreur est survenue lors de la connexion au service.",
+  "gameForm_closeBtnTitle": "Fermer"
 
 }

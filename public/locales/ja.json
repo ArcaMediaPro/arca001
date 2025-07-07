@@ -684,6 +684,20 @@
     "modal_reset_title": "パスワードをリセット",
     "modal_reset_instructions": "メールアドレスを入力してください。パスワードをリセットするためのリンクをお送りします。",
     "modal_reset_submit_btn": "リンクを送信",
-    "modal_back_to_login_link": "ログインに戻る"
+    "modal_back_to_login_link": "ログインに戻る",
+
+
+  "header_externalLoadBtnTitle": "APIからの外部読み込み",
+  "externalSearch_title": "外部ゲーム検索",
+  "externalSearch_placeholder": "ゲーム名を入力...",
+  "externalSearch_button": "検索",
+  "externalSearch_initialPrompt": "検索語を入力してゲームを見つけてください。",
+  "externalSearch_searchingFor": "{term} の一致を検索中...",
+  "externalSearch_noResultsFor": "{term} の結果は見つかりませんでした。",
+  "externalSearch_yearLabel": "年",
+  "externalSearch_platformsLabel": "プラットフォーム",
+  "externalSearch_genresLabel": "ジャンル",
+  "externalSearch_error": "サービスへの接続中にエラーが発生しました。",
+  "gameForm_closeBtnTitle": "閉じる"
 
 }

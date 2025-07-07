@@ -7,17 +7,31 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="game-detail-modal.css">
     <link rel="stylesheet" href="toast.css">
-</head>
+    <link rel="stylesheet" href="external-search-modal.css">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: *.mobygames.com media.rawg.io *.cloudinary.com; connect-src 'self' *.cloudinary.com https://api.rawg.io;"></head>
 <body>
 
     <header>
         <div class="header-content-wrapper">
             <img src="imagenes/Logo Arcamedia.png" alt="Arcamedia Logo" id="appLogo" style="max-height: 136px; margin-right: 1rem;" data-i18n-key="header_appLogoAlt" data-i18n-target-attr="alt">
+
+
             <div class="header-page-controls">
-                <button id="addGameBtn" type="button" title="Agregar Juego" data-i18n-key="header_addGameBtnTitle" data-i18n-target-attr="title">
+ 
+               <button id="addGameBtn" type="button" title="Agregar Juego" data-i18n-key="header_addGameBtnTitle" data-i18n-target-attr="title">
                     <img src="imagenes/Agregar Juego.png" alt="Agregar Juego" data-i18n-key="header_addGameBtnImgAlt" data-i18n-target-attr="alt">
                 </button>
+
+
+
+		<button id="externalLoadBtn" type="button" title="Carga Externa desde API" data-i18n-key="header_externalLoadBtnTitle" data-i18n-target-attr="title">
+        	<img src="imagenes/carga_externa.png" alt="Carga Externa" data-i18n-key="header_externalLoadBtnImgAlt" data-i18n-target-attr="alt">
+    		</button>
+
+
+
                 <button id="deleteSelectedBtn" type="button" title="Eliminar Seleccionados" data-i18n-key="header_deleteBtnTitle" data-i18n-target-attr="title" disabled>
+
                     <img src="imagenes/Eliminar Seleccion.png" alt="Eliminar Seleccionados" data-i18n-key="header_deleteBtnImgAlt" data-i18n-target-attr="alt">
                 </button>
                 <button id="undoDeleteBtn" type="button" title="Deshacer última eliminación" data-i18n-key="header_undoBtnTitle" data-i18n-target-attr="title" disabled>
@@ -890,9 +904,72 @@
         </div>
     </div>
     
+
+// Modal External Search
+<div id="externalSearchModal" class="modal" style="z-index: 1002; display: none;">
+        <div class="modal-content" style="width: 50vw; max-width: 600px; min-width: 340px;">
+            <span id="closeExternalSearchBtn" class="close" title="Cerrar">&times;</span>
+	<h2 id="externalSearchTitle" data-i18n-key="externalSearch_title">Búsqueda Externa de Juegos</h2>
+            <div class="search-input-group">
+                <input type="search" id="externalSearchInput" placeholder="Escribe el nombre del juego...">
+                <button id="performExternalSearchBtn" class="admin-button primary">Buscar</button>
+            </div>
+
+            <div id="externalSearchResultsContainer" class="search-results-container">
+                <p class="search-placeholder-message" style="text-align: center; color: var(--clr-text-secondary);">
+                    Ingresa un término de búsqueda para encontrar juegos.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div id="toast-container"></div>
+    <script type="module" src="main.js"></script>
+
+
+
+    <!-- ======================================================= -->
+    <!-- == PEGA EL NUEVO CÓDIGO DEL MODAL DE BÚSQUEDA AQUÍ == -->
+    <!-- ======================================================= -->
+    <div id="externalSearchModal" class="modal" style="z-index: 1002; display: none;">
+    <div class="modal-content">
+        <!-- El 'title' del botón de cerrar también necesita traducción -->
+        <span id="closeExternalSearchBtn" class="close" 
+              title="Cerrar" 
+              data-i18n-key="gameForm_closeBtnTitle" 
+              data-i18n-target-attr="title">&times;</span>
+        
+        <h2 data-i18n-key="externalSearch_title">Búsqueda Externa de Juegos</h2>
+
+        <div class="search-input-group">
+            <input type="search" id="externalSearchInput" 
+                   placeholder="Escribe el nombre del juego..." 
+                   data-i18n-key="externalSearch_placeholder" 
+                   data-i18n-target-attr="placeholder">
+            
+            <button id="performExternalSearchBtn" class="admin-button primary" 
+                    data-i18n-key="externalSearch_button">Buscar</button>
+        </div>
+
+        <div id="externalSearchResultsContainer" class="search-results-container">
+            <p class="search-placeholder-message" style="text-align: center; color: var(--clr-text-secondary);"
+               data-i18n-key="externalSearch_initialPrompt">
+               Ingresa un término de búsqueda para encontrar juegos.
+            </p>
+        </div>
+    </div>
+</div>
+
+    <!-- ======================================================= -->
+    <!-- == FIN DEL CÓDIGO A PEGAR == -->
+    <!-- ======================================================= -->
+
+
+
+
+
     <div id="toast-container"></div>
 
     <script type="module" src="main.js"></script>
-    
+   
 </body>
 </html>

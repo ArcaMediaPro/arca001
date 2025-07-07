@@ -450,39 +450,47 @@ async function handleGameFormSubmit(event) {
         }
         const successMessageKey = editingId ? 'gameManager_gameUpdatedSuccess' : 'gameManager_gameAddedSuccess';
         notificationService.success(getText(successMessageKey));
-        await loadInitialGames(currentGlobalFilters, currentGlobalSortOrder);
+
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Se recargan tanto los juegos como el resumen de plataformas.
+        await Promise.all([
+            loadInitialGames(currentGlobalFilters, currentGlobalSortOrder),
+            loadAndSetPlatformSummaries() 
+        ]);
+        // --- FIN DE LA CORRECCIÓN ---
+        
         closeGameFormModalCallback();
     } catch (error) {
-    console.error(`Error al ${editingId ? 'actualizar' : 'crear'} juego:`, error);
+        console.error(`Error al ${editingId ? 'actualizar' : 'crear'} juego:`, error);
     
-    if (error.response && error.response.status === 403) {
-        const errorData = error.data || {}; 
+        if (error.response && error.response.status === 403) {
+            const errorData = error.data || {}; 
+            
+            if (errorData.messageKey && errorData.messageParams) {
+                const message = getText(errorData.messageKey, errorData.messageParams);
+                notificationService.warn(message, 8000);
+            } else {
+                notificationService.warn(error.message || 'Límite del plan alcanzado.', 8000);
+            }
         
-        if (errorData.messageKey && errorData.messageParams) {
-            const message = getText(errorData.messageKey, errorData.messageParams);
-            notificationService.warn(message, 8000);
+        } else if (error.errors && Array.isArray(error.errors)) {
+            notificationService.clearFieldErrors(gameFormElement);
+            notificationService.displayFieldErrors(error.errors, gameFormElement);
+            notificationService.error(getText("gameManager_validationErrorsSaving"), null, 7000);
+        } else if (error.message && error.message.toLowerCase().includes(getText('server_error_titleInUse_snippet'))) {
+            notificationService.error(error.message, error);
         } else {
-            notificationService.warn(error.message || 'Límite del plan alcanzado.', 8000);
+            let userMessageKey = 'gameManager_errorSavingGame';
+            if (error.message && error.message.includes("CSRF")) {
+                userMessageKey = "gameManager_securityErrorSaving";
+            }
+            notificationService.error(getText(userMessageKey), error);
         }
-    
-    } else if (error.errors && Array.isArray(error.errors)) {
-        notificationService.clearFieldErrors(gameFormElement);
-        notificationService.displayFieldErrors(error.errors, gameFormElement);
-        notificationService.error(getText("gameManager_validationErrorsSaving"), null, 7000);
-    } else if (error.message && error.message.toLowerCase().includes(getText('server_error_titleInUse_snippet'))) {
-        notificationService.error(error.message, error);
-    } else {
-        let userMessageKey = 'gameManager_errorSavingGame';
-        if (error.message && error.message.includes("CSRF")) {
-            userMessageKey = "gameManager_securityErrorSaving";
+        
+        if (submitButtonElement) {
+            submitButtonElement.disabled = false;
         }
-        notificationService.error(getText(userMessageKey), error);
     }
-    
-    if (submitButtonElement) {
-        submitButtonElement.disabled = false;
-    }
-}
 }
 
 export function clearAndResetGameForm() {

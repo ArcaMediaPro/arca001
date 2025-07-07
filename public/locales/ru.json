@@ -684,7 +684,20 @@
     "modal_reset_title": "Сбросить пароль",
     "modal_reset_instructions": "Введите свой адрес электронной почты, и мы вышлем вам ссылку для сброса пароля.",
     "modal_reset_submit_btn": "Отправить ссылку",
-    "modal_back_to_login_link": "Назад ко входу"
+    "modal_back_to_login_link": "Назад ко входу",
+  
+  "header_externalLoadBtnTitle": "Внешняя загрузка из API",
+  "externalSearch_title": "Внешний поиск игр",
+  "externalSearch_placeholder": "Введите название игры...",
+  "externalSearch_button": "Поиск",
+  "externalSearch_initialPrompt": "Введите поисковый запрос, чтобы найти игры.",
+  "externalSearch_searchingFor": "Поиск совпадений для {term}...",
+  "externalSearch_noResultsFor": "Результатов по запросу {term} не найдено.",
+  "externalSearch_yearLabel": "Год",
+  "externalSearch_platformsLabel": "Платформы",
+  "externalSearch_genresLabel": "Жанры",
+  "externalSearch_error": "Произошла ошибка при подключении к сервису.",
+  "gameForm_closeBtnTitle": "Закрыть"
 
 
 }
