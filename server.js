@@ -1,4 +1,4 @@
-// server.js (COMPLETO CON LA RUTA PARA CAMBIAR PLAN)
+// server.js (COMPLETO CON ARRANQUE ROBUSTO PARA RENDER)
 
 require('dotenv').config();
 const express = require('express');
@@ -23,39 +23,20 @@ const preferenceRoutes = require('./routes/preferenceRoutes');
 const authMiddleware = require('./middleware/auth');
 const isAdmin = require('./middleware/adminAuth');
 
-// --- CONEXIÓN A LA BASE DE DATOS ---
-const connectDB = async () => {
-    try {
-        await mongoose.connect(process.env.MONGO_URI, {});
-        console.log(`✅ MongoDB Conectado Correctamente. Host: ${mongoose.connection.host}`);
-    } catch (error) {
-        console.error('❌ ERROR DE CONEXIÓN A MONGODB:', error.message);
-        process.exit(1);
-    }
-};
-
-connectDB();
-
 const app = express();
 
 
 // --- CONFIGURACIÓN DE MIDDLEWARE ---
-
-// ===================== INICIO DEL BLOQUE MODIFICADO =====================
 app.use(helmet({
   crossOriginEmbedderPolicy: false,
   contentSecurityPolicy: {
     directives: {
-      // Se mantienen los valores por defecto de Helmet
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      // Se permite cargar imágenes desde estos dominios
       "img-src": ["'self'", "*.cloudinary.com", "media.rawg.io", "*.mobygames.com", "data:"],
-      // Se permite la conexión a estos dominios
       "connect-src": ["'self'", "*.cloudinary.com", "https://api.rawg.io"], 
     },
   },
 }));
-// ===================== FIN DEL BLOQUE MODIFICADO =====================
 
 
 app.use(cors({
@@ -152,7 +133,6 @@ app.delete('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => 
     }
 });
 
-// <<< INICIO DE LA NUEVA RUTA PARA ACTUALIZAR PLANES >>>
 app.put('/api/admin/users/:id/plan', authMiddleware, isAdmin, async (req, res) => {
     const { id } = req.params;
     const { plan } = req.body;
@@ -175,7 +155,6 @@ app.put('/api/admin/users/:id/plan', authMiddleware, isAdmin, async (req, res) =
         res.status(500).json({ message: 'Error interno del servidor al actualizar el plan.' });
     }
 });
-// <<< FIN DE LA NUEVA RUTA >>>
 
 app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res) => {
     try {
@@ -200,15 +179,29 @@ app.get('/api/admin/cloudinary-stats', authMiddleware, isAdmin, async (req, res)
     }
 });
 
-// --- MANEJO DE ERRORES Y ARRANQUE ---
+// --- MANEJO DE ERRORES ---
 app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ message: err.message || 'Ocurrió un error inesperado.' });
 });
 
-const PORT = process.env.PORT || 5000;
+// --- FUNCIÓN DE ARRANQUE DEL SERVIDOR ---
+const startServer = async () => {
+    try {
+        await mongoose.connect(process.env.MONGO_URI, {});
+        console.log(`✅ MongoDB Conectado Correctamente. Host: ${mongoose.connection.host}`);
+        
+        const PORT = process.env.PORT || 5000;
+        app.listen(PORT, () => {
+            console.log(`>>> Servidor corriendo y escuchando en el puerto ${PORT}`);
+        });
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`>>> Servidor corriendo y escuchando en el puerto ${PORT}`);
-});
+    } catch (error) {
+        console.error('❌ ERROR FATAL AL ARRANCAR EL SERVIDOR:', error.message);
+        process.exit(1);
+    }
+};
+
+// Iniciar el servidor
+startServer();
 
 module.exports = app;
