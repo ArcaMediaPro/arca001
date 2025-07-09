@@ -1,37 +1,31 @@
-// controllers/subscriptionController.js (CORREGIDO)
+// controllers/subscriptionController.js (CORREGIDO CON DEPURACIÓN)
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-// 1. Importamos los objetos necesarios de la librería de Mercado Pago
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 const User = require('../models/User');
 
-// 2. Creamos una instancia del cliente de Mercado Pago con el Access Token
 const mpClient = new MercadoPagoConfig({
     accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
 });
 
-// Define los precios de tus planes de Stripe
 const STRIPE_PLANS = {
     medium: { priceId: process.env.STRIPE_PRICE_ID_MEDIUM },
     premium: { priceId: process.env.STRIPE_PRICE_ID_PREMIUM },
 };
 
-// Define los precios para Mercado Pago
 const MERCADOPAGO_PLANS = {
     medium: { title: 'Plan Coleccionista PRO', price: 4.99 },
     premium: { title: 'Plan Leyenda Arcade', price: 9.99 },
 };
 
 
-/**
- * Crea una sesión de pago en Stripe.
- */
 exports.createStripeSession = async (req, res) => {
     const { planId } = req.body;
     const userId = req.user.id;
 
-    if (!STRIPE_PLANS[planId]) {
-        return res.status(400).json({ message: 'Plan no válido.' });
+    if (!STRIPE_PLANS[planId] || !STRIPE_PLANS[planId].priceId) {
+        console.error(`Error: Price ID para el plan '${planId}' no está configurado en las variables de entorno.`);
+        return res.status(400).json({ message: 'La configuración para este plan no está completa.' });
     }
 
     try {
@@ -75,9 +69,6 @@ exports.createStripeSession = async (req, res) => {
 };
 
 
-/**
- * Crea una preferencia de pago en Mercado Pago.
- */
 exports.createMercadoPagoPreference = async (req, res) => {
     const { planId } = req.body;
     const userId = req.user.id;
@@ -92,7 +83,6 @@ exports.createMercadoPagoPreference = async (req, res) => {
             return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
 
-        // 3. Creamos una instancia de "Preference" usando el cliente
         const preferenceClient = new Preference(mpClient);
 
         const preferenceData = {
@@ -116,7 +106,6 @@ exports.createMercadoPagoPreference = async (req, res) => {
             external_reference: userId,
         };
 
-        // 4. Usamos el cliente de preferencia para crearla
         const response = await preferenceClient.create({ body: preferenceData });
         res.json({ redirectUrl: response.init_point });
 
@@ -125,3 +114,74 @@ exports.createMercadoPagoPreference = async (req, res) => {
         res.status(500).json({ message: 'Error al iniciar el pago con Mercado Pago.' });
     }
 };
+
+// --- Funciones auxiliares para manejar los webhooks ---
+
+async function activateSubscription(session) {
+    const userId = session.metadata.userId;
+    const stripeSubscriptionId = session.subscription;
+    
+    try {
+        const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+        
+        const user = await User.findById(userId);
+        if (user) {
+            user.stripeSubscriptionId = stripeSubscriptionId;
+            user.subscriptionProvider = 'stripe';
+            user.subscriptionStatus = 'active';
+            user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
+            
+            const priceId = subscription.items.data[0].price.id;
+
+            // --- INICIO DE LA DEPURACIÓN ---
+            console.log('--- Depuración de Webhook de Activación ---');
+            console.log(`Price ID recibido de Stripe: ${priceId}`);
+            console.log(`Price ID para MEDIUM (desde .env): ${process.env.STRIPE_PRICE_ID_MEDIUM}`);
+            console.log(`Price ID para PREMIUM (desde .env): ${process.env.STRIPE_PRICE_ID_PREMIUM}`);
+            // --- FIN DE LA DEPURACIÓN ---
+
+            if (priceId === process.env.STRIPE_PRICE_ID_MEDIUM) {
+                user.subscriptionPlan = 'medium';
+                console.log('Plan asignado: medium');
+            } else if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
+                user.subscriptionPlan = 'premium';
+                console.log('Plan asignado: premium');
+            } else {
+                console.warn('ADVERTENCIA: El Price ID recibido no coincide con ningún plan configurado.');
+            }
+
+            await user.save();
+            console.log(`Suscripción activada para el usuario: ${userId}`);
+        }
+    } catch (error) {
+        console.error(`Error al activar la suscripción para el usuario ${userId}:`, error);
+    }
+}
+
+async function updateSubscriptionStatus(subscription) {
+    try {
+        const user = await User.findOne({ stripeSubscriptionId: subscription.id });
+        if (user) {
+            user.subscriptionStatus = subscription.status;
+            user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
+            await user.save();
+            console.log(`Estado de suscripción actualizado para el usuario: ${user._id}`);
+        }
+    } catch (error) {
+        console.error(`Error al actualizar la suscripción ${subscription.id}:`, error);
+    }
+}
+
+async function cancelSubscription(subscription) {
+    try {
+        const user = await User.findOne({ stripeSubscriptionId: subscription.id });
+        if (user) {
+            user.subscriptionStatus = 'canceled';
+            user.subscriptionPlan = 'free';
+            await user.save();
+            console.log(`Suscripción cancelada en la base de datos para el usuario: ${user._id}`);
+        }
+    } catch (error) {
+        console.error(`Error al cancelar la suscripción ${subscription.id}:`, error);
+    }
+}
