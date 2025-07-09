@@ -18,42 +18,42 @@
     <script>
         // Esta función se ejecuta tan pronto como la página carga
         (async () => {
-            // 1. Obtenemos el session_id de la URL que nos da Stripe
-            const urlParams = new URLSearchParams(window.location.search);
-            const sessionId = urlParams.get('session_id');
+    // 1. Obtenemos el session_id de la URL que nos da Stripe
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
 
-            const statusParagraph = document.querySelector('.status-container p');
+    const statusParagraph = document.querySelector('.status-container p');
 
-            if (!sessionId) {
-                statusParagraph.textContent = 'Error: No se encontró el ID de la sesión. Serás redirigido a la página principal.';
-                setTimeout(() => { window.location.href = '/index.html'; }, 5000);
-                return;
-            }
+    if (!sessionId) {
+        statusParagraph.textContent = 'Error: No se encontró el ID de la sesión. Serás redirigido a la página principal.';
+        setTimeout(() => { window.location.href = '/index.html'; }, 5000);
+        return;
+    }
 
-            try {
-                // 2. Hacemos la petición al backend para verificar la sesión.
-                // La cookie de autenticación se envía automáticamente.
-                const response = await fetch(`/api/subscriptions/stripe-session-status?session_id=${sessionId}`);
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'No se pudo verificar el estado del pago.');
-                }
+    try {
+        // 2. Hacemos la petición al backend para verificar la sesión.
+        // La cookie de autenticación se envía automáticamente.
+        const response = await fetch(`/api/subscriptions/stripe-session-status?session_id=${sessionId}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'No se pudo verificar el estado del pago.');
+        }
 
-                // 3. Si la respuesta es exitosa, el servidor ya ha establecido la nueva cookie de sesión actualizada.
-                // Ahora es seguro redirigir.
-                
-                statusParagraph.textContent = '¡Cuenta actualizada! Redirigiendo a tu catálogo...';
-                
-                setTimeout(() => {
-                    window.location.href = '/index.html';
-                }, 3000); // Un pequeño retraso para que el usuario lea el mensaje.
+        // 3. Si la respuesta es exitosa, el servidor ya ha establecido la nueva cookie de sesión actualizada.
+        // Ahora es seguro redirigir.
+        
+        statusParagraph.textContent = '¡Cuenta actualizada! Redirigiendo a tu catálogo...';
+        
+        setTimeout(() => {
+            window.location.href = '/index.html';
+        }, 3000); // Un pequeño retraso para que el usuario lea el mensaje.
 
-            } catch (error) {
-                console.error('Error al sincronizar la sesión:', error);
-                statusParagraph.innerHTML = `Ocurrió un error al actualizar tu sesión: ${error.message}. Por favor, <a href="/index.html">vuelve a iniciar sesión</a> para ver los cambios.`;
-            }
-        })();
+    } catch (error) {
+        console.error('Error al sincronizar la sesión:', error);
+        statusParagraph.innerHTML = `Ocurrió un error al actualizar tu sesión: ${error.message}. Por favor, <a href="/index.html">vuelve a iniciar sesión</a> para ver los cambios.`;
+    }
+})();
     </script>
 </body>
 </html>
