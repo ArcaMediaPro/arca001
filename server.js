@@ -20,6 +20,8 @@ const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const preferenceRoutes = require('./routes/preferenceRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const webhookRoutes = require('./routes/webhookRoutes'); // 1. IMPORTAMOS LAS RUTAS DE WEBHOOKS
 const authMiddleware = require('./middleware/auth');
 const isAdmin = require('./middleware/adminAuth');
 
@@ -59,6 +61,14 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'X-CSRF-Token', 'Authorization']
 }));
 
+
+// 2. RUTA DE WEBHOOKS ANTES DEL PARSER JSON GLOBAL
+// Es crucial que la ruta de webhooks de Stripe se defina ANTES de `express.json()`
+// porque Stripe necesita el "cuerpo crudo" (raw body) de la petición para verificar la firma.
+app.use('/api/webhooks', webhookRoutes);
+
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -83,7 +93,8 @@ app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
 app.use('/api/auth', authRoutes); 
 app.use('/api/games', gameRoutes);
 app.use('/api/collections', collectionRoutes); 
-app.use('/api/preferences', preferenceRoutes); 
+app.use('/api/preferences', preferenceRoutes);
+app.use('/api/subscriptions', subscriptionRoutes); 
 
 // --- RUTAS DE ADMINISTRADOR ---
 app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
