@@ -1,4 +1,4 @@
-// controllers/subscriptionController.js (CORREGIDO CON DEPURACIÓN)
+// controllers/subscriptionController.js (CORREGIDO CON DEPURACIÓN Y VERIFICACIÓN DE SECRET)
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { MercadoPagoConfig, Preference } = require('mercadopago');
@@ -117,6 +117,50 @@ exports.createMercadoPagoPreference = async (req, res) => {
 
 // --- Funciones auxiliares para manejar los webhooks ---
 
+// Se añade la función handleStripeWebhook que faltaba
+exports.handleStripeWebhook = async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    // Verificamos que la clave secreta del webhook esté configurada.
+    if (!webhookSecret) {
+        console.error('❌ FATAL: STRIPE_WEBHOOK_SECRET no está configurado en las variables de entorno.');
+        return res.status(500).send('Error de configuración del servidor: Webhook secret no configurado.');
+    }
+
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } catch (err) {
+        console.error(`❌ Error en la firma del webhook de Stripe: ${err.message}`);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Maneja el evento
+    switch (event.type) {
+        case 'checkout.session.completed':
+            const session = event.data.object;
+            console.log('✅ Checkout Session completada:', session.id);
+            await activateSubscription(session);
+            break;
+        case 'customer.subscription.updated':
+            const subscriptionUpdated = event.data.object;
+            console.log('🔔 Suscripción actualizada:', subscriptionUpdated.id);
+            await updateSubscriptionStatus(subscriptionUpdated);
+            break;
+        case 'customer.subscription.deleted':
+            const subscriptionDeleted = event.data.object;
+            console.log('🗑️ Suscripción cancelada:', subscriptionDeleted.id);
+            await cancelSubscription(subscriptionDeleted);
+            break;
+        default:
+            console.log(`Evento de Stripe no manejado: ${event.type}`);
+    }
+
+    res.status(200).json({ received: true });
+};
+
 async function activateSubscription(session) {
     const userId = session.metadata.userId;
     const stripeSubscriptionId = session.subscription;
@@ -133,12 +177,10 @@ async function activateSubscription(session) {
             
             const priceId = subscription.items.data[0].price.id;
 
-            // --- INICIO DE LA DEPURACIÓN ---
             console.log('--- Depuración de Webhook de Activación ---');
             console.log(`Price ID recibido de Stripe: ${priceId}`);
             console.log(`Price ID para MEDIUM (desde .env): ${process.env.STRIPE_PRICE_ID_MEDIUM}`);
             console.log(`Price ID para PREMIUM (desde .env): ${process.env.STRIPE_PRICE_ID_PREMIUM}`);
-            // --- FIN DE LA DEPURACIÓN ---
 
             if (priceId === process.env.STRIPE_PRICE_ID_MEDIUM) {
                 user.subscriptionPlan = 'medium';
