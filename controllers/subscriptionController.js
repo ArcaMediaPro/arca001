@@ -3,6 +3,8 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 const User = require('../models/User');
+const jwt = require('jsonwebtoken'); // Necesitaremos JWT para firmar el nuevo token
+
 
 const mpClient = new MercadoPagoConfig({
     accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
@@ -114,6 +116,64 @@ exports.createMercadoPagoPreference = async (req, res) => {
         res.status(500).json({ message: 'Error al iniciar el pago con Mercado Pago.' });
     }
 };
+
+
+// =================================================================
+// === INICIO: NUEVA FUNCIÓN PARA SINCRONIZAR LA SESIÓN          ===
+// =================================================================
+
+/**
+ * Verifica el estado de una sesión de Checkout de Stripe y devuelve un nuevo token.
+ */
+exports.getStripeSessionStatus = async (req, res) => {
+    const { session_id } = req.query;
+
+    try {
+        if (!session_id) {
+            return res.status(400).json({ message: 'Falta el ID de la sesión.' });
+        }
+
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+        
+        // Verificamos que la sesión de pago fue exitosa
+        if (session.payment_status !== 'paid') {
+            return res.status(402).json({ message: 'El pago no ha sido completado.' });
+        }
+
+        // Buscamos al usuario asociado a esta sesión
+        const user = await User.findOne({ stripeCustomerId: session.customer });
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        // Creamos un nuevo token con la información actualizada del usuario
+        const payload = {
+            id: user._id,
+            username: user.username,
+            role: user.role,
+            email: user.email,
+            plan: user.subscriptionPlan, // Usamos el plan actualizado de la BD
+        };
+
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {
+            expiresIn: '1h', // O la duración que prefieras
+        });
+        
+        // Devolvemos el nuevo token al frontend
+        res.json({ token });
+
+    } catch (error) {
+        console.error("Error verificando la sesión de Stripe:", error);
+        res.status(500).json({ message: 'Error al verificar el estado del pago.' });
+    }
+};
+// =================================================================
+// === FIN: NUEVA FUNCIÓN                                        ===
+// =================================================================
+
+
+
 
 // --- Funciones auxiliares para manejar los webhooks ---
 

@@ -4,13 +4,20 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth');
 
-// --- Importamos los controladores que crearán los pagos ---
-const { createStripeSession, createMercadoPagoPreference } = require('../controllers/subscriptionController');
+// --- Importamos los controladores ---
+const { 
+    createStripeSession, 
+    createMercadoPagoPreference,
+    getStripeSessionStatus // <-- IMPORTAMOS LA NUEVA FUNCIÓN
+} = require('../controllers/subscriptionController');
 
-// Ruta para crear una sesión de pago con Stripe
+// Rutas para crear sesiones de pago
 router.post('/create-stripe-session', authMiddleware, createStripeSession);
-
-// Ruta para crear una preferencia de pago con Mercado Pago
 router.post('/create-mercadopago-preference', authMiddleware, createMercadoPagoPreference);
+
+// --- INICIO: NUEVA RUTA ---
+// Ruta para que el frontend verifique el estado de un pago y obtenga un nuevo token
+router.get('/stripe-session-status', authMiddleware, getStripeSessionStatus);
+// --- FIN: NUEVA RUTA ---
 
 module.exports = router;
