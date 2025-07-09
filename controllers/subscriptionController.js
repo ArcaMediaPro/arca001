@@ -1,18 +1,19 @@
-// controllers/subscriptionController.js
+// controllers/subscriptionController.js (CORREGIDO)
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const mercadopago = require('mercadopago');
+// 1. Importamos los objetos necesarios de la librería de Mercado Pago
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 const User = require('../models/User');
 
-// Configura el Access Token de Mercado Pago
-mercadopago.configure({
-    access_token: process.env.MERCADOPAGO_ACCESS_TOKEN,
+// 2. Creamos una instancia del cliente de Mercado Pago con el Access Token
+const mpClient = new MercadoPagoConfig({
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
 });
 
-// Define los precios de tus planes. DEBES CREAR ESTOS PRODUCTOS EN TU DASHBOARD DE STRIPE.
+// Define los precios de tus planes de Stripe
 const STRIPE_PLANS = {
-    medium: { priceId: 'price_1RixNDQ1ZvKIrs41AOWTLwRk' }, // Reemplazar con tu Price ID real
-    premium: { priceId: 'price_1RixQKQ1ZvKIrs41gQAybPx6' }, // Reemplazar con tu Price ID real
+    medium: { priceId: process.env.STRIPE_PRICE_ID_MEDIUM },
+    premium: { priceId: process.env.STRIPE_PRICE_ID_PREMIUM },
 };
 
 // Define los precios para Mercado Pago
@@ -41,14 +42,11 @@ exports.createStripeSession = async (req, res) => {
 
         let stripeCustomerId = user.stripeCustomerId;
 
-        // Si el usuario no tiene un ID de cliente de Stripe, se crea uno nuevo.
         if (!stripeCustomerId) {
             const customer = await stripe.customers.create({
                 email: user.email,
                 name: user.username,
-                metadata: {
-                    userId: user._id.toString(),
-                },
+                metadata: { userId: user._id.toString() },
             });
             stripeCustomerId = customer.id;
             user.stripeCustomerId = stripeCustomerId;
@@ -65,9 +63,7 @@ exports.createStripeSession = async (req, res) => {
             }],
             success_url: `${process.env.FRONTEND_URL}/payment-success.html?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.FRONTEND_URL}/payment-canceled.html`,
-            metadata: {
-                userId: userId,
-            }
+            metadata: { userId: userId }
         });
 
         res.json({ redirectUrl: session.url });
@@ -96,13 +92,16 @@ exports.createMercadoPagoPreference = async (req, res) => {
             return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
 
-        const preference = {
+        // 3. Creamos una instancia de "Preference" usando el cliente
+        const preferenceClient = new Preference(mpClient);
+
+        const preferenceData = {
             items: [
                 {
                     title: MERCADOPAGO_PLANS[planId].title,
                     unit_price: MERCADOPAGO_PLANS[planId].price,
                     quantity: 1,
-                    currency_id: 'ARS' // O la moneda que corresponda
+                    currency_id: 'ARS'
                 }
             ],
             payer: {
@@ -114,11 +113,12 @@ exports.createMercadoPagoPreference = async (req, res) => {
                 pending: `${process.env.FRONTEND_URL}/payment-pending.html`,
             },
             auto_return: 'approved',
-            external_reference: userId, // Guardamos el ID del usuario para identificarlo después
+            external_reference: userId,
         };
 
-        const response = await mercadopago.preferences.create(preference);
-        res.json({ redirectUrl: response.body.init_point });
+        // 4. Usamos el cliente de preferencia para crearla
+        const response = await preferenceClient.create({ body: preferenceData });
+        res.json({ redirectUrl: response.init_point });
 
     } catch (error) {
         console.error("Error creando preferencia de Mercado Pago:", error);
