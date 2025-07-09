@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pago Exitoso - Catalogador PRO</title>
+    <link rel="stylesheet" href="payment-status.css">
+    <script>
+        // Redirige al usuario al catalogador después de 5 segundos
+        setTimeout(() => {
+            window.location.href = '/index.html';
+        }, 5000);
+    </script>
+</head>
+<body>
+    <div class="status-container">
+        <div class="status-icon success">&#10004;</div>
+        <h1>¡Pago Exitoso!</h1>
+        <p>Tu suscripción se está activando. En unos momentos serás redirigido a tu catálogo.</p>
+        <p class="redirect-message">(Si no eres redirigido, <a href="/index.html">haz clic aquí</a>)</p>
+        <div class="loader"></div>
+    </div>
+</body>
+</html>

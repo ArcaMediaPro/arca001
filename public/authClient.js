@@ -38,9 +38,42 @@ let registerEmailInput;
 let resetEmailInput;
 let authMessageDiv;
 
-// La función de callback para cargar juegos ya no es necesaria aquí, main.js la controlará.
-// let loadInitialGamesCallback = () => { ... };
-// export function setLoadInitialGamesCallback(callback) { ... };
+// --- INICIO: NUEVA FUNCIÓN PARA INICIAR SUSCRIPCIÓN ---
+/**
+ * Inicia el proceso de pago para un plan específico.
+ * @param {string} planId - El ID del plan ('medium' o 'premium').
+ */
+async function initiateSubscription(planId) {
+    // Por ahora, usamos Stripe por defecto. Más adelante podemos añadir la lógica para que el usuario elija.
+    const provider = 'stripe'; 
+    const endpoint = provider === 'stripe' 
+        ? `${API_BASE_URL}/subscriptions/create-stripe-session`
+        : `${API_BASE_URL}/subscriptions/create-mercadopago-preference`;
+
+    try {
+        notificationService.info(getText('subscription_initiating'));
+
+        const response = await fetchAuthenticated(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ planId }),
+        });
+
+        const session = await response.json();
+
+        if (session.redirectUrl) {
+            // Limpiamos el plan pendiente antes de redirigir
+            sessionStorage.removeItem('pendingSubscriptionPlan');
+            window.location.href = session.redirectUrl;
+        } else {
+            throw new Error('No se recibió una URL de redirección de la pasarela de pago.');
+        }
+    } catch (error) {
+        console.error('Error al iniciar la suscripción:', error);
+        notificationService.error(error.message || getText('subscription_error_start'));
+    }
+}
+// --- FIN: NUEVA FUNCIÓN ---
 
 
 export function initAuthUI() {
@@ -178,9 +211,6 @@ export async function showGameUI(usernameToDisplay) {
         }
         document.body.classList.remove('auth-view-active');
         console.log(getText('auth_log_showGameUIIndex'));
-        
-        // La lógica para cargar juegos se ha movido a main.js
-        // para asegurar que se ejecute después de la configuración.
     }
 }
 
@@ -232,19 +262,11 @@ export async function registerUser(username, email, password, targetElementId = 
         });
         const data = await response.json();
         if (response.ok) {
-            // --- INICIO DE LA MODIFICACIÓN ---
-
-            // 1. Se asegura que el mensaje de "revisa tu correo" no se borre automáticamente.
-            //    El tercer parámetro (clearAfterDelay) ahora es 'false'.
             displayAuthMessage(data.message || getText('auth_registrationSuccessWithVerification'), false, false, targetElementId);
-            
-            // 2. Se limpian los campos del formulario tras un registro exitoso.
             const registerForm = document.getElementById('register-form') || document.querySelector('.auth-modal-content #register-form');
             if (registerForm) {
                 registerForm.reset();
             }
-            
-            // --- FIN DE LA MODIFICACIÓN ---
         } else {
             if (data.errors && Array.isArray(data.errors)) {
                 const errorMessages = data.errors.map(err => err.msg).join('. ');
@@ -258,8 +280,6 @@ export async function registerUser(username, email, password, targetElementId = 
         notificationService.error(getText('auth_serverConnectionError_registration'), error);
     }
 }
-// authClient.js (MODIFICADO)
-// REEMPLAZA TU FUNCIÓN loginUser CON ESTA VERSIÓN FINAL
 
 export async function loginUser(username, password, targetElementId = null) {
     displayAuthMessage('', false, false, targetElementId);
@@ -281,20 +301,23 @@ export async function loginUser(username, password, targetElementId = null) {
             currentUserPlanName = data.user.planName;
             currentUserGameCount = data.user.gameCount;
             currentUserPlanLimit = data.user.planLimit;
-            // No es necesario llamar a updatePlanCounterUI() aquí, porque la página se va a recargar.
 
-            // --- INICIO DE LA CORRECCIÓN FINAL ---
-            // Comprobamos si estamos en la página promocional
-            const isPromoPage = !!document.getElementById('promo-page-content');
-
-            if (isPromoPage) {
-                // Si estamos en la página promocional, redirigimos a la aplicación principal.
-                window.location.href = 'index.html';
+            // --- INICIO DE LA LÓGICA DE SUSCRIPCIÓN ---
+            const pendingPlanId = sessionStorage.getItem('pendingSubscriptionPlan');
+            
+            if (pendingPlanId) {
+                // Si había un plan pendiente, iniciamos el pago
+                await initiateSubscription(pendingPlanId);
             } else {
-                // Si ya estamos en la aplicación (index.html), solo la recargamos.
-                window.location.reload();
+                // Si no, procedemos con la redirección normal
+                const isPromoPage = !!document.getElementById('promo-page-content');
+                if (isPromoPage) {
+                    window.location.href = 'index.html';
+                } else {
+                    window.location.reload();
+                }
             }
-            // --- FIN DE LA CORRECCIÓN FINAL ---
+            // --- FIN DE LA LÓGICA DE SUSCRIPCIÓN ---
 
         } else {
             currentLoggedInUsername = null;
@@ -355,19 +378,13 @@ export async function checkAuthStatus() {
                 currentUserPlanName = data.user.planName;
                 currentUserGameCount = data.user.gameCount;
                 currentUserPlanLimit = data.user.planLimit;
-                
-		//updatePlanCounterUI();
-                
-                // Devuelve el estado de éxito y los datos del usuario
                 return { isAuthenticated: true, user: data.user };
             }
         }
-        // Si no está autenticado o hay un error, devuelve un estado de fallo
         return { isAuthenticated: false };
 
     } catch (error) {
         console.error(getText('auth_error_checkAuthStatusFetch') + ": " + error.message);
-        // Devuelve el estado de fallo con el error
         return { isAuthenticated: false, error: error };
     }
 }

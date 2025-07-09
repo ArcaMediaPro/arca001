@@ -12,7 +12,13 @@ const updateUIText = () => {
         const key = element.getAttribute('data-i18n-key');
         const translation = getText(key);
         if (translation && !translation.startsWith('[')) {
-            element.innerHTML = translation;
+            // Usamos textContent para la mayoría y el atributo para otros
+            const targetAttr = element.getAttribute('data-i18n-target-attr');
+            if (targetAttr) {
+                element.setAttribute(targetAttr, translation);
+            } else {
+                element.textContent = translation;
+            }
         }
     });
 };
@@ -89,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let message = '';
         let isValid = true;
 
-        if (pass.length > 0 && pass.length < 7) { // Ajustado a 7 caracteres como en el HTML
+        if (pass.length > 0 && pass.length < 7) {
             message = 'La contraseña debe tener al menos 7 caracteres.';
             isValid = false;
         } else if (pass && confirmPass && pass !== confirmPass) {
@@ -119,15 +125,28 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('show-request-reset-form-modal')?.addEventListener('click', (e) => { e.preventDefault(); showAuthFormView('reset'); });
     document.getElementById('show-login-from-reset')?.addEventListener('click', (e) => { e.preventDefault(); showAuthFormView('login'); });
     
-    // <<< INICIO: LÓGICA AÑADIDA PARA LOS BOTONES DE PLANES >>>
+    // <<< INICIO: LÓGICA ACTUALIZADA PARA LOS BOTONES DE PLANES >>>
     const planButtons = document.querySelectorAll('.promo-price-plan button');
     planButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // Sin importar en qué plan hagan clic, abrimos el modal de registro.
+        button.addEventListener('click', (e) => {
+            // Usamos el data-plan-id que añadimos en el HTML
+            const planId = e.currentTarget.dataset.planId;
+            
+            // Si el botón tiene un planId (medium o premium), lo guardamos
+            if (planId) {
+                console.log(`Plan seleccionado: ${planId}. Guardando para después del login.`);
+                // Usamos sessionStorage para que el dato persista hasta que se cierre la pestaña
+                sessionStorage.setItem('pendingSubscriptionPlan', planId);
+            } else {
+                // Si es el plan gratuito o un botón sin plan, nos aseguramos de que no haya nada guardado
+                sessionStorage.removeItem('pendingSubscriptionPlan');
+            }
+            
+            // Siempre abrimos el modal de registro al hacer clic en un plan
             showModal('register');
         });
     });
-    // <<< FIN: LÓGICA AÑADIDA >>>
+    // <<< FIN: LÓGICA ACTUALIZADA >>>
 
 
     // --- Listeners para el Envío de Formularios ---
@@ -140,7 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('register-form')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        // La validación final se hace antes del envío
         if (registerSubmitBtn.disabled) {
             console.log("Envío de registro detenido por validación fallida.");
             return;

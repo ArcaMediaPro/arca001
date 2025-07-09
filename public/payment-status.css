@@ -1,0 +1,97 @@
+/* Estilos para las páginas de estado de pago */
+:root {
+    --clr-bg-body: #2c2a3f;
+    --clr-text-main: #e0e0e0;
+    --clr-success: #4CAF50;
+    --clr-error: #F44336;
+    --clr-btn-p-bg: #ff8a65;
+    --clr-btn-p-text: #212121;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--clr-bg-body);
+    color: var(--clr-text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+}
+
+.status-container {
+    background-color: #3d3b54;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+}
+
+.status-icon {
+    font-size: 4rem;
+    line-height: 1;
+    margin-bottom: 1rem;
+}
+
+.status-icon.success {
+    color: var(--clr-success);
+}
+
+.status-icon.error {
+    color: var(--clr-error);
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #bdbdbd;
+}
+
+.redirect-message {
+    font-size: 0.85rem;
+    margin-top: 1.5rem;
+    color: #888;
+}
+
+.redirect-message a {
+    color: var(--clr-btn-p-bg);
+    text-decoration: none;
+}
+
+.button-primary {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.5rem;
+    background-color: var(--clr-btn-p-bg);
+    color: var(--clr-btn-p-text);
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform 0.2s ease;
+}
+
+.button-primary:hover {
+    transform: scale(1.05);
+}
+
+/* Animación de carga */
+.loader {
+    border: 4px solid #f3f3f330;
+    border-radius: 50%;
+    border-top: 4px solid var(--clr-success);
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 2rem auto 0;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
