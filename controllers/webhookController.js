@@ -1,9 +1,14 @@
-// controllers/webhookController.js (CORREGIDO CON DEPURACIÓN AVANZADA)
+// controllers/webhookController.js (CORREGIDO CON EXPORTACIÓN FALTANTE)
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { MercadoPagoConfig, Preference } = require('mercadopago');
 const User = require('../models/User');
 
-// ... (el resto del código del controlador se mantiene igual) ...
+const mpClient = new MercadoPagoConfig({
+    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
+});
+
+// ... (el resto del código se mantiene igual) ...
 
 /**
  * Maneja los eventos entrantes de los webhooks de Stripe.
@@ -50,7 +55,20 @@ exports.handleStripeWebhook = async (req, res) => {
     res.status(200).json({ received: true });
 };
 
-// ... (otras funciones auxiliares como handleMercadoPagoWebhook) ...
+/**
+ * Maneja las notificaciones de Mercado Pago.
+ */
+// --- INICIO DE LA CORRECCIÓN ---
+// Se añade 'exports.' para que la función pueda ser importada desde otros archivos.
+exports.handleMercadoPagoWebhook = async (req, res) => {
+// --- FIN DE LA CORRECCIÓN ---
+    console.log('🔔 Notificación de Mercado Pago recibida:');
+    console.log(req.query); 
+
+    // Aquí iría la lógica para verificar y procesar la notificación de Mercado Pago.
+    res.status(200).send('OK');
+};
+
 
 // --- Funciones auxiliares para manejar la lógica de la base de datos ---
 
