@@ -1,4 +1,4 @@
-// server.js (COMPLETO CON ARRANQUE ROBUSTO PARA RENDER)
+// server.js (COMPLETO CON ARRANQUE ROBUSTO Y CSP CORREGIDA)
 
 require('dotenv').config();
 const express = require('express');
@@ -21,7 +21,7 @@ const gameRoutes = require('./routes/gameRoutes');
 const collectionRoutes = require('./routes/collectionRoutes');
 const preferenceRoutes = require('./routes/preferenceRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
-const webhookRoutes = require('./routes/webhookRoutes'); // 1. IMPORTAMOS LAS RUTAS DE WEBHOOKS
+const webhookRoutes = require('./routes/webhookRoutes');
 const authMiddleware = require('./middleware/auth');
 const isAdmin = require('./middleware/adminAuth');
 
@@ -34,6 +34,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      // --- INICIO DE LA CORRECCIÓN ---
+      // Se añade 'unsafe-inline' para permitir la ejecución del script en payment-success.html
+      "script-src": ["'self'", "'unsafe-inline'"], 
+      // --- FIN DE LA CORRECCIÓN ---
       "img-src": ["'self'", "*.cloudinary.com", "media.rawg.io", "*.mobygames.com", "data:"],
       "connect-src": ["'self'", "*.cloudinary.com", "https://api.rawg.io"], 
     },
@@ -62,11 +66,8 @@ app.use(cors({
 }));
 
 
-// 2. RUTA DE WEBHOOKS ANTES DEL PARSER JSON GLOBAL
 // Es crucial que la ruta de webhooks de Stripe se defina ANTES de `express.json()`
-// porque Stripe necesita el "cuerpo crudo" (raw body) de la petición para verificar la firma.
 app.use('/api/webhooks', webhookRoutes);
-
 
 
 app.use(express.json());
