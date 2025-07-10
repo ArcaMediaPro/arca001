@@ -1,4 +1,4 @@
-// server.js (COMPLETO CON ARRANQUE ROBUSTO Y CSP CORREGIDA)
+// server.js (COMPLETO CON CORS CORREGIDO Y LIMPIADO)
 
 require('dotenv').config();
 const express = require('express');
@@ -34,36 +34,29 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      // --- INICIO DE LA CORRECCIÓN ---
-      // Se añade 'unsafe-inline' para permitir la ejecución del script en payment-success.html
       "script-src": ["'self'", "'unsafe-inline'"], 
-      // --- FIN DE LA CORRECCIÓN ---
       "img-src": ["'self'", "*.cloudinary.com", "media.rawg.io", "*.mobygames.com", "data:"],
       "connect-src": ["'self'", "*.cloudinary.com", "https://api.rawg.io"], 
     },
   },
 }));
 
+// --- INICIO DE LA CORRECCIÓN DE CORS ---
+// Hacemos la configuración más explícita para máxima compatibilidad
+const allowedOrigins = [
+    'http://localhost:5000',
+    'http://127.0.0.1:5000',
+    'http://localhost:5173',
+    process.env.FRONTEND_URL
+].filter(Boolean);
 
 app.use(cors({
-    origin: function (origin, callback) {
-        const allowedOriginsConfig = [
-            'http://localhost:5000',
-            'http://127.0.0.1:5000',
-            'http://localhost:5173',
-            process.env.FRONTEND_URL
-        ].filter(Boolean);
-
-        if (!origin || allowedOriginsConfig.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
+    origin: allowedOrigins,
+    credentials: true, // Permite que el navegador envíe cookies
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'X-CSRF-Token', 'Authorization']
 }));
+// --- FIN DE LA CORRECCIÓN DE CORS ---
 
 
 // Es crucial que la ruta de webhooks de Stripe se defina ANTES de `express.json()`
@@ -87,18 +80,16 @@ app.use((req, res, next) => {
 // --- RUTAS ---
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'promocional.html')));
 
-
-
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/api', (req, res) => res.send('API del Catalogador funcionando!'));
-app.use('/api/auth', authRoutes); 
+app.use('/api/auth', authRoutes);
 app.use('/api/games', gameRoutes);
-app.use('/api/collections', collectionRoutes); 
+app.use('/api/collections', collectionRoutes);
 app.use('/api/preferences', preferenceRoutes);
-app.use('/api/subscriptions', subscriptionRoutes); 
+app.use('/api/subscriptions', subscriptionRoutes);
 
 // --- RUTAS DE ADMINISTRADOR ---
-app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => { 
+app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => {
     try {
         const { username, email } = req.query;
         const filter = {};
