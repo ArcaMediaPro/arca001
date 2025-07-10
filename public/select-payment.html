@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Método de Pago - Catalogador PRO</title>
+    <link rel="stylesheet" href="payment-status.css"> <!-- Reutilizamos los mismos estilos -->
+</head>
+<body>
+    <div class="status-container">
+        <h1>Elige tu Método de Pago</h1>
+        <p>Estás a un paso de mejorar tu plan. Por favor, selecciona cómo te gustaría pagar.</p>
+        
+        <div class="payment-options">
+            <!-- Botón para pagar con Stripe -->
+            <button id="pay-with-stripe" class="button-primary">
+                Pagar con Tarjeta
+            </button>
+
+            <!-- Botón para pagar con Mercado Pago -->
+            <button id="pay-with-mercadopago" class="button-mercadopago">
+                Pagar con Mercado Pago
+            </button>
+        </div>
+
+        <div id="payment-loader" class="loader" style="display: none;"></div>
+        <p id="payment-error" class="error-message" style="display: none;"></p>
+    </div>
+
+    <!-- Script para manejar la lógica de esta página -->
+    <script src="select-payment.js" defer></script>
+</body>
+</html>
