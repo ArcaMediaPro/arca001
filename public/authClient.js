@@ -1,9 +1,8 @@
-// authClient.js (MODIFICADO Y CORREGIDO)
+// authClient.js (CORREGIDO CON LÓGICA DE LIMPIEZA DE SESIÓN)
 import { API_BASE_URL } from './appConfig.js';
 import { getElem } from './domUtils.js';
 import { clearUserServerThemeSettingsCache } from './config.js';
 import { notificationService } from './notificationService.js';
-// --- IMPORTACIÓN PARA I18N ---
 import { getText } from './i18n.js';
 
 // --- Global Authentication Variables ---
@@ -13,8 +12,6 @@ export let currentUserRole = null;
 export let currentLoggedInUserEmail = null;
 export let currentUserThemeSettings = null;
 export let currentUserLanguage = null;
-
-// Variables para el contador de plan
 export let currentUserPlanName = null;
 export let currentUserGameCount = 0;
 export let currentUserPlanLimit = 0;
@@ -30,28 +27,20 @@ let requestResetFormContainer;
 let loginForm;
 let registerForm;
 let requestResetForm;
-let loginUsernameInput;
-let loginPasswordInput;
-let registerUsernameInput;
-let registerPasswordInput;
-let registerEmailInput;
-let resetEmailInput;
 let authMessageDiv;
 
 // --- INICIO: NUEVA FUNCIÓN PARA INICIAR SUSCRIPCIÓN ---
-/**
- * Inicia el proceso de pago para un plan específico.
- * @param {string} planId - El ID del plan ('medium' o 'premium').
- */
 async function initiateSubscription(planId) {
-    // Por ahora, usamos Stripe por defecto. Más adelante podemos añadir la lógica para que el usuario elija.
-    const provider = 'stripe'; 
-    const endpoint = provider === 'stripe' 
+    const provider = 'stripe';
+    const endpoint = provider === 'stripe'
         ? `${API_BASE_URL}/subscriptions/create-stripe-session`
         : `${API_BASE_URL}/subscriptions/create-mercadopago-preference`;
 
     try {
-        notificationService.info(getText('subscription_initiating'));
+        notificationService.info(getText('subscription_initiating') || 'Iniciando suscripción...');
+
+        // Limpiamos el plan pendiente ANTES de iniciar el pago para evitar problemas futuros.
+        sessionStorage.removeItem('pendingSubscriptionPlan');
 
         const response = await fetchAuthenticated(endpoint, {
             method: 'POST',
@@ -62,15 +51,13 @@ async function initiateSubscription(planId) {
         const session = await response.json();
 
         if (session.redirectUrl) {
-            // Limpiamos el plan pendiente antes de redirigir
-            sessionStorage.removeItem('pendingSubscriptionPlan');
             window.location.href = session.redirectUrl;
         } else {
             throw new Error('No se recibió una URL de redirección de la pasarela de pago.');
         }
     } catch (error) {
         console.error('Error al iniciar la suscripción:', error);
-        notificationService.error(error.message || getText('subscription_error_start'));
+        notificationService.error(error.message || getText('subscription_error_start') || 'No se pudo iniciar el proceso de pago.');
     }
 }
 // --- FIN: NUEVA FUNCIÓN ---
@@ -82,24 +69,19 @@ export function initAuthUI() {
     userInfoDiv = getElem('user-info', false);
     loggedInUsernameSpan = getElem('logged-in-username', false);
     logoutButton = getElem('logout-button', false);
-
     loginFormContainer = getElem('login-form-container', false);
     registerFormContainer = getElem('register-form-container', false);
     requestResetFormContainer = getElem('request-reset-form-container', false) || getElem('promo-request-reset-form-container', false);
-
     loginForm = getElem('login-form', false);
     registerForm = getElem('register-form', false);
     requestResetForm = getElem('request-reset-form', false) || getElem('promo-request-reset-form', false);
-
     authMessageDiv = getElem('auth-message', false);
 
     if (loginForm) {
-        loginUsernameInput = loginForm.querySelector('#login-username');
-        loginPasswordInput = loginForm.querySelector('#login-password');
         loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            const username = loginUsernameInput ? loginUsernameInput.value.trim() : '';
-            const password = loginPasswordInput ? loginPasswordInput.value.trim() : '';
+            const username = loginForm.querySelector('#login-username').value.trim();
+            const password = loginForm.querySelector('#login-password').value.trim();
             if (!username || !password) {
                 displayAuthMessage(getText('auth_enterUserPass'), true);
                 return;
@@ -109,14 +91,11 @@ export function initAuthUI() {
     }
 
     if (registerForm) {
-        registerUsernameInput = registerForm.querySelector('#register-username');
-        registerEmailInput = registerForm.querySelector('#register-email');
-        registerPasswordInput = registerForm.querySelector('#register-password');
         registerForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            const username = registerUsernameInput ? registerUsernameInput.value.trim() : '';
-            const email = registerEmailInput ? registerEmailInput.value.trim() : '';
-            const password = registerPasswordInput ? registerPasswordInput.value.trim() : '';
+            const username = registerForm.querySelector('#register-username').value.trim();
+            const email = registerForm.querySelector('#register-email').value.trim();
+            const password = registerForm.querySelector('#register-password').value.trim();
             
             let Rmsg = "";
             if (!username) { Rmsg += getText('auth_enterUsername') + " "; }
@@ -129,11 +108,9 @@ export function initAuthUI() {
     }
 
     if (requestResetForm) {
-        resetEmailInput = requestResetForm.querySelector('#reset-email') || requestResetForm.querySelector('#promo-reset-email');
+        const resetEmailInput = requestResetForm.querySelector('#reset-email') || requestResetForm.querySelector('#promo-reset-email');
         if (resetEmailInput) {
             requestResetForm.addEventListener('submit', handleRequestPasswordReset);
-        } else {
-            console.warn(getText('auth_warn_resetEmailInputNotFound'));
         }
     }
 
@@ -143,26 +120,32 @@ export function initAuthUI() {
 }
 
 function displayAuthFormView(viewToShow) {
-    if (loginFormContainer) loginFormContainer.style.display = (viewToShow === 'login' ? 'block' : 'none');
-    if (registerFormContainer) registerFormContainer.style.display = (viewToShow === 'register' ? 'block' : 'none');
-    if (requestResetFormContainer) requestResetFormContainer.style.display = (viewToShow === 'requestReset' ? 'block' : 'none');
+    const loginEl = getElem('login-form-container', false);
+    const registerEl = getElem('register-form-container', false);
+    const resetEl = getElem('request-reset-form-container', false) || getElem('promo-request-reset-form-container', false);
+    const msgEl = getElem('auth-message', false);
 
-    if (authMessageDiv) {
-        authMessageDiv.textContent = '';
-        authMessageDiv.className = 'auth-message';
+    if (loginEl) loginEl.style.display = (viewToShow === 'login' ? 'block' : 'none');
+    if (registerEl) registerEl.style.display = (viewToShow === 'register' ? 'block' : 'none');
+    if (resetEl) resetEl.style.display = (viewToShow === 'requestReset' ? 'block' : 'none');
+    if (msgEl) {
+        msgEl.textContent = '';
+        msgEl.className = 'auth-message';
     }
 }
 
-
 export function showLoginFormView() {
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Si un usuario decide iniciar sesión directamente, no debería haber un plan pendiente.
+    sessionStorage.removeItem('pendingSubscriptionPlan');
+    // --- FIN DE LA CORRECCIÓN ---
     displayAuthFormView('login');
 }
-export function showRegisterFormView() {
-    displayAuthFormView('register');
+export function showRegisterFormView() { 
+    // No limpiamos aquí, porque el usuario puede venir de un botón de plan.
+    displayAuthFormView('register'); 
 }
-export function showRequestResetFormView() {
-    displayAuthFormView('requestReset');
-}
+export function showRequestResetFormView() { displayAuthFormView('requestReset'); }
 
 export function showAuthUI() {
     currentLoggedInUsername = null;
@@ -302,14 +285,11 @@ export async function loginUser(username, password, targetElementId = null) {
             currentUserGameCount = data.user.gameCount;
             currentUserPlanLimit = data.user.planLimit;
 
-            // --- INICIO DE LA LÓGICA DE SUSCRIPCIÓN ---
             const pendingPlanId = sessionStorage.getItem('pendingSubscriptionPlan');
             
             if (pendingPlanId) {
-                // Si había un plan pendiente, iniciamos el pago
                 await initiateSubscription(pendingPlanId);
             } else {
-                // Si no, procedemos con la redirección normal
                 const isPromoPage = !!document.getElementById('promo-page-content');
                 if (isPromoPage) {
                     window.location.href = 'index.html';
@@ -317,26 +297,16 @@ export async function loginUser(username, password, targetElementId = null) {
                     window.location.reload();
                 }
             }
-            // --- FIN DE LA LÓGICA DE SUSCRIPCIÓN ---
 
         } else {
-            currentLoggedInUsername = null;
-            currentUserRole = null;
-            currentLoggedInUserEmail = null;
-            globalCsrfToken = null;
-            currentUserThemeSettings = null;
             displayAuthMessage(data.message || getText('auth_loginFailed_status').replace('{status}', response.status), true, false, targetElementId);
         }
     } catch (error) {
         console.error('Network or server error during login:', error);
         notificationService.error(getText('auth_serverConnectionError_login'), error);
-        currentLoggedInUsername = null;
-        currentUserRole = null;
-        currentLoggedInUserEmail = null;
-        globalCsrfToken = null;
-        currentUserThemeSettings = null;
     }
 }
+
 export async function logoutUser() {
     console.log(getText('auth_log_attemptingLogout'));
     try {
@@ -346,6 +316,11 @@ export async function logoutUser() {
         console.error('Error during backend logout call:', error);
         notificationService.error(getText('auth_error_logoutServer'), error);
     } finally {
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Limpiamos el plan pendiente al cerrar sesión.
+        sessionStorage.removeItem('pendingSubscriptionPlan');
+        // --- FIN DE LA CORRECCIÓN ---
+
         currentLoggedInUsername = null;
         currentUserRole = null;
         currentLoggedInUserEmail = null;
@@ -442,15 +417,12 @@ export async function fetchAuthenticated(url, options = {}) {
     }
 }
 
-export function getCurrentUserRole() {
-    return currentUserRole;
-}
-export function getCurrentUserEmail() {
-    return currentLoggedInUserEmail;
-}
+export function getCurrentUserRole() { return currentUserRole; }
+export function getCurrentUserEmail() { return currentLoggedInUserEmail; }
 
 async function handleRequestPasswordReset(event) {
     event.preventDefault();
+    const resetEmailInput = getElem('reset-email', false) || getElem('promo-reset-email', false);
     if (!resetEmailInput) {
         notificationService.error(getText('auth_error_resetEmailFieldMissing'));
         console.error(getText('auth_error_resetEmailInputUndefined'));
@@ -475,7 +447,8 @@ async function handleRequestPasswordReset(event) {
         const data = await response.json();
         if (response.ok) {
             displayAuthMessage(data.message || getText('auth_resetEmailSent'), false, true);
-            if (requestResetForm) requestResetForm.reset();
+            if (getElem('request-reset-form', false)) getElem('request-reset-form', false).reset();
+            if (getElem('promo-request-reset-form', false)) getElem('promo-request-reset-form', false).reset();
         } else {
             displayAuthMessage(data.message || getText('auth_resetEmailError_status').replace('{status}', response.status), true);
         }
@@ -496,11 +469,9 @@ export async function requestPasswordReset(email) {
     return response.json();
 }
 
-
 export async function submitChangePassword(currentPassword, newPassword, confirmNewPassword, messageElementId) {
     const messageTarget = messageElementId || 'configChangePasswordMessage';
     displayAuthMessage("", false, false, messageTarget);
-
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
         displayAuthMessage(getText('auth_error_allFieldsRequired'), true, false, messageTarget);
@@ -542,24 +513,15 @@ export async function submitChangePassword(currentPassword, newPassword, confirm
     }
 }
 
-export function isAuthenticated() {
-    return !!currentLoggedInUsername;
-}
+export function isAuthenticated() { return !!currentLoggedInUsername; }
+export function getCurrentUserThemeSettings() { return currentUserThemeSettings; }
 
-export function getCurrentUserThemeSettings() {
-    return currentUserThemeSettings;
-}
-
-/**
- * Actualiza el conteo de juegos del usuario y refresca la UI del contador.
- * @param {number} changeAmount - El número a sumar (si es positivo) o restar (si es negativo) al contador.
- */
 export function updateCurrentUserGameCount(changeAmount) {
     currentUserGameCount += changeAmount;
     if (currentUserGameCount < 0) {
-        currentUserGameCount = 0; // Para evitar números negativos por si ocurre algún error.
+        currentUserGameCount = 0;
     }
-    updatePlanCounterUI(); // Llama a la función que ya creamos para redibujar el contador.
+    updatePlanCounterUI();
 }
 
 export async function saveLanguagePreference(languageCode) {
