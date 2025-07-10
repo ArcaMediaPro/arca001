@@ -12,7 +12,7 @@ const { sendEmail } = require('../services/emailService');
 
 // --- INICIO: IMPORTAMOS EL CONTROLADOR DE SUSCRIPCIONES ---
 // Necesitamos esto para poder iniciar un pago desde la ruta de login.
-const { createStripeSession, createMercadoPagoPreference } = require('../controllers/subscriptionController');
+const { createStripeSession } = require('../controllers/subscriptionController');
 // --- FIN: IMPORTACIÓN ---
 
 const PLAN_LIMITS = {
@@ -36,11 +36,11 @@ const DEFAULT_THEME_SETTINGS_BACKEND = {
     '--font-size-ui': '0.9'
 };
 
-// --- RUTA DE REGISTRO ---
-// El registro ahora ignora el planId. La suscripción se manejará en el primer login.
+// --- RUTA DE REGISTRO (ACTUALIZADA) ---
 router.post('/register', async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        // Ahora recibimos el planId opcional desde el frontend
+        const { username, email, password, planId } = req.body;
         if (!username || !email || !password) {
             return res.status(400).json({ message: 'Se requiere nombre de usuario, correo electrónico y contraseña.' });
         }
@@ -52,7 +52,15 @@ router.post('/register', async (req, res) => {
         
         const verificationToken = crypto.randomBytes(32).toString('hex');
         const emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-        const newUser = new User({ username, email, password, emailVerificationToken });
+        
+        // Guardamos la intención de compra en el nuevo campo
+        const newUser = new User({ 
+            username, 
+            email, 
+            password, 
+            emailVerificationToken,
+            pendingSubscriptionPlan: planId || null 
+        });
         
         await newUser.save();
 
@@ -116,8 +124,8 @@ router.post('/verify-email', async (req, res) => {
 // --- RUTA DE INICIO DE SESIÓN (ACTUALIZADA) ---
 router.post('/login', async (req, res) => {
     try {
-        // 1. Ahora recibimos el planId opcional desde el frontend
-        const { username, password, planId } = req.body;
+        // Ya no recibimos el planId, lo leemos de la BD
+        const { username, password } = req.body;
         if (!username || !password) {
             return res.status(400).json({ message: 'Se requiere nombre de usuario y contraseña.' });
         }
@@ -140,11 +148,16 @@ router.post('/login', async (req, res) => {
         }
 
         // --- INICIO DE LA LÓGICA DE SUSCRIPCIÓN ---
-        // 2. Si hay un plan pendiente Y el usuario es 'free', iniciamos el pago.
-        if (planId && user.subscriptionPlan === 'free') {
-            console.log(`Usuario ${username} iniciando suscripción al plan ${planId}`);
+        // Si hay un plan pendiente en la BD Y el usuario es 'free', iniciamos el pago.
+        if (user.pendingSubscriptionPlan && user.subscriptionPlan === 'free') {
+            const planId = user.pendingSubscriptionPlan;
+            console.log(`Usuario ${username} iniciando suscripción al plan pendiente: ${planId}`);
             
-            // Creamos un 'req' simulado para pasarlo al controlador
+            // Limpiamos el plan pendiente de la BD para que no se le vuelva a cobrar
+            user.pendingSubscriptionPlan = null;
+            await user.save();
+            
+            // Creamos un 'req' simulado para pasarlo al controlador de suscripciones
             const mockReq = { body: { planId }, user: { id: user._id.toString() } };
             const mockRes = {
                 status: (code) => ({
@@ -153,12 +166,12 @@ router.post('/login', async (req, res) => {
                 json: (data) => res.json(data)
             };
             
-            // Por ahora, solo manejamos Stripe. Se puede añadir lógica para elegir.
+            // Llamamos a la función del controlador para crear la sesión de pago
             return await createStripeSession(mockReq, mockRes);
         }
         // --- FIN DE LA LÓGICA DE SUSCRIPCIÓN ---
 
-        // 3. Si no hay plan pendiente, es un login normal.
+        // Si no hay plan pendiente, es un login normal.
         const payload = { id: user._id, username: user.username, role: user.role, email: user.email, plan: user.subscriptionPlan };
         const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.cookie('authToken', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', maxAge: 3600000 });
