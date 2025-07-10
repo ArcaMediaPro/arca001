@@ -1,4 +1,4 @@
-// authClient.js (CORREGIDO CON LÓGICA DE LIMPIEZA DE SESIÓN Y LOCALSTORAGE)
+// authClient.js (CORREGIDO CON LÓGICA DE BACKEND)
 import { API_BASE_URL } from './appConfig.js';
 import { getElem } from './domUtils.js';
 import { clearUserServerThemeSettingsCache } from './config.js';
@@ -29,39 +29,7 @@ let registerForm;
 let requestResetForm;
 let authMessageDiv;
 
-// --- INICIO: NUEVA FUNCIÓN PARA INICIAR SUSCRIPCIÓN ---
-async function initiateSubscription(planId) {
-    const provider = 'stripe';
-    const endpoint = provider === 'stripe'
-        ? `${API_BASE_URL}/subscriptions/create-stripe-session`
-        : `${API_BASE_URL}/subscriptions/create-mercadopago-preference`;
-
-    try {
-        notificationService.info(getText('subscription_initiating') || 'Iniciando suscripción...');
-
-        // Limpiamos el plan pendiente usando localStorage
-        localStorage.removeItem('pendingSubscriptionPlan');
-
-        const response = await fetchAuthenticated(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ planId }),
-        });
-
-        const session = await response.json();
-
-        if (session.redirectUrl) {
-            window.location.href = session.redirectUrl;
-        } else {
-            throw new Error('No se recibió una URL de redirección de la pasarela de pago.');
-        }
-    } catch (error) {
-        console.error('Error al iniciar la suscripción:', error);
-        notificationService.error(error.message || getText('subscription_error_start') || 'No se pudo iniciar el proceso de pago.');
-    }
-}
-// --- FIN: NUEVA FUNCIÓN ---
-
+// La función initiateSubscription ya no es necesaria aquí, el backend se encargará.
 
 export function initAuthUI() {
     authArea = getElem('auth-area', false);
@@ -135,7 +103,6 @@ function displayAuthFormView(viewToShow) {
 }
 
 export function showLoginFormView() {
-    // Limpiamos el plan pendiente usando localStorage
     localStorage.removeItem('pendingSubscriptionPlan');
     displayAuthFormView('login');
 }
@@ -235,13 +202,19 @@ export function updatePlanCounterUI() {
 export async function registerUser(username, email, password, targetElementId = null) {
     displayAuthMessage('', false, false, targetElementId);
     try {
+        // 1. Leemos el plan pendiente ANTES de enviar la petición.
+        const pendingPlanId = localStorage.getItem('pendingSubscriptionPlan');
+        const requestBody = { username, email, password, planId: pendingPlanId };
+
         const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password }),
+            body: JSON.stringify(requestBody), // 2. Enviamos el cuerpo modificado
         });
         const data = await response.json();
         if (response.ok) {
+            // Limpiamos el plan pendiente, ya que el backend ya lo recibió.
+            localStorage.removeItem('pendingSubscriptionPlan');
             displayAuthMessage(data.message || getText('auth_registrationSuccessWithVerification'), false, false, targetElementId);
             const registerForm = document.getElementById('register-form') || document.querySelector('.auth-modal-content #register-form');
             if (registerForm) {
@@ -264,30 +237,27 @@ export async function registerUser(username, email, password, targetElementId = 
 export async function loginUser(username, password, targetElementId = null) {
     displayAuthMessage('', false, false, targetElementId);
     try {
+        // 1. Leemos el plan pendiente ANTES de enviar la petición.
+        const pendingPlanId = localStorage.getItem('pendingSubscriptionPlan');
+        const requestBody = { username, password, planId: pendingPlanId };
+
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify(requestBody), // 2. Enviamos el cuerpo modificado
         });
         const data = await response.json();
 
-        if (response.ok && data.user && data.csrfToken) {
-            currentLoggedInUsername = data.user.username;
-            currentUserRole = data.user.role || 'user';
-            currentLoggedInUserEmail = data.user.email || null;
-            globalCsrfToken = data.csrfToken;
-            currentUserThemeSettings = data.themeSettings || {};
-            currentUserLanguage = data.user.language || 'es';
-            currentUserPlanName = data.user.planName;
-            currentUserGameCount = data.user.gameCount;
-            currentUserPlanLimit = data.user.planLimit;
+        if (response.ok) {
+            // Limpiamos el plan pendiente, ya que el backend ya lo procesó.
+            localStorage.removeItem('pendingSubscriptionPlan');
 
-            // Leemos el plan pendiente desde localStorage
-            const pendingPlanId = localStorage.getItem('pendingSubscriptionPlan');
-            
-            if (pendingPlanId) {
-                await initiateSubscription(pendingPlanId);
-            } else {
+            // 3. El frontend ahora solo obedece al backend.
+            if (data.redirectUrl) {
+                // Si el backend nos da una URL, redirigimos (al pago).
+                window.location.href = data.redirectUrl;
+            } else if (data.user && data.csrfToken) {
+                // Si no, es un login normal, recargamos la página o vamos a index.
                 const isPromoPage = !!document.getElementById('promo-page-content');
                 if (isPromoPage) {
                     window.location.href = 'index.html';
@@ -295,7 +265,6 @@ export async function loginUser(username, password, targetElementId = null) {
                     window.location.reload();
                 }
             }
-
         } else {
             displayAuthMessage(data.message || getText('auth_loginFailed_status').replace('{status}', response.status), true, false, targetElementId);
         }
@@ -314,7 +283,6 @@ export async function logoutUser() {
         console.error('Error during backend logout call:', error);
         notificationService.error(getText('auth_error_logoutServer'), error);
     } finally {
-        // Limpiamos el plan pendiente usando localStorage
         localStorage.removeItem('pendingSubscriptionPlan');
 
         currentLoggedInUsername = null;

@@ -1,4 +1,4 @@
-// routes/authRoutes.js (VERSIÓN FINAL, SEGURA Y ROBUSTA)
+// routes/authRoutes.js (VERSIÓN FINAL, CON LÓGICA DE SUSCRIPCIÓN EN EL BACKEND)
 
 const express = require('express');
 const router = express.Router();
@@ -9,6 +9,11 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const authMiddleware = require('../middleware/auth');
 const { sendEmail } = require('../services/emailService');
+
+// --- INICIO: IMPORTAMOS EL CONTROLADOR DE SUSCRIPCIONES ---
+// Necesitamos esto para poder iniciar un pago desde la ruta de login.
+const { createStripeSession, createMercadoPagoPreference } = require('../controllers/subscriptionController');
+// --- FIN: IMPORTACIÓN ---
 
 const PLAN_LIMITS = {
     free: 50,
@@ -31,7 +36,8 @@ const DEFAULT_THEME_SETTINGS_BACKEND = {
     '--font-size-ui': '0.9'
 };
 
-// --- RUTA DE REGISTRO (CON TOKEN HASHEADO) ---
+// --- RUTA DE REGISTRO ---
+// El registro ahora ignora el planId. La suscripción se manejará en el primer login.
 router.post('/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
@@ -44,11 +50,8 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya existe.' });
         }
         
-        // 1. Se crea un token legible para enviar en la URL del correo.
         const verificationToken = crypto.randomBytes(32).toString('hex');
-        // 2. Se crea una versión "hasheada" del token para guardar de forma segura en la base de datos.
         const emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-        // 3. Se guarda el usuario con el token hasheado.
         const newUser = new User({ username, email, password, emailVerificationToken });
         
         await newUser.save();
@@ -57,7 +60,6 @@ router.post('/register', async (req, res) => {
         const newPrefs = new UserPreferences({ user: newUser._id, themeSettings: defaultSettingsMap });
         await newPrefs.save();
 
-        // Se usa la URL del frontend y el token sin hashear para el enlace del correo.
         const verificationURL = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/verify-email.html?token=${verificationToken}`;
         
         await sendEmail({
@@ -80,8 +82,7 @@ router.post('/register', async (req, res) => {
 });
 
 
-// --- RUTA: VERIFICACIÓN DE CORREO (CORREGIDA Y SEGURA) ---
-// Ahora es POST para que el token vaya en el cuerpo de la petición.
+// --- RUTA: VERIFICACIÓN DE CORREO ---
 router.post('/verify-email', async (req, res) => { 
     try {
         const { token } = req.body;
@@ -89,13 +90,11 @@ router.post('/verify-email', async (req, res) => {
             return res.status(400).json({ message: 'Token de verificación no proporcionado.' });
         }
 
-        // Hashear el token que viene del frontend para poder buscarlo en la BD.
         const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
-        // Buscar al usuario por el token hasheado y pedir explícitamente el campo.
         const user = await User.findOne({ 
             emailVerificationToken: hashedToken 
-        }).select('+emailVerificationToken'); // <-- CORRECCIÓN CLAVE
+        }).select('+emailVerificationToken');
 
         if (!user) {
             return res.status(400).json({ message: 'Token de verificación inválido o ya utilizado.' });
@@ -114,14 +113,15 @@ router.post('/verify-email', async (req, res) => {
 });
 
 
-// --- RUTA DE INICIO DE SESIÓN ---
+// --- RUTA DE INICIO DE SESIÓN (ACTUALIZADA) ---
 router.post('/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        // 1. Ahora recibimos el planId opcional desde el frontend
+        const { username, password, planId } = req.body;
         if (!username || !password) {
             return res.status(400).json({ message: 'Se requiere nombre de usuario y contraseña.' });
         }
-        // Se añade .select('+password') para asegurar que se traiga la contraseña
+        
         const user = await User.findOne({ username }).select('+password');
         if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas.' });
@@ -130,7 +130,7 @@ router.post('/login', async (req, res) => {
         if (!user.isVerified) {
             return res.status(401).json({ 
                 message: 'Tu cuenta no ha sido verificada. Por favor, revisa el correo que te enviamos.',
-                notVerified: true // Flag para que el frontend sepa qué mensaje mostrar
+                notVerified: true
             });
         }
 
@@ -139,6 +139,26 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Credenciales inválidas.' });
         }
 
+        // --- INICIO DE LA LÓGICA DE SUSCRIPCIÓN ---
+        // 2. Si hay un plan pendiente Y el usuario es 'free', iniciamos el pago.
+        if (planId && user.subscriptionPlan === 'free') {
+            console.log(`Usuario ${username} iniciando suscripción al plan ${planId}`);
+            
+            // Creamos un 'req' simulado para pasarlo al controlador
+            const mockReq = { body: { planId }, user: { id: user._id.toString() } };
+            const mockRes = {
+                status: (code) => ({
+                    json: (data) => res.status(code).json(data)
+                }),
+                json: (data) => res.json(data)
+            };
+            
+            // Por ahora, solo manejamos Stripe. Se puede añadir lógica para elegir.
+            return await createStripeSession(mockReq, mockRes);
+        }
+        // --- FIN DE LA LÓGICA DE SUSCRIPCIÓN ---
+
+        // 3. Si no hay plan pendiente, es un login normal.
         const payload = { id: user._id, username: user.username, role: user.role, email: user.email, plan: user.subscriptionPlan };
         const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.cookie('authToken', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', maxAge: 3600000 });
@@ -161,19 +181,14 @@ router.post('/login', async (req, res) => {
 });
 
 
-// El resto de tus rutas (/logout, /status, /request-password-reset, etc.) se mantienen como están,
-// ya que su lógica es sólida. El cambio en la importación de 'sendEmail' hará que la recuperación
-// de contraseña también use nuestro servicio de prueba Ethereal automáticamente.
-
-// --- Ruta de Logout ---
+// --- RUTA DE LOGOUT ---
 router.post('/logout', (req, res) => {
     res.clearCookie('authToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
     res.status(200).json({ message: 'Sesión cerrada correctamente.' });
 });
 
-// --- Ruta para verificar el estado de autenticación ---
+// --- RUTA PARA VERIFICAR EL ESTADO DE AUTENTICACIÓN ---
 router.get('/status', authMiddleware, async (req, res) => {
-    // (Tu código original aquí está bien)
     try {
         const freshUser = await User.findById(req.user.id).select('username email role subscriptionPlan');
         if (!freshUser) {
@@ -199,7 +214,7 @@ router.get('/status', authMiddleware, async (req, res) => {
     }
 });
 
-// --- RUTA: Solicitar Restablecimiento de Contraseña ---
+// --- RUTA: SOLICITAR RESTABLECIMIENTO DE CONTRASEÑA ---
 router.post('/request-password-reset', async (req, res) => {
     try {
         const { email } = req.body;
@@ -213,7 +228,6 @@ router.post('/request-password-reset', async (req, res) => {
         const resetToken = user.createPasswordResetToken();
         await user.save({ validateBeforeSave: false });
         const resetURL = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password.html?token=${resetToken}`;
-        // Usará nuestro nuevo emailService
         await sendEmail({ to: user.email, subject: 'Restablecimiento de Contraseña', html: `<p>Solicitaste restablecer tu contraseña. Haz clic en este enlace (válido por 10 minutos): <a href="${resetURL}">${resetURL}</a></p>` });
         res.status(200).json({ message: 'Si tu correo electrónico está registrado, recibirás un enlace.' });
     } catch (error) {
@@ -222,11 +236,10 @@ router.post('/request-password-reset', async (req, res) => {
     }
 });
 
-// --- RUTA: Restablecer la Contraseña ---
+// --- RUTA: RESTABLECER LA CONTRASEÑA ---
 router.post('/reset-password', async (req, res) => {
-    // (Tu código original aquí está bien)
     try {
-        const { token, newPassword } = req.body; // Cambiado de 'password' a 'newPassword' por claridad
+        const { token, newPassword } = req.body;
         if (!token || !newPassword) {
             return res.status(400).json({ message: 'Token y nueva contraseña son requeridos.' });
         }
@@ -246,9 +259,8 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
-// --- RUTA: Cambiar Contraseña (Usuario Logueado) ---
+// --- RUTA: CAMBIAR CONTRASEÑA (USUARIO LOGUEADO) ---
 router.post('/change-password', authMiddleware, async (req, res) => {
-    // (Tu código original aquí está bien)
     try {
         const { currentPassword, newPassword } = req.body;
         const userId = req.user.id;
