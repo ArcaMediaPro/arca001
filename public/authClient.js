@@ -1,4 +1,4 @@
-// authClient.js (CORREGIDO CON LÓGICA DE LIMPIEZA DE SESIÓN)
+// authClient.js (CORREGIDO CON LÓGICA DE LIMPIEZA DE SESIÓN Y LOCALSTORAGE)
 import { API_BASE_URL } from './appConfig.js';
 import { getElem } from './domUtils.js';
 import { clearUserServerThemeSettingsCache } from './config.js';
@@ -39,8 +39,8 @@ async function initiateSubscription(planId) {
     try {
         notificationService.info(getText('subscription_initiating') || 'Iniciando suscripción...');
 
-        // Limpiamos el plan pendiente ANTES de iniciar el pago para evitar problemas futuros.
-        sessionStorage.removeItem('pendingSubscriptionPlan');
+        // Limpiamos el plan pendiente usando localStorage
+        localStorage.removeItem('pendingSubscriptionPlan');
 
         const response = await fetchAuthenticated(endpoint, {
             method: 'POST',
@@ -135,14 +135,11 @@ function displayAuthFormView(viewToShow) {
 }
 
 export function showLoginFormView() {
-    // --- INICIO DE LA CORRECCIÓN ---
-    // Si un usuario decide iniciar sesión directamente, no debería haber un plan pendiente.
-    sessionStorage.removeItem('pendingSubscriptionPlan');
-    // --- FIN DE LA CORRECCIÓN ---
+    // Limpiamos el plan pendiente usando localStorage
+    localStorage.removeItem('pendingSubscriptionPlan');
     displayAuthFormView('login');
 }
 export function showRegisterFormView() { 
-    // No limpiamos aquí, porque el usuario puede venir de un botón de plan.
     displayAuthFormView('register'); 
 }
 export function showRequestResetFormView() { displayAuthFormView('requestReset'); }
@@ -285,7 +282,8 @@ export async function loginUser(username, password, targetElementId = null) {
             currentUserGameCount = data.user.gameCount;
             currentUserPlanLimit = data.user.planLimit;
 
-            const pendingPlanId = sessionStorage.getItem('pendingSubscriptionPlan');
+            // Leemos el plan pendiente desde localStorage
+            const pendingPlanId = localStorage.getItem('pendingSubscriptionPlan');
             
             if (pendingPlanId) {
                 await initiateSubscription(pendingPlanId);
@@ -316,10 +314,8 @@ export async function logoutUser() {
         console.error('Error during backend logout call:', error);
         notificationService.error(getText('auth_error_logoutServer'), error);
     } finally {
-        // --- INICIO DE LA CORRECCIÓN ---
-        // Limpiamos el plan pendiente al cerrar sesión.
-        sessionStorage.removeItem('pendingSubscriptionPlan');
-        // --- FIN DE LA CORRECCIÓN ---
+        // Limpiamos el plan pendiente usando localStorage
+        localStorage.removeItem('pendingSubscriptionPlan');
 
         currentLoggedInUsername = null;
         currentUserRole = null;

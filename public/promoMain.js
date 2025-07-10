@@ -129,17 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const planButtons = document.querySelectorAll('.promo-price-plan button');
     planButtons.forEach(button => {
         button.addEventListener('click', (e) => {
-            // Usamos el data-plan-id que añadimos en el HTML
             const planId = e.currentTarget.dataset.planId;
             
-            // Si el botón tiene un planId (medium o premium), lo guardamos
             if (planId) {
                 console.log(`Plan seleccionado: ${planId}. Guardando para después del login.`);
-                // Usamos sessionStorage para que el dato persista hasta que se cierre la pestaña
-                sessionStorage.setItem('pendingSubscriptionPlan', planId);
+                // Usamos localStorage para que el dato persista entre pestañas
+                localStorage.setItem('pendingSubscriptionPlan', planId);
             } else {
                 // Si es el plan gratuito o un botón sin plan, nos aseguramos de que no haya nada guardado
-                sessionStorage.removeItem('pendingSubscriptionPlan');
+                localStorage.removeItem('pendingSubscriptionPlan');
             }
             
             // Siempre abrimos el modal de registro al hacer clic en un plan
