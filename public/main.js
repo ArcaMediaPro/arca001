@@ -1,4 +1,4 @@
-// main.js (COMPLETO Y CORREGIDO)
+// main.js (MODIFICADO Y CORREGIDO)
 import { initError as domInitError, getElem, handleFormStarClick, handleFormStarHover, handleFormStarMouseOut } from './domUtils.js';
 import { loadThemeSettings, saveThemeSettings, resetThemeSettings, applyThemeProperty } from './config.js';
 import {
@@ -14,7 +14,8 @@ import {
     isAuthenticated,
     saveLanguagePreference,
     currentUserLanguage,
-    currentUserPlanName,
+    // --- IMPORTACIONES AÑADIDAS ---
+    currentUserPlanName, // Importamos el plan actual del usuario
     initiateSubscription // Asegúrate de que esta función esté exportada en authClient.js
 } from './authClient.js';
 import {
