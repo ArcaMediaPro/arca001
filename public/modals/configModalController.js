@@ -1,6 +1,6 @@
 // modals/configModalController.js
 import { getElem } from '../domUtils.js';
-import { getCurrentUserRole } from '../authClient.js';
+import { getCurrentUserRole, updatePlanCounterUI } from '../authClient.js'; // <-- IMPORTAMOS updatePlanCounterUI
 import { initThemeSettingsTab } from './configTabs/themeSettingsTab.js';
 import { initProfileTab, populateProfileTabDataOnOpen } from './configTabs/profileTab.js';
 import { initCollectionsTab } from './configTabs/collectionsTab.js';
@@ -69,13 +69,11 @@ function initConfigTabsInternal(preferredTabId = null) {
         const panelToActivate = document.getElementById(targetTabId);
         if (panelToActivate) panelToActivate.classList.add('active');
 
-        // --- INICIO DE LA CORRECCIÓN ---
         // Controlamos la visibilidad del contenedor de botones de guardar/resetear tema.
         const themeTabs = ['tab-general', 'tab-colors', 'tab-typography'];
         if (mainSaveButtonsContainer) {
             mainSaveButtonsContainer.style.display = themeTabs.includes(targetTabId) ? 'flex' : 'none';
         }
-        // --- FIN DE LA CORRECCIÓN ---
     };
 
     if (tabButtonsContainer && !tabButtonsContainer.dataset.listenerAttached) {
@@ -178,6 +176,15 @@ export function closeConfigModal() {
             document.removeEventListener('mouseup', dragEnd);
         }
     }
+    
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Forzamos la actualización del contador del plan cada vez que se cierra el modal.
+    // Esto asegura que si un admin cambió un plan, la UI se refresque.
+    if (typeof updatePlanCounterUI === 'function') {
+        updatePlanCounterUI();
+    }
+    // --- FIN DE LA CORRECCIÓN ---
+
     console.log("Config Modal Closed");
 }
 
