@@ -1894,7 +1894,7 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
 
 
 
-
+}
 
 
 
@@ -1943,3 +1943,62 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
 .promo-cta-button {
     /* Estilos que ya tienes para los botones */
 }
+
+
+
+
+/* =================================================== */
+/* === ESTILOS PARA EL SISTEMA DE ESTRELLAS (NUEVO) === */
+/* =================================================== */
+
+/* Contenedor para las estrellas interactivas en el formulario */
+.rating-stars-10 {
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+}
+
+/* Estilo base de cada estrella */
+.star-10 {
+    font-size: 2rem;
+    color: #545170; /* Color de estrella inactiva (borde) */
+    position: relative;
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+/* Usamos un pseudo-elemento para crear la forma de la estrella */
+.star-10::before {
+    content: '★';
+    position: absolute;
+    left: 0;
+    top: 0;
+    line-height: 1;
+}
+
+/* Cuando el mouse pasa por encima (estado hover) */
+.star-10.hover {
+    color: #ffcc80; /* Naranja claro para previsualización */
+    transform: scale(1.2);
+}
+
+/* Cuando la estrella está activa (rating seleccionado) */
+.star-10.active {
+    color: #ffb74d; /* Naranja principal para rating final */
+}
+
+/* Estilo para las estrellas no interactivas (en la vista de detalles) */
+.rating-display-stars-10 {
+    display: flex;
+    justify-content: center;
+}
+
+.rating-display-stars-10 .star-10 {
+    font-size: 1.2rem; /* Un poco más pequeñas */
+    width: 20px;
+    height: 20px;
+    cursor: default;
+}
+
