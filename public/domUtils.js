@@ -1,16 +1,31 @@
-// domUtils.js (MODIFICADO)
+// domUtils.js (MODIFICADO Y CORREGIDO)
 import { getText } from './i18n.js';
 
 // --- Constantes DOM ---
 export let initError = false;
+
+/**
+ * Obtiene un elemento por su ID. Opcionalmente, puede buscar dentro de un elemento de contexto.
+ * @param {string} id - El ID del elemento a buscar.
+ * @param {boolean} required - Si es true, mostrará un error si no se encuentra.
+ * @param {Document|HTMLElement} context - El contexto en el que buscar (por defecto, todo el documento).
+ * @returns {HTMLElement|null}
+ */
 export function getElem(id, required = true, context = document) {
-    const elem = context.getElementById(id);
+    // --- INICIO DE LA CORRECCIÓN ---
+    // getElementById solo existe en 'document'. Para otros elementos, usamos querySelector.
+    const elem = (context === document)
+        ? document.getElementById(id)
+        : context.querySelector(`#${id}`);
+    // --- FIN DE LA CORRECCIÓN ---
+
     if (!elem && required) {
-        console.error(getText('domUtils_criticalErrorElementNotFound').replace('{id}', id));
+        console.error(`Error crítico: Elemento con ID "${id}" no encontrado.`);
         initError = true;
     }
     return elem;
 }
+
 
 export function escapeHtml(unsafe) {
     if (typeof unsafe !== 'string') {
@@ -71,13 +86,7 @@ export function handleScreenshotPreview(screenshotsInput, screenshotsPreviewCont
 }
 
 
-// =================================================================
-// === INICIO: LÓGICA DE ESTRELLAS CORREGIDA Y REFACTORIZADA     ===
-// =================================================================
-
-/**
- * Crea las 10 estrellas iniciales en el contenedor del formulario.
- */
+// --- LÓGICA DE ESTRELLAS ---
 export function createFormStars(formRatingStarsContainer) {
     if (!formRatingStarsContainer) return;
     formRatingStarsContainer.innerHTML = '';
@@ -90,10 +99,6 @@ export function createFormStars(formRatingStarsContainer) {
     }
 }
 
-/**
- * Actualiza el estado visual de las estrellas a un valor permanente.
- * Esta es la función principal que dibuja el rating guardado.
- */
 export function updateFormStarsVisual(value, container) {
     if (!container) return;
     const rating = parseInt(value, 10) || 0;
@@ -101,14 +106,11 @@ export function updateFormStarsVisual(value, container) {
     
     stars.forEach(star => {
         const starValue = parseInt(star.dataset.value, 10);
-        star.classList.remove('hover'); // Limpia cualquier previsualización
+        star.classList.remove('hover');
         star.classList.toggle('active', starValue <= rating);
     });
 }
 
-/**
- * Muestra una previsualización de rating cuando el mouse pasa por encima.
- */
 export function handleFormStarHover(event, container) {
     if (!container || !event.target.classList.contains('star-10')) return;
     const hoverValue = parseInt(event.target.dataset.value, 10);
@@ -120,17 +122,11 @@ export function handleFormStarHover(event, container) {
     });
 }
 
-/**
- * Limpia la previsualización cuando el mouse sale del contenedor.
- */
 export function handleFormStarMouseOut(container) {
     if (!container) return;
     container.querySelectorAll('.star-10').forEach(star => star.classList.remove('hover'));
 }
 
-/**
- * Guarda el rating seleccionado al hacer clic y actualiza la vista.
- */
 export function handleFormStarClick(event, hiddenInput, container) {
     if (!event.target.classList.contains('star-10')) return;
     const clickedValue = event.target.dataset.value;
@@ -138,13 +134,9 @@ export function handleFormStarClick(event, hiddenInput, container) {
     if (hiddenInput) {
         hiddenInput.value = clickedValue;
     }
-    // Llama a la función principal para fijar el nuevo estado visual
     updateFormStarsVisual(clickedValue, container);
 }
 
-/**
- * Genera el HTML para mostrar estrellas (no interactivas) en la lista de juegos.
- */
 export function generateDisplayStars10(rating) {
     let starsHTML = '';
     const currentRating = parseInt(rating) || 0;
@@ -157,6 +149,3 @@ export function generateDisplayStars10(rating) {
     }
     return `<div class="rating-display-stars-10" aria-label="${ariaLabelText}">${starsHTML}</div>`;
 }
-// =================================================================
-// === FIN: LÓGICA DE ESTRELLAS CORREGIDA                        ===
-// =================================================================
