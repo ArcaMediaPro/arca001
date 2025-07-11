@@ -286,7 +286,24 @@ function getUpdateDeleteButtonStateLogic() {
         deleteBtn.disabled = true;
     }
 }
-// --- FIN: FUNCIÓN FALTANTE AÑADIDA ---
+
+// --- INICIO: FUNCIÓN FALTANTE AÑADIDA ---
+function configureUIAfterAuth() {
+    const userRole = getCurrentUserRole();
+    const adminPanelButton = getElem('admin-panel-link-button', false);
+    if (adminPanelButton) {
+        adminPanelButton.style.display = (userRole === 'admin' ? 'inline-block' : 'none');
+        if (!adminPanelButton.dataset.listenerAttached) {
+            adminPanelButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof openConfigModal === 'function') {
+                    openConfigModal(true, false, false);
+                }
+            });
+            adminPanelButton.dataset.listenerAttached = 'true';
+        }
+    }
+}
 
 // --- EVENTO PRINCIPAL DE CARGA DEL DOM ---
 document.addEventListener('DOMContentLoaded', async () => {
