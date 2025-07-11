@@ -29,10 +29,7 @@ let registerForm;
 let requestResetForm;
 let authMessageDiv;
 
-// --- INICIO DE LA CORRECCIÓN ---
-// Se añade la palabra 'export' para que esta función pueda ser usada por main.js
 export async function initiateSubscription(planId) {
-// --- FIN DE LA CORRECCIÓN ---
     const provider = 'stripe';
     const endpoint = provider === 'stripe'
         ? `${API_BASE_URL}/subscriptions/create-stripe-session`
@@ -61,51 +58,6 @@ export async function initiateSubscription(planId) {
         notificationService.error(error.message || getText('subscription_error_start') || 'No se pudo iniciar el proceso de pago.');
     }
 }
-
-
-
-
-export async function showGameUI(usernameToDisplay) {
-    const isPromoPage = !!document.getElementById('promo-page-content');
-    if (isPromoPage) {
-        console.log(getText('auth_log_showGameUIPromoRedirect'));
-        window.location.href = 'index.html';
-        return; // Añadimos return para evitar que siga ejecutando
-    }
-
-    if (authArea) authArea.style.display = 'none';
-    if (gameArea) gameArea.style.display = 'block';
-    if (userInfoDiv) userInfoDiv.style.display = 'flex';
-    if (loggedInUsernameSpan) {
-        loggedInUsernameSpan.textContent = usernameToDisplay || currentLoggedInUsername || getText('auth_defaultUsername');
-    }
-    
-    document.body.classList.remove('auth-view-active');
-    console.log(getText('auth_log_showGameUIIndex'));
-    
-    // Se llama a la actualización del contador AQUÍ, después de que la UI es visible.
-    updatePlanCounterUI(); 
-}
-// --- FIN DE LA CORRECCIÓN ---
-
-
-export function updatePlanCounterUI() {
-    const counterElement = getElem('plan-usage-counter', false);
-    if (!counterElement) {
-        return;
-    }
-
-    if (currentUserPlanName === 'free' || currentUserPlanName === 'medium') {
-        const label = getText('planCounter_label') || 'Juegos';
-        counterElement.textContent = `${label}: ${currentUserGameCount} / ${currentUserPlanLimit}`;
-        counterElement.style.display = 'block';
-    } else {
-        counterElement.style.display = 'none';
-    }
-}
-
-
-
 
 
 export function initAuthUI() {
@@ -217,26 +169,32 @@ export function showAuthUI() {
     }
 }
 
+
 export async function showGameUI(usernameToDisplay) {
     const isPromoPage = !!document.getElementById('promo-page-content');
     if (isPromoPage) {
         console.log(getText('auth_log_showGameUIPromoRedirect'));
         window.location.href = 'index.html';
-    } else {
-        if (authArea) authArea.style.display = 'none';
-        if (gameArea) gameArea.style.display = 'block';
-        if (userInfoDiv) userInfoDiv.style.display = 'flex';
-        if (loggedInUsernameSpan) {
-            loggedInUsernameSpan.textContent = usernameToDisplay || currentLoggedInUsername || getText('auth_defaultUsername');
-        }
-        if (authMessageDiv && authArea && authArea.contains(authMessageDiv)) {
-            authMessageDiv.textContent = '';
-            authMessageDiv.className = 'auth-message';
-        }
-        document.body.classList.remove('auth-view-active');
-        console.log(getText('auth_log_showGameUIIndex'));
+        return; // Añadimos return para evitar que siga ejecutando
     }
+
+    if (authArea) authArea.style.display = 'none';
+    if (gameArea) gameArea.style.display = 'block';
+    if (userInfoDiv) userInfoDiv.style.display = 'flex';
+    if (loggedInUsernameSpan) {
+        loggedInUsernameSpan.textContent = usernameToDisplay || currentLoggedInUsername || getText('auth_defaultUsername');
+    }
+    
+    document.body.classList.remove('auth-view-active');
+    console.log(getText('auth_log_showGameUIIndex'));
+    
+    // Se llama a la actualización del contador AQUÍ, después de que la UI es visible.
+    updatePlanCounterUI(); 
 }
+
+
+
+
 
 export function displayAuthMessage(message, isError = true, clearAfterDelay = false, targetElementId = null) {
     const targetDiv = targetElementId ? getElem(targetElementId, false) : authMessageDiv;
@@ -261,6 +219,7 @@ export function displayAuthMessage(message, isError = true, clearAfterDelay = fa
     }
 }
 
+
 export function updatePlanCounterUI() {
     const counterElement = getElem('plan-usage-counter', false);
     if (!counterElement) {
@@ -275,6 +234,7 @@ export function updatePlanCounterUI() {
         counterElement.style.display = 'none';
     }
 }
+
 
 export async function registerUser(username, email, password, targetElementId = null) {
     displayAuthMessage('', false, false, targetElementId);

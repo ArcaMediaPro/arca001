@@ -1,4 +1,4 @@
-// modals/configTabs/adminUserManagement.js (VERSIÓN DEFINITIVA Y COMPLETA)
+// modals/configTabs/adminUserManagement.js (VERSIÓN CORREGIDA Y REESTRUCTURADA)
 import { getElem, escapeHtml } from '../../domUtils.js';
 import * as adminService from '../../adminService.js';
 import { notificationService } from '../../notificationService.js';
@@ -133,10 +133,21 @@ async function handleSaveAdminUserChanges() {
     if (!editingUserIdInputElement || !saveUserChangesBtnElement) return;
     const userId = editingUserIdInputElement.value;
     if (!userId) return;
+
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Buscamos el selector de plan correspondiente a este usuario en la tabla
+    const userRow = adminUserListContainerElement.querySelector(`tr[data-user-id="${userId}"]`);
+    const planSelectElement = userRow ? userRow.querySelector('.plan-select') : null;
+    // --- FIN DE LA CORRECCIÓN ---
+
     const userDataToUpdate = {
         username: editUserUsernameInputElement.value.trim(),
         email: editUserEmailInputElement.value.trim(),
         role: editUserRoleElement.value,
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Añadimos el plan al objeto de datos que se enviará al backend
+        subscriptionPlan: planSelectElement ? planSelectElement.value : undefined,
+        // --- FIN DE LA CORRECCIÓN ---
     };
     const newPassword = editUserNewPasswordInputElement.value;
     if (newPassword) {
