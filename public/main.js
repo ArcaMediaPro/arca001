@@ -1,4 +1,4 @@
-// main.js (MODIFICADO Y CORREGIDO)
+// main.js (COMPLETO Y CORREGIDO)
 import { initError as domInitError, getElem, handleFormStarClick, handleFormStarHover, handleFormStarMouseOut } from './domUtils.js';
 import { loadThemeSettings, saveThemeSettings, resetThemeSettings, applyThemeProperty } from './config.js';
 import {
@@ -14,9 +14,8 @@ import {
     isAuthenticated,
     saveLanguagePreference,
     currentUserLanguage,
-    // --- IMPORTACIONES AÑADIDAS ---
-    currentUserPlanName, // Importamos el plan actual del usuario
-    initiateSubscription // Asegúrate de que esta función esté exportada en authClient.js
+    currentUserPlanName,
+    initiateSubscription
 } from './authClient.js';
 import {
     initGameManager,
@@ -275,6 +274,19 @@ async function initializeFilterData() {
         notificationService.error("No se pudieron cargar las opciones de filtros.");
     }
 }
+
+// --- INICIO: FUNCIÓN FALTANTE AÑADIDA ---
+function getUpdateDeleteButtonStateLogic() {
+    const gameListElem = getElem('gameList', false);
+    const deleteBtn = getElem('deleteSelectedBtn', false);
+    if (gameListElem && deleteBtn) {
+        const checkedBoxes = gameListElem.querySelectorAll('.game-delete-checkbox:checked');
+        deleteBtn.disabled = checkedBoxes.length === 0;
+    } else if (deleteBtn) {
+        deleteBtn.disabled = true;
+    }
+}
+// --- FIN: FUNCIÓN FALTANTE AÑADIDA ---
 
 // --- EVENTO PRINCIPAL DE CARGA DEL DOM ---
 document.addEventListener('DOMContentLoaded', async () => {
