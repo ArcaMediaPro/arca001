@@ -1,4 +1,4 @@
-// main.js (COMPLETO Y CORREGIDO)
+// main.js (MODIFICADO Y CORREGIDO)
 import { initError as domInitError, getElem, handleFormStarClick, handleFormStarHover, handleFormStarMouseOut } from './domUtils.js';
 import { loadThemeSettings, saveThemeSettings, resetThemeSettings, applyThemeProperty } from './config.js';
 import {
@@ -14,8 +14,9 @@ import {
     isAuthenticated,
     saveLanguagePreference,
     currentUserLanguage,
-    currentUserPlanName,
-    initiateSubscription
+    // --- IMPORTACIONES AÑADIDAS ---
+    currentUserPlanName, // Importamos el plan actual del usuario
+    initiateSubscription // Asegúrate de que esta función esté exportada en authClient.js
 } from './authClient.js';
 import {
     initGameManager,
@@ -44,6 +45,9 @@ import { initConfigModalController, openConfigModal, closeConfigModal } from './
 import { fetchGameById, fetchAllUniqueGenres } from './gameService.js';
 import { notificationService } from './notificationService.js';
 import { loadTranslations, getText } from './i18n.js';
+
+
+
 
 // --- LÓGICA DEL MODAL DE BÚSQUEDA EXTERNA ---
 function openExternalSearchModal() {
@@ -81,6 +85,9 @@ function closeExternalSearchModal() {
     if (modal) modal.style.display = 'none';
 }
 
+/**
+ * Realiza la búsqueda de juegos en la API de RAWG.
+ */
 const performSearch = async () => {
     const searchInput = getElem('externalSearchInput', true, getElem('externalSearchModal'));
     const resultsContainer = getElem('externalSearchResultsContainer', true, getElem('externalSearchModal'));
@@ -176,6 +183,11 @@ const performSearch = async () => {
     }
 };
 
+
+
+
+
+
 // --- LÓGICA PARA LA PESTAÑA DE SUSCRIPCIÓN ---
 function prepareSubscriptionTab() {
     const plan = currentUserPlanName || 'free';
@@ -205,7 +217,14 @@ async function handleCancelSubscription() {
     }
 }
 
+
+
+
+
+
+
 // --- FUNCIONES GENERALES Y DE INICIALIZACIÓN ---
+
 function setupFooter() {
     const yearSpan = getElem('currentYear', false);
     if (yearSpan) yearSpan.textContent = new Date().getFullYear();
@@ -262,7 +281,17 @@ function updateLocalizedImages(lang) {
     }
 }
 
+
+
+
+
+
+
+let promoAuthModalOverlay = null;
 let cachedAllGenres = [];
+
+
+
 
 async function initializeFilterData() {
     try {
@@ -304,6 +333,105 @@ function configureUIAfterAuth() {
         }
     }
 }
+
+
+
+
+function initPromoPageAuthModals() {
+    promoAuthModalOverlay = getElem('auth-modal-overlay', false);
+    if (!promoAuthModalOverlay) {
+        return;
+    }
+    const btnShowLoginNav = getElem('promo-btn-show-login', false);
+    const btnShowRegisterNav = getElem('promo-btn-show-register', false);
+    const btnShowLoginHero = getElem('promo-link-show-login-hero', false);
+    const btnCtaRegister = getElem('promo-btn-cta-register', false);
+    const authModalCloseBtn = getElem('auth-modal-close', false);
+    const pricingButtons = document.querySelectorAll('.promo-price-plan .promo-cta-button');
+    const showRequestResetModalLink = getElem('show-request-reset-form-modal', false);
+    const showLoginFromResetModalLink = getElem('show-login-from-reset-modal', false);
+
+    const openAuthModalAndSetView = (viewToShow = 'login') => {
+        if (!promoAuthModalOverlay) return;
+        promoAuthModalOverlay.style.display = 'flex';
+        if (viewToShow === 'login') showLoginFormView();
+        else if (viewToShow === 'register') showRegisterFormView();
+        else if (viewToShow === 'requestReset') showRequestResetFormView();
+        else showLoginFormView();
+        const authMessageDivInModal = promoAuthModalOverlay.querySelector('#auth-message');
+        if (authMessageDivInModal) authMessageDivInModal.textContent = '';
+    };
+
+    const closeAuthModal = () => {
+        if (promoAuthModalOverlay) promoAuthModalOverlay.style.display = 'none';
+    };
+
+    if (btnShowLoginNav) btnShowLoginNav.addEventListener('click', () => openAuthModalAndSetView('login'));
+    if (btnShowRegisterNav) btnShowRegisterNav.addEventListener('click', () => openAuthModalAndSetView('register'));
+    if (btnShowLoginHero) btnShowLoginHero.addEventListener('click', (e) => { e.preventDefault(); openAuthModalAndSetView('login'); });
+    if (btnCtaRegister) btnCtaRegister.addEventListener('click', () => openAuthModalAndSetView('register'));
+    if (authModalCloseBtn) authModalCloseBtn.addEventListener('click', closeAuthModal);
+    if (promoAuthModalOverlay) promoAuthModalOverlay.addEventListener('click', (event) => { if (event.target === promoAuthModalOverlay) closeAuthModal(); });
+    if (showRequestResetModalLink) showRequestResetModalLink.addEventListener('click', (e) => { e.preventDefault(); showRequestResetFormView(); });
+    if (showLoginFromResetModalLink) showLoginFromResetModalLink.addEventListener('click', (e) => { e.preventDefault(); showLoginFormView(); });
+    if (pricingButtons.length > 0) {
+        pricingButtons.forEach(button => button.addEventListener('click', (e) => {
+            const action = e.currentTarget.dataset.action;
+            if (action && action.startsWith('register')) openAuthModalAndSetView('register');
+        }));
+    }
+}
+
+function configureUIAfterAuth() {
+    const userRole = getCurrentUserRole();
+    const adminPanelButton = getElem('admin-panel-link-button', false);
+    if (adminPanelButton) {
+        adminPanelButton.style.display = (userRole === 'admin' ? 'inline-block' : 'none');
+        if (!adminPanelButton.dataset.listenerAttached) {
+            adminPanelButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof openConfigModal === 'function') {
+                    openConfigModal(true, false, false);
+                }
+            });
+            adminPanelButton.dataset.listenerAttached = 'true';
+        }
+    }
+}
+
+function getUpdateDeleteButtonStateLogic() {
+    const gameListElem = getElem('gameList', false);
+    const deleteBtn = getElem('deleteSelectedBtn', false);
+    if (gameListElem && deleteBtn) {
+        const checkedBoxes = gameListElem.querySelectorAll('.game-delete-checkbox:checked');
+        deleteBtn.disabled = checkedBoxes.length === 0;
+    } else if (deleteBtn) {
+        deleteBtn.disabled = true;
+    }
+}
+
+async function initializeFilterData() {
+    console.log(">>> [main.js] Inicializando datos de filtros (géneros y plataformas)...");
+    try {
+        const allGenres = await fetchAllUniqueGenres();
+        cachedAllGenres = allGenres;
+        populateGenreFilterDropdown(cachedAllGenres);
+
+        if (typeof loadAndSetPlatformSummaries === 'function') {
+            await loadAndSetPlatformSummaries();
+        } else {
+            console.error(">>> [main.js] loadAndSetPlatformSummaries no está disponible.");
+            notificationService.error("Error interno: No se pudo cargar el resumen de plataformas para filtros.");
+        }
+    } catch (error) {
+        console.error(">>> [main.js] Error inicializando datos de filtros (géneros/plataformas):", error);
+        notificationService.error("No se pudieron cargar todas las opciones de filtros correctamente.");
+    }
+}
+
+
+
+
 
 // --- EVENTO PRINCIPAL DE CARGA DEL DOM ---
 document.addEventListener('DOMContentLoaded', async () => {
@@ -392,6 +520,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 notificationService.error(`Error al cambiar a ${selectedLang}`, error);
             }
         });
+    }
+
+    const formRatingStarsContainer = getElem('formRatingStars', false);
+    const hiddenRatingInput = getElem('rating', false);
+    if (formRatingStarsContainer && hiddenRatingInput) {
+        if (!formRatingStarsContainer.dataset.listenerAttached) {
+            formRatingStarsContainer.addEventListener('click', (e) => handleFormStarClick(e, hiddenRatingInput, formRatingStarsContainer));
+            formRatingStarsContainer.addEventListener('mouseover', (e) => handleFormStarHover(e, formRatingStarsContainer));
+            formRatingStarsContainer.addEventListener('mouseout', () => handleFormStarMouseOut(hiddenRatingInput, formRatingStarsContainer));
+            formRatingStarsContainer.dataset.listenerAttached = 'true';
+        }
     }
 
     try {
