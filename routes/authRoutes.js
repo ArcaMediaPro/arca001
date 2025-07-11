@@ -34,6 +34,57 @@ const DEFAULT_THEME_SETTINGS_BACKEND = {
     '--font-size-ui': '0.9'
 };
 
+
+
+// --- RUTA DE ADMINISTRADOR (ACTUALIZADA) ---
+router.put('/api/admin/users/:id', authMiddleware, isAdmin, async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado.' });
+
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Ahora también leemos 'subscriptionPlan' del cuerpo de la petición.
+        const { username, email, role, newPassword, subscriptionPlan } = req.body;
+        
+        if (username) user.username = username;
+        if (email) user.email = email.toLowerCase();
+        if (role) user.role = role;
+        if (newPassword) user.password = newPassword;
+
+        // Si se envió un nuevo plan, lo actualizamos.
+        if (subscriptionPlan && ['free', 'medium', 'premium'].includes(subscriptionPlan)) {
+            user.subscriptionPlan = subscriptionPlan;
+        }
+        // --- FIN DE LA CORRECCIÓN ---
+
+        const updatedUser = await user.save();
+        const userObject = updatedUser.toObject();
+        delete userObject.password;
+        res.json({ message: 'Usuario actualizado correctamente.', user: userObject });
+    } catch (error) {
+        if (error.code === 11000) return res.status(400).json({ message: 'El nombre de usuario o el correo electrónico ya está en uso.' });
+        res.status(500).json({ message: 'Error interno del servidor al actualizar el usuario.' });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // --- RUTA DE REGISTRO ---
 router.post('/register', async (req, res) => {
     try {

@@ -1,4 +1,4 @@
-// authClient.js (CORREGIDO CON EXPORTACIÓN FALTANTE)
+// authClient.js (MODIFICADO Y CORREGIDO)
 import { API_BASE_URL } from './appConfig.js';
 import { getElem } from './domUtils.js';
 import { clearUserServerThemeSettingsCache } from './config.js';
@@ -61,6 +61,51 @@ export async function initiateSubscription(planId) {
         notificationService.error(error.message || getText('subscription_error_start') || 'No se pudo iniciar el proceso de pago.');
     }
 }
+
+
+
+
+export async function showGameUI(usernameToDisplay) {
+    const isPromoPage = !!document.getElementById('promo-page-content');
+    if (isPromoPage) {
+        console.log(getText('auth_log_showGameUIPromoRedirect'));
+        window.location.href = 'index.html';
+        return; // Añadimos return para evitar que siga ejecutando
+    }
+
+    if (authArea) authArea.style.display = 'none';
+    if (gameArea) gameArea.style.display = 'block';
+    if (userInfoDiv) userInfoDiv.style.display = 'flex';
+    if (loggedInUsernameSpan) {
+        loggedInUsernameSpan.textContent = usernameToDisplay || currentLoggedInUsername || getText('auth_defaultUsername');
+    }
+    
+    document.body.classList.remove('auth-view-active');
+    console.log(getText('auth_log_showGameUIIndex'));
+    
+    // Se llama a la actualización del contador AQUÍ, después de que la UI es visible.
+    updatePlanCounterUI(); 
+}
+// --- FIN DE LA CORRECCIÓN ---
+
+
+export function updatePlanCounterUI() {
+    const counterElement = getElem('plan-usage-counter', false);
+    if (!counterElement) {
+        return;
+    }
+
+    if (currentUserPlanName === 'free' || currentUserPlanName === 'medium') {
+        const label = getText('planCounter_label') || 'Juegos';
+        counterElement.textContent = `${label}: ${currentUserGameCount} / ${currentUserPlanLimit}`;
+        counterElement.style.display = 'block';
+    } else {
+        counterElement.style.display = 'none';
+    }
+}
+
+
+
 
 
 export function initAuthUI() {
