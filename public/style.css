@@ -1890,4 +1890,56 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     .card-content .card-title {
         font-size: 1rem;
     }
+
+
+
+
+
+
+
+
+
+
+/* Estilos para la nueva pestaña de Suscripción */
+.current-plan-info p {
+    font-size: 1rem;
+    color: var(--clr-text-main);
+}
+.promo-pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+.promo-price-plan {
+    background-color: var(--clr-bg-body);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--clr-border);
+    text-align: center;
+}
+.promo-price-plan.recommended {
+    border-color: var(--clr-accent-1);
+    box-shadow: 0 0 15px rgba(255, 183, 77, 0.2);
+}
+.promo-price-plan h3 {
+    color: var(--clr-accent-2);
+}
+.promo-price-amount {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--clr-text-main);
+    margin: 0.5rem 0;
+}
+.promo-price-plan ul {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0;
+    text-align: left;
+}
+.promo-price-plan li {
+    margin-bottom: 0.8rem;
+    color: var(--clr-text-secondary);
+}
+.promo-cta-button {
+    /* Estilos que ya tienes para los botones */
 }

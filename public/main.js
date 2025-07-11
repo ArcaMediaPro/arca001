@@ -1,4 +1,3 @@
-// main.js (MODIFICADO Y CORREGIDO)
 import { initError as domInitError, getElem, handleFormStarClick, handleFormStarHover, handleFormStarMouseOut } from './domUtils.js';
 import { loadThemeSettings, saveThemeSettings, resetThemeSettings, applyThemeProperty } from './config.js';
 import {
@@ -13,7 +12,10 @@ import {
     updatePlanCounterUI,
     isAuthenticated,
     saveLanguagePreference,
-    currentUserLanguage
+    currentUserLanguage,
+    // --- IMPORTACIONES AÑADIDAS ---
+    currentUserPlanName, // Importamos el plan actual del usuario
+    initiateSubscription // Importamos la función que creamos en el paso anterior
 } from './authClient.js';
 import {
     initGameManager,
@@ -42,6 +44,240 @@ import { initConfigModalController, openConfigModal, closeConfigModal } from './
 import { fetchGameById, fetchAllUniqueGenres } from './gameService.js';
 import { notificationService } from './notificationService.js';
 import { loadTranslations, getText } from './i18n.js';
+
+
+// --- INICIO DE CÓDIGO AÑADIDO ---
+// Función para configurar la lógica común del footer
+function setupFooter() {
+    const yearSpan = getElem('currentYear', false);
+    if (yearSpan) {
+        yearSpan.textContent = new Date().getFullYear();
+    }
+}
+// --- FIN DE CÓDIGO AÑADIDO ---
+
+
+// +++ FUNCIONES PARA MANEJAR COOKIES +++
+function setCookie(nombre, valor, dias) {
+  let expires = "";
+  if (dias) {
+    const date = new Date();
+    date.setTime(date.getTime() + (dias * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = nombre + "=" + (valor || "") + expires + "; path=/; SameSite=Lax";
+}
+
+function getCookie(nombre) {
+  const nombreEQ = nombre + "=";
+  const ca = document.cookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+    if (c.indexOf(nombreEQ) === 0) return c.substring(nombreEQ.length, c.length);
+  }
+  return null;
+}
+// +++ FIN DE FUNCIONES PARA COOKIES +++
+
+
+function applyPageTranslations() {
+    const elements = document.querySelectorAll('[data-i18n-key]');
+    elements.forEach(element => {
+        const key = element.getAttribute('data-i18n-key');
+        const targetAttr = element.getAttribute('data-i18n-target-attr');
+        const translationMode = element.getAttribute('data-i18n-mode');
+
+        if (key) {
+            const translatedText = getText(key);
+
+            if (targetAttr) {
+                element.setAttribute(targetAttr, translatedText);
+            } else if (translationMode === 'html') {
+                element.innerHTML = translatedText;
+            } else {
+                const isButton = element.tagName === 'BUTTON';
+                const hasOnlyImageChild = isButton && element.children.length === 1 && element.children[0].tagName === 'IMG';
+
+                if (isButton && hasOnlyImageChild && !element.hasAttribute('data-translate-force-text')) {
+                    // No hacer nada
+                } else {
+                    element.textContent = translatedText;
+                }
+            }
+        }
+    });
+}
+
+/**
+ * Actualiza la fuente (src) de las imágenes localizadas según el idioma seleccionado.
+ * @param {string} lang - El código del idioma actual (ej: 'es', 'en', 'de').
+ */
+function updateLocalizedImages(lang) {
+    const imageMap = {
+        'sidebarTitleImage': 'Plataforma',
+        'filterSectionTitleImage': 'buscar filtrar y ordena',
+        'listSectionTitleImage': 'Coleccion'
+    };
+
+    for (const [id, baseName] of Object.entries(imageMap)) {
+        const imgElement = getElem(id, false);
+        if (imgElement) {
+            const newSrc = `imagenes/${baseName}_${lang}.png`;
+            imgElement.src = newSrc;
+        }
+    }
+}
+
+let promoAuthModalOverlay = null;
+let cachedAllGenres = [];
+
+function initPromoPageAuthModals() {
+    promoAuthModalOverlay = getElem('auth-modal-overlay', false);
+    if (!promoAuthModalOverlay) {
+        return;
+    }
+    const btnShowLoginNav = getElem('promo-btn-show-login', false);
+    const btnShowRegisterNav = getElem('promo-btn-show-register', false);
+    const btnShowLoginHero = getElem('promo-link-show-login-hero', false);
+    const btnCtaRegister = getElem('promo-btn-cta-register', false);
+    const authModalCloseBtn = getElem('auth-modal-close', false);
+    const pricingButtons = document.querySelectorAll('.promo-price-plan .promo-cta-button');
+    const showRequestResetModalLink = getElem('show-request-reset-form-modal', false);
+    const showLoginFromResetModalLink = getElem('show-login-from-reset-modal', false);
+
+    const openAuthModalAndSetView = (viewToShow = 'login') => {
+        if (!promoAuthModalOverlay) return;
+        promoAuthModalOverlay.style.display = 'flex';
+        if (viewToShow === 'login') showLoginFormView();
+        else if (viewToShow === 'register') showRegisterFormView();
+        else if (viewToShow === 'requestReset') showRequestResetFormView();
+        else showLoginFormView();
+        const authMessageDivInModal = promoAuthModalOverlay.querySelector('#auth-message');
+        if (authMessageDivInModal) authMessageDivInModal.textContent = '';
+    };
+
+    const closeAuthModal = () => {
+        if (promoAuthModalOverlay) promoAuthModalOverlay.style.display = 'none';
+    };
+
+    if (btnShowLoginNav) btnShowLoginNav.addEventListener('click', () => openAuthModalAndSetView('login'));
+    if (btnShowRegisterNav) btnShowRegisterNav.addEventListener('click', () => openAuthModalAndSetView('register'));
+    if (btnShowLoginHero) btnShowLoginHero.addEventListener('click', (e) => { e.preventDefault(); openAuthModalAndSetView('login'); });
+    if (btnCtaRegister) btnCtaRegister.addEventListener('click', () => openAuthModalAndSetView('register'));
+    if (authModalCloseBtn) authModalCloseBtn.addEventListener('click', closeAuthModal);
+    if (promoAuthModalOverlay) promoAuthModalOverlay.addEventListener('click', (event) => { if (event.target === promoAuthModalOverlay) closeAuthModal(); });
+    if (showRequestResetModalLink) showRequestResetModalLink.addEventListener('click', (e) => { e.preventDefault(); showRequestResetFormView(); });
+    if (showLoginFromResetModalLink) showLoginFromResetModalLink.addEventListener('click', (e) => { e.preventDefault(); showLoginFormView(); });
+    if (pricingButtons.length > 0) {
+        pricingButtons.forEach(button => button.addEventListener('click', (e) => {
+            const action = e.currentTarget.dataset.action;
+            if (action && action.startsWith('register')) openAuthModalAndSetView('register');
+        }));
+    }
+}
+
+function configureUIAfterAuth() {
+    const userRole = getCurrentUserRole();
+    const adminPanelButton = getElem('admin-panel-link-button', false);
+    if (adminPanelButton) {
+        adminPanelButton.style.display = (userRole === 'admin' ? 'inline-block' : 'none');
+        if (!adminPanelButton.dataset.listenerAttached) {
+            adminPanelButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof openConfigModal === 'function') {
+                    openConfigModal(true, false, false);
+                }
+            });
+            adminPanelButton.dataset.listenerAttached = 'true';
+        }
+    }
+}
+
+function getUpdateDeleteButtonStateLogic() {
+    const gameListElem = getElem('gameList', false);
+    const deleteBtn = getElem('deleteSelectedBtn', false);
+    if (gameListElem && deleteBtn) {
+        const checkedBoxes = gameListElem.querySelectorAll('.game-delete-checkbox:checked');
+        deleteBtn.disabled = checkedBoxes.length === 0;
+    } else if (deleteBtn) {
+        deleteBtn.disabled = true;
+    }
+}
+
+async function initializeFilterData() {
+    console.log(">>> [main.js] Inicializando datos de filtros (géneros y plataformas)...");
+    try {
+        const allGenres = await fetchAllUniqueGenres();
+        cachedAllGenres = allGenres;
+        populateGenreFilterDropdown(cachedAllGenres);
+
+        if (typeof loadAndSetPlatformSummaries === 'function') {
+            await loadAndSetPlatformSummaries();
+        } else {
+            console.error(">>> [main.js] loadAndSetPlatformSummaries no está disponible.");
+            notificationService.error("Error interno: No se pudo cargar el resumen de plataformas para filtros.");
+        }
+    } catch (error) {
+        console.error(">>> [main.js] Error inicializando datos de filtros (géneros/plataformas):", error);
+        notificationService.error("No se pudieron cargar todas las opciones de filtros correctamente.");
+    }
+}
+
+// --- INICIO: NUEVA LÓGICA PARA LA PESTAÑA DE SUSCRIPCIÓN ---
+
+/**
+ * Prepara la pestaña de suscripción en el modal de configuración.
+ * Muestra el plan actual y las opciones correspondientes.
+ */
+function prepareSubscriptionTab() {
+    const plan = currentUserPlanName || 'free';
+    
+    const planTextElem = getElem('current-user-plan');
+    const manageSection = getElem('manage-subscription-section');
+    const upgradeSection = getElem('upgrade-subscription-section');
+
+    if (planTextElem) {
+        planTextElem.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
+    }
+
+    if (plan === 'medium' || plan === 'premium') {
+        if (manageSection) manageSection.style.display = 'block';
+        if (upgradeSection) upgradeSection.style.display = 'none';
+    } else {
+        if (manageSection) manageSection.style.display = 'none';
+        if (upgradeSection) upgradeSection.style.display = 'block';
+    }
+}
+
+/**
+ * Maneja la lógica para cancelar una suscripción.
+ */
+async function handleCancelSubscription() {
+    const confirmCancel = confirm(getText('subscription_cancel_confirm'));
+    if (!confirmCancel) return;
+
+    notificationService.info('Procesando cancelación...');
+    try {
+        // Por ahora, mostramos un mensaje temporal:
+        notificationService.success('Función de cancelación en desarrollo.');
+    } catch (error) {
+        console.error("Error al cancelar la suscripción:", error);
+        notificationService.error(error.message || 'No se pudo cancelar la suscripción.');
+    }
+}
+// --- FIN: NUEVA LÓGICA ---
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -520,6 +756,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
         
+
+// --- NUEVO: Listeners para los botones de la pestaña de suscripción ---
+        const configModal = getElem('configModal', false);
+        if (configModal) {
+            configModal.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-subscribe-app')) {
+                    const planId = e.target.dataset.planId;
+                    if (planId && typeof initiateSubscription === 'function') {
+                        closeConfigModal();
+                        initiateSubscription(planId);
+                    }
+                }
+            });
+
+            const cancelBtn = getElem('cancel-subscription-btn', true, configModal);
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', handleCancelSubscription);
+            }
+        }
+        // --- FIN: NUEVOS LISTENERS ---
+
+
+
+
+
+
+
+
+
+
         const resetFiltersBtnElement = getElem('resetFiltersBtn', false);
         if (!resetFiltersBtnElement) {
             console.warn("ADVERTENCIA en index.html: #resetFiltersBtn no encontrado.");

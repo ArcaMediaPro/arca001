@@ -620,152 +620,195 @@
     </div>
 
     <div id="configModal" class="modal">
-        <div class="modal-content">
-            <span class="close" title="Cerrar" data-i18n-key="configModal_closeBtnTitle" data-i18n-target-attr="title">&times;</span>
-            <h2 id="configModalHeader" data-i18n-key="configModal_header">Configuración</h2>
+    <div class="modal-content">
+        <span class="close" title="Cerrar" data-i18n-key="configModal_closeBtnTitle" data-i18n-target-attr="title">&times;</span>
+        <h2 id="configModalHeader" data-i18n-key="configModal_header">Configuración</h2>
 
-            <div class="config-tabs-container">
-                <div class="config-tabs-nav">
-                    <button type="button" class="config-tab-button active" data-tab="tab-general" data-i18n-key="configModal_tabGeneral">General</button>
-                    <button type="button" class="config-tab-button" data-tab="tab-colors" data-i18n-key="configModal_tabColors">Colores</button>
-                    <button type="button" class="config-tab-button" data-tab="tab-typography" data-i18n-key="configModal_tabTypography">Tipografía</button>
-                    <button type="button" class="config-tab-button" data-tab="tab-profile" id="profile-tab-button" data-i18n-key="configModal_tabProfile">Mi Perfil</button>
-                    <button type="button" class="config-tab-button" data-tab="tab-collections" id="collections-tab-button" data-i18n-key="configModal_tabCollections">Mis Colecciones</button>
-                    <button type="button" class="config-tab-button" data-tab="tab-admin" id="admin-tab-button" style="display: none;" data-i18n-key="configModal_tabAdmin">Administración</button>
+        <div class="config-tabs-container">
+            <div class="config-tabs-nav">
+                <button type="button" class="config-tab-button active" data-tab="tab-general" data-i18n-key="configModal_tabGeneral">General</button>
+                <button type="button" class="config-tab-button" data-tab="tab-colors" data-i18n-key="configModal_tabColors">Colores</button>
+                <button type="button" class="config-tab-button" data-tab="tab-typography" data-i18n-key="configModal_tabTypography">Tipografía</button>
+                
+                <!-- === INICIO: NUEVA PESTAÑA DE SUSCRIPCIÓN === -->
+                <button type="button" class="config-tab-button" data-tab="tab-subscription" id="subscription-tab-button" data-i18n-key="configModal_tabSubscription">Suscripción</button>
+                <!-- === FIN: NUEVA PESTAÑA === -->
+
+                <button type="button" class="config-tab-button" data-tab="tab-profile" id="profile-tab-button" data-i18n-key="configModal_tabProfile">Mi Perfil</button>
+                <button type="button" class="config-tab-button" data-tab="tab-collections" id="collections-tab-button" data-i18n-key="configModal_tabCollections">Mis Colecciones</button>
+                <button type="button" class="config-tab-button" data-tab="tab-admin" id="admin-tab-button" style="display: none;" data-i18n-key="configModal_tabAdmin">Administración</button>
+            </div>
+
+            <form id="configForm">
+                <div id="tab-general" class="config-tab-panel active">
+                    <fieldset class="config-section">
+                        <legend class="config-section-legend" data-i18n-key="configGeneral_legendAppearance">Apariencia General</legend>
+                        <div class="color-option"> <label for="cfgBgBody" data-i18n-key="configGeneral_labelBgBody">Fondo Principal:</label> <input type="color" id="cfgBgBody" data-var="--clr-bg-body"> </div>
+                        <div class="color-option"> <label for="cfgTextMain" data-i18n-key="configGeneral_labelTextMain">Texto Principal:</label> <input type="color" id="cfgTextMain" data-var="--clr-text-main"> </div>
+                        <div class="color-option"> <label for="cfgTextSecondary" data-i18n-key="configGeneral_labelTextSecondary">Texto Secundario:</label> <input type="color" id="cfgTextSecondary" data-var="--clr-text-secondary"> </div>
+                        <div class="color-option"> <label for="cfgBgSection" data-i18n-key="configGeneral_labelBgSection">Fondo Secciones/Tarjetas:</label> <input type="color" id="cfgBgSection" data-var="--clr-bg-section"> </div>
+                        <div class="color-option"> <label for="cfgBorder" data-i18n-key="configGeneral_labelBorder">Bordes/Separadores:</label> <input type="color" id="cfgBorder" data-var="--clr-border"> </div>
+                        <div class="color-option"> <label for="cfgInputFocus" data-i18n-key="configGeneral_labelInputFocus">Color de Foco (Inputs):</label> <input type="color" id="cfgInputFocus" data-var="--clr-input-focus"> </div>
+                    </fieldset>
                 </div>
 
-                <form id="configForm">
-                    <div id="tab-general" class="config-tab-panel active">
-                        <fieldset class="config-section">
-                            <legend class="config-section-legend" data-i18n-key="configGeneral_legendAppearance">Apariencia General</legend>
-                            <div class="color-option"> <label for="cfgBgBody" data-i18n-key="configGeneral_labelBgBody">Fondo Principal:</label> <input type="color" id="cfgBgBody" data-var="--clr-bg-body"> </div>
-                            <div class="color-option"> <label for="cfgTextMain" data-i18n-key="configGeneral_labelTextMain">Texto Principal:</label> <input type="color" id="cfgTextMain" data-var="--clr-text-main"> </div>
-                            <div class="color-option"> <label for="cfgTextSecondary" data-i18n-key="configGeneral_labelTextSecondary">Texto Secundario:</label> <input type="color" id="cfgTextSecondary" data-var="--clr-text-secondary"> </div>
-                            <div class="color-option"> <label for="cfgBgSection" data-i18n-key="configGeneral_labelBgSection">Fondo Secciones/Tarjetas:</label> <input type="color" id="cfgBgSection" data-var="--clr-bg-section"> </div>
-                            <div class="color-option"> <label for="cfgBorder" data-i18n-key="configGeneral_labelBorder">Bordes/Separadores:</label> <input type="color" id="cfgBorder" data-var="--clr-border"> </div>
-                            <div class="color-option"> <label for="cfgInputFocus" data-i18n-key="configGeneral_labelInputFocus">Color de Foco (Inputs):</label> <input type="color" id="cfgInputFocus" data-var="--clr-input-focus"> </div>
-                        </fieldset>
-                    </div>
+                <div id="tab-colors" class="config-tab-panel">
+                    <fieldset class="config-section">
+                        <legend class="config-section-legend" data-i18n-key="configColors_legendAccentAndButtons">Colores de Acento y Botones</legend>
+                        <div class="color-option"> <label for="cfgAccent1" data-i18n-key="configColors_labelAccent1">Acento 1 (Títulos):</label> <input type="color" id="cfgAccent1" data-var="--clr-accent-1"> </div>
+                        <div class="color-option"> <label for="cfgAccent2" data-i18n-key="configColors_labelAccent2">Acento 2 (Tarjetas):</label> <input type="color" id="cfgAccent2" data-var="--clr-accent-2"> </div>
+                        <h4 class="config-subsection-title" data-i18n-key="configColors_subtitlePrimaryButtons">Botones Primarios</h4>
+                        <div class="color-option"> <label for="cfgBtnPBg" data-i18n-key="configColors_labelBtnPrimaryBg">Fondo:</label> <input type="color" id="cfgBtnPBg" data-var="--clr-btn-p-bg"> </div>
+                        <div class="color-option"> <label for="cfgBtnPText" data-i18n-key="configColors_labelBtnPrimaryText">Texto:</label> <input type="color" id="cfgBtnPText" data-var="--clr-btn-p-text"> </div>
+                        <div class="color-option"> <label for="cfgBtnPHover" data-i18n-key="configColors_labelBtnPrimaryHover">Hover Fondo:</label> <input type="color" id="cfgBtnPHover" data-var="--clr-btn-p-hover"> </div>
+                        <h4 class="config-subsection-title" data-i18n-key="configColors_subtitleSecondaryButtons">Botones Secundarios</h4>
+                        <div class="color-option"> <label for="cfgBtnSBg" data-i18n-key="configColors_labelBtnSecondaryBg">Fondo:</label> <input type="color" id="cfgBtnSBg" data-var="--clr-btn-s-bg"> </div>
+                        <div class="color-option"> <label for="cfgBtnSText" data-i18n-key="configColors_labelBtnSecondaryText">Texto:</label> <input type="color" id="cfgBtnSText" data-var="--clr-btn-s-text"> </div>
+                        <div class="color-option"> <label for="cfgBtnSHover" data-i18n-key="configColors_labelBtnSecondaryHover">Hover Fondo:</label> <input type="color" id="cfgBtnSHover" data-var="--clr-btn-s-hover"> </div>
+                        <h4 class="config-subsection-title" data-i18n-key="configColors_subtitleDeleteButtons">Botones de Eliminación</h4>
+                        <div class="color-option"> <label for="cfgBtnDBg" data-i18n-key="configColors_labelBtnDeleteBg">Fondo:</label> <input type="color" id="cfgBtnDBg" data-var="--clr-btn-d-bg"> </div>
+                        <div class="color-option"> <label for="cfgBtnDText" data-i18n-key="configColors_labelBtnDeleteText">Texto:</label> <input type="color" id="cfgBtnDText" data-var="--clr-btn-d-text"> </div>
+                        <div class="color-option"> <label for="cfgBtnDHover" data-i18n-key="configColors_labelBtnDeleteHover">Hover Fondo:</label> <input type="color" id="cfgBtnDHover" data-var="--clr-btn-d-hover"> </div>
+                    </fieldset>
+                </div>
 
-                    <div id="tab-colors" class="config-tab-panel">
-                        <fieldset class="config-section">
-                            <legend class="config-section-legend" data-i18n-key="configColors_legendAccentAndButtons">Colores de Acento y Botones</legend>
-                            <div class="color-option"> <label for="cfgAccent1" data-i18n-key="configColors_labelAccent1">Acento 1 (Títulos):</label> <input type="color" id="cfgAccent1" data-var="--clr-accent-1"> </div>
-                            <div class="color-option"> <label for="cfgAccent2" data-i18n-key="configColors_labelAccent2">Acento 2 (Tarjetas):</label> <input type="color" id="cfgAccent2" data-var="--clr-accent-2"> </div>
-
-                            <h4 class="config-subsection-title" data-i18n-key="configColors_subtitlePrimaryButtons">Botones Primarios</h4>
-                            <div class="color-option"> <label for="cfgBtnPBg" data-i18n-key="configColors_labelBtnPrimaryBg">Fondo:</label> <input type="color" id="cfgBtnPBg" data-var="--clr-btn-p-bg"> </div>
-                            <div class="color-option"> <label for="cfgBtnPText" data-i18n-key="configColors_labelBtnPrimaryText">Texto:</label> <input type="color" id="cfgBtnPText" data-var="--clr-btn-p-text"> </div>
-                            <div class="color-option"> <label for="cfgBtnPHover" data-i18n-key="configColors_labelBtnPrimaryHover">Hover Fondo:</label> <input type="color" id="cfgBtnPHover" data-var="--clr-btn-p-hover"> </div>
-
-                            <h4 class="config-subsection-title" data-i18n-key="configColors_subtitleSecondaryButtons">Botones Secundarios</h4>
-                            <div class="color-option"> <label for="cfgBtnSBg" data-i18n-key="configColors_labelBtnSecondaryBg">Fondo:</label> <input type="color" id="cfgBtnSBg" data-var="--clr-btn-s-bg"> </div>
-                            <div class="color-option"> <label for="cfgBtnSText" data-i18n-key="configColors_labelBtnSecondaryText">Texto:</label> <input type="color" id="cfgBtnSText" data-var="--clr-btn-s-text"> </div>
-                            <div class="color-option"> <label for="cfgBtnSHover" data-i18n-key="configColors_labelBtnSecondaryHover">Hover Fondo:</label> <input type="color" id="cfgBtnSHover" data-var="--clr-btn-s-hover"> </div>
-
-                            <h4 class="config-subsection-title" data-i18n-key="configColors_subtitleDeleteButtons">Botones de Eliminación</h4>
-                            <div class="color-option"> <label for="cfgBtnDBg" data-i18n-key="configColors_labelBtnDeleteBg">Fondo:</label> <input type="color" id="cfgBtnDBg" data-var="--clr-btn-d-bg"> </div>
-                            <div class="color-option"> <label for="cfgBtnDText" data-i18n-key="configColors_labelBtnDeleteText">Texto:</label> <input type="color" id="cfgBtnDText" data-var="--clr-btn-d-text"> </div>
-                            <div class="color-option"> <label for="cfgBtnDHover" data-i18n-key="configColors_labelBtnDeleteHover">Hover Fondo:</label> <input type="color" id="cfgBtnDHover" data-var="--clr-btn-d-hover"> </div>
-                        </fieldset>
-                    </div>
-
-                    <div id="tab-typography" class="config-tab-panel">
-                        <fieldset class="config-section">
-                            <legend class="config-section-legend" data-i18n-key="configTypography_legend">Tipografía</legend>
-
-                            <div class="font-option">
-                                <label for="cfgFontBody" data-i18n-key="configTypography_labelFontGeneral">Fuente General:</label>
-                                <select id="cfgFontBody" data-var="--font-body">
-                                    <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
-                                    <option value='Arial, Helvetica, sans-serif'>Arial</option>
-                                    <option value='Verdana, Geneva, sans-serif'>Verdana</option>
-                                    <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
-                                    <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
-                                    <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
-                                    <option value='Georgia, serif'>Georgia (Serif)</option>
-                                    <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
-                                    <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
-                                </select>
+                <div id="tab-typography" class="config-tab-panel">
+                    <fieldset class="config-section">
+                        <legend class="config-section-legend" data-i18n-key="configTypography_legend">Tipografía</legend>
+                        <div class="font-option">
+                            <label for="cfgFontBody" data-i18n-key="configTypography_labelFontGeneral">Fuente General:</label>
+                            <select id="cfgFontBody" data-var="--font-body">
+                                <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
+                                <option value='Arial, Helvetica, sans-serif'>Arial</option>
+                                <option value='Verdana, Geneva, sans-serif'>Verdana</option>
+                                <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
+                                <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
+                                <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
+                                <option value='Georgia, serif'>Georgia (Serif)</option>
+                                <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
+                                <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
+                            </select>
+                        </div>
+                        <div class="font-size-option">
+                            <label for="cfgFontSizeBody" data-i18n-key="configTypography_labelSizeGeneral">Tamaño General (rem):</label>
+                            <div>
+                                <input type="number" id="cfgFontSizeBody" data-var-size="--font-size-body" min="0.5" max="2" step="0.05" style="width: 60px;">
+                                <span data-i18n-key="configTypography_unitRem">rem</span>
                             </div>
-                            <div class="font-size-option">
-                                <label for="cfgFontSizeBody" data-i18n-key="configTypography_labelSizeGeneral">Tamaño General (rem):</label>
-                                <div>
-                                    <input type="number" id="cfgFontSizeBody" data-var-size="--font-size-body" min="0.5" max="2" step="0.05" style="width: 60px;">
-                                    <span data-i18n-key="configTypography_unitRem">rem</span>
-                                </div>
+                        </div>
+                        <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleHeadingsMain">Encabezados Principales (H1, H2)</h4>
+                        <div class="font-option">
+                            <label for="cfgFontHeadingsMain" data-i18n-key="configTypography_labelFontHeadingsMain">Fuente:</label>
+                            <select id="cfgFontHeadingsMain" data-var="--font-headings-main">
+                                <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
+                                <option value='Arial, Helvetica, sans-serif'>Arial</option>
+                                <option value='Verdana, Geneva, sans-serif'>Verdana</option>
+                                <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
+                                <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
+                                <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
+                                <option value='Georgia, serif'>Georgia (Serif)</option>
+                                <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
+                                <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
+                            </select>
+                        </div>
+                        <div class="font-size-option">
+                            <label for="cfgFontSizeHeadingsMain" data-i18n-key="configTypography_labelSizeHeadingsMain">Tamaño (rem):</label>
+                            <div>
+                                <input type="number" id="cfgFontSizeHeadingsMain" data-var-size="--font-size-headings-main" min="1" max="4" step="0.1" style="width: 60px;">
+                                <span data-i18n-key="configTypography_unitRem">rem</span>
                             </div>
+                        </div>
+                        <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleHeadingsCard">Encabezados Secundarios (Tarjetas, etc.)</h4>
+                        <div class="font-option">
+                            <label for="cfgFontHeadingsCard" data-i18n-key="configTypography_labelFontHeadingsCard">Fuente:</label>
+                            <select id="cfgFontHeadingsCard" data-var="--font-headings-card">
+                                <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
+                                <option value='Arial, Helvetica, sans-serif'>Arial</option>
+                                <option value='Verdana, Geneva, sans-serif'>Verdana</option>
+                                <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
+                                <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
+                                <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
+                                <option value='Georgia, serif'>Georgia (Serif)</option>
+                                <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
+                                <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
+                            </select>
+                        </div>
+                        <div class="font-size-option">
+                            <label for="cfgFontSizeHeadingsCard" data-i18n-key="configTypography_labelSizeHeadingsCard">Tamaño (rem):</label>
+                            <div>
+                                <input type="number" id="cfgFontSizeHeadingsCard" data-var-size="--font-size-headings-card" min="0.8" max="2.5" step="0.05" style="width: 60px;">
+                                <span data-i18n-key="configTypography_unitRem">rem</span>
+                            </div>
+                        </div>
+                        <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleUIElements">Elementos UI (Botones, Labels)</h4>
+                        <div class="font-option">
+                            <label for="cfgFontUi" data-i18n-key="configTypography_labelFontUI">Fuente:</label>
+                            <select id="cfgFontUi" data-var="--font-ui">
+                                <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
+                                <option value='Arial, Helvetica, sans-serif'>Arial</option>
+                                <option value='Verdana, Geneva, sans-serif'>Verdana</option>
+                                <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
+                                <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
+                                <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
+                                <option value='Georgia, serif'>Georgia (Serif)</option>
+                                <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
+                                <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
+                            </select>
+                        </div>
+                        <div class="font-size-option">
+                            <label for="cfgFontSizeUi" data-i18n-key="configTypography_labelSizeUI">Tamaño UI (rem):</label>
+                            <div>
+                                <input type="number" id="cfgFontSizeUi" data-var-size="--font-size-ui" min="0.7" max="1.5" step="0.05" style="width: 60px;">
+                                <span data-i18n-key="configTypography_unitRem">rem</span>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
 
-                            <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleHeadingsMain">Encabezados Principales (H1, H2)</h4>
-                            <div class="font-option">
-                                <label for="cfgFontHeadingsMain" data-i18n-key="configTypography_labelFontHeadingsMain">Fuente:</label>
-                                <select id="cfgFontHeadingsMain" data-var="--font-headings-main">
-                                    <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
-                                    <option value='Arial, Helvetica, sans-serif'>Arial</option>
-                                    <option value='Verdana, Geneva, sans-serif'>Verdana</option>
-                                    <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
-                                    <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
-                                    <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
-                                    <option value='Georgia, serif'>Georgia (Serif)</option>
-                                    <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
-                                    <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
-                                </select>
-                            </div>
-                            <div class="font-size-option">
-                                <label for="cfgFontSizeHeadingsMain" data-i18n-key="configTypography_labelSizeHeadingsMain">Tamaño (rem):</label>
-                                <div>
-                                    <input type="number" id="cfgFontSizeHeadingsMain" data-var-size="--font-size-headings-main" min="1" max="4" step="0.1" style="width: 60px;">
-                                    <span data-i18n-key="configTypography_unitRem">rem</span>
-                                </div>
-                            </div>
+                <!-- === INICIO: CONTENIDO DE LA NUEVA PESTAÑA DE SUSCRIPCIÓN === -->
+                <div id="tab-subscription" class="config-tab-panel">
+                    <fieldset class="config-section">
+                        <legend class="config-section-legend" data-i18n-key="subscription_currentPlan_legend">Tu Plan Actual</legend>
+                        <div class="current-plan-info">
+                            <p>Actualmente estás en el plan: <strong id="current-user-plan" style="color: var(--clr-accent-1);">Cargando...</strong></p>
+                        </div>
+                    </fieldset>
 
-                            <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleHeadingsCard">Encabezados Secundarios (Tarjetas, etc.)</h4>
-                            <div class="font-option">
-                                <label for="cfgFontHeadingsCard" data-i18n-key="configTypography_labelFontHeadingsCard">Fuente:</label>
-                                <select id="cfgFontHeadingsCard" data-var="--font-headings-card">
-                                    <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
-                                    <option value='Arial, Helvetica, sans-serif'>Arial</option>
-                                    <option value='Verdana, Geneva, sans-serif'>Verdana</option>
-                                    <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
-                                    <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
-                                    <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
-                                    <option value='Georgia, serif'>Georgia (Serif)</option>
-                                    <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
-                                    <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
-                                </select>
-                            </div>
-                            <div class="font-size-option">
-                                <label for="cfgFontSizeHeadingsCard" data-i18n-key="configTypography_labelSizeHeadingsCard">Tamaño (rem):</label>
-                                <div>
-                                    <input type="number" id="cfgFontSizeHeadingsCard" data-var-size="--font-size-headings-card" min="0.8" max="2.5" step="0.05" style="width: 60px;">
-                                    <span data-i18n-key="configTypography_unitRem">rem</span>
-                                </div>
-                            </div>
+                    <fieldset id="manage-subscription-section" class="config-section" style="margin-top: 1.5rem; display: none;">
+                        <legend class="config-section-legend" data-i18n-key="subscription_manage_legend">Gestionar Suscripción</legend>
+                        <p data-i18n-key="subscription_manage_info">Si cancelas, seguirás teniendo acceso a tu plan actual hasta el final del período de facturación.</p>
+                        <button type="button" id="cancel-subscription-btn" class="promo-cta-button danger" data-i18n-key="subscription_cancel_btn">Cancelar Suscripción</button>
+                    </fieldset>
 
-                            <h4 class="config-subsection-title" data-i18n-key="configTypography_subtitleUIElements">Elementos UI (Botones, Labels)</h4>
-                            <div class="font-option">
-                                <label for="cfgFontUi" data-i18n-key="configTypography_labelFontUI">Fuente:</label>
-                                <select id="cfgFontUi" data-var="--font-ui">
-                                    <option value='sans-serif' data-i18n-key="configTypography_optFontDefaultSansSerif">Predeterminada Sans-Serif</option>
-                                    <option value='Arial, Helvetica, sans-serif'>Arial</option>
-                                    <option value='Verdana, Geneva, sans-serif'>Verdana</option>
-                                    <option value='Tahoma, Geneva, sans-serif'>Tahoma</option>
-                                    <option value='"Trebuchet MS", Helvetica, sans-serif'>Trebuchet MS</option>
-                                    <option value='"Lucida Sans Unicode", "Lucida Grande", sans-serif'>Lucida Sans Unicode</option>
-                                    <option value='Georgia, serif'>Georgia (Serif)</option>
-                                    <option value='"Times New Roman", Times, serif'>Times New Roman (Serif)</option>
-                                    <option value='"Courier New", Courier, monospace'>Courier New (Monospace)</option>
-                                </select>
+                    <fieldset id="upgrade-subscription-section" class="config-section" style="margin-top: 1.5rem;">
+                        <legend class="config-section-legend" data-i18n-key="subscription_changePlan_legend">Cambiar de Plan</legend>
+                        <div class="promo-pricing-grid" style="padding-top: 1rem;">
+                            <div class="promo-price-plan recommended">
+                                <h3 data-i18n-key="plan_pro_title">Coleccionista PRO</h3>
+                                <p class="promo-price-amount">$4.99<span data-i18n-key="plan_per_month">/mes</span></p>
+                                <ul>
+                                    <li data-i18n-key="plan_pro_feat1">Juegos ilimitados</li>
+                                    <li data-i18n-key="plan_pro_feat2">Todas las funciones avanzadas</li>
+                                    <li data-i18n-key="plan_pro_feat3">Backup en la nube (simulado)</li>
+                                    <li data-i18n-key="plan_pro_feat4">Soporte prioritario</li>
+                                </ul>
+                                <button type="button" class="promo-cta-button btn-subscribe-app" data-plan-id="medium" data-i18n-key="plan_pro_cta">Obtener PRO</button>
                             </div>
-                            <div class="font-size-option">
-                                <label for="cfgFontSizeUi" data-i18n-key="configTypography_labelSizeUI">Tamaño UI (rem):</label>
-                                <div>
-                                    <input type="number" id="cfgFontSizeUi" data-var-size="--font-size-ui" min="0.7" max="1.5" step="0.05" style="width: 60px;">
-                                    <span data-i18n-key="configTypography_unitRem">rem</span>
-                                </div>
+                            <div class="promo-price-plan">
+                                <h3 data-i18n-key="plan_legend_title">Leyenda Arcade</h3>
+                                <p class="promo-price-amount">$9.99<span data-i18n-key="plan_per_month">/mes</span></p>
+                                <ul>
+                                    <li data-i18n-key="plan_legend_feat1">Todo en PRO</li>
+                                    <li data-i18n-key="plan_legend_feat2">Acceso anticipado a nuevas funciones</li>
+                                    <li data-i18n-key="plan_legend_feat3">Consultoría de preservación (simulado)</li>
+                                </ul>
+                                <button type="button" class="promo-cta-button secondary btn-subscribe-app" data-plan-id="premium" data-i18n-key="plan_legend_cta">Ser Leyenda</button>
                             </div>
-                        </fieldset>
-                    </div>
+                        </div>
+                    </fieldset>
+                </div>
+                <!-- === FIN: CONTENIDO DE LA NUEVA PESTAÑA === -->
+
                 <div id="tab-profile" class="config-tab-panel">
                     <fieldset class="config-section">
                         <legend class="config-section-legend" data-i18n-key="configProfile_legendUserInfo">Información de Usuario</legend>
@@ -804,13 +847,12 @@
                         </button>
                         <div id="exportStatusMessage" class="auth-message" style="margin-top: 1rem; text-align:left;"></div>
                     </fieldset>
-            
+                    
                     <fieldset class="config-section" style="margin-top: 1.5rem;">
                         <legend class="config-section-legend" data-i18n-key="configCollections_legendImport">Importar Mi Colección</legend>
                         <p data-i18n-key="configCollections_pImportWarning" data-i18n-mode="html"><strong>¡Atención!</strong> Importar un archivo puede añadir o actualizar juegos en tu colección actual según coincidan título y plataforma.</p>
                         
-
-<div>
+                        <div>
                             <label style="display:block; margin-bottom:0.5rem;" data-i18n-key="configCollections_labelImportFile">Seleccionar archivo JSON:</label>
                             <input type="file" id="importFile" accept=".json" style="display: none;">
                             
@@ -831,7 +873,7 @@
                 <div id="tab-admin" class="config-tab-panel">
                     <fieldset class="config-section">
                         <legend class="config-section-legend" data-i18n-key="configAdmin_legendUserManagement">Gestión de Usuarios del Sistema</legend>
-                
+                        
                         <div class="admin-user-search-controls" style="margin-bottom: 1rem; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
                             <input type="text" id="adminSearchUsername" class="admin-input" placeholder="Buscar por nombre de usuario..." style="flex-grow: 1; min-width: 180px; margin-bottom: 0;" data-i18n-key="configAdmin_inputSearchUsernamePlaceholder" data-i18n-target-attr="placeholder">
                             <input type="text" id="adminSearchEmail" class="admin-input" placeholder="Buscar por correo electrónico..." style="flex-grow: 1; min-width: 180px; margin-bottom: 0;" data-i18n-key="configAdmin_inputSearchEmailPlaceholder" data-i18n-target-attr="placeholder">
@@ -839,18 +881,18 @@
                                 <img src="imagenes/buscar filtrar y ordena_es.png" alt="Buscar" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px; filter: brightness(0) invert(1);" data-i18n-key="configAdmin_btnSearchImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnSearch">Buscar</span>
                             </button>
                             <button type="button" id="adminClearUserSearchBtn" class="admin-button secondary" style="flex-shrink: 0; display: none;">
-                                 <img src="imagenes/Limpiar Filtro.png" alt="Limpiar Búsqueda" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnClearSearchImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnClearSearch">Limpiar</span>
+                                <img src="imagenes/Limpiar Filtro.png" alt="Limpiar Búsqueda" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnClearSearchImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnClearSearch">Limpiar</span>
                             </button>
                         </div>
-                
+                        
                         <button type="button" id="loadUsersBtn" class="admin-button" style="margin-bottom: 1rem;">
                             <img src="imagenes/User.png" alt="Cargar/Refrescar Usuarios" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnLoadRefreshUsersImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnLoadRefreshUsers">Cargar Todos / Refrescar</span>
                         </button>
                         <div id="adminUserListContainer" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--clr-border); border-radius: 4px; padding: 5px;">
                             <p style="padding:10px; text-align:center;" data-i18n-key="configAdmin_pUserListPlaceholder">Realice una búsqueda o haga clic en "Cargar Todos / Refrescar" para ver la lista de usuarios.</p>
-                        </div>
+                            </div>
                     </fieldset>
-                
+                    
                     <fieldset id="adminEditUserSection" class="config-section" style="margin-top: 1.5rem; display:none;">
                         <legend class="config-section-legend"><span data-i18n-key="configAdmin_legendEditUser">Modificar Usuario: </span><span id="editingUserUsername" style="color: var(--clr-accent-1);"></span></legend>
                         <input type="hidden" id="editingUserId">
@@ -889,21 +931,28 @@
                             <img src="imagenes/Galeria Multimedia.png" alt="Icono Estadísticas" style="width:16px; height:16px; vertical-align: middle; margin-right: 5px;" data-i18n-key="configAdmin_btnViewFileStatsImgAlt" data-i18n-target-attr="alt"> <span data-i18n-key="configAdmin_btnViewFileStats">Ver/Actualizar Estadísticas de Archivos</span>
                         </button>
                         <div id="adminFileStatsContainer" style="margin-top: 1rem; max-height: 300px; overflow-y: auto; border: 1px solid var(--clr-border); border-radius: 4px; padding: 5px;">
-                            <p style="padding:10px; text-align:center;" data-i18n-key="configAdmin_pFileStatsPlaceholder">Haga clic en el botón para cargar las estadísticas.</p>
+                            <p style="padding:10px; text-align:center;" data-i18n-key="configAdmin_pUserListPlaceholder">Haga clic en el botón para cargar las estadísticas.</p>
                             </div>
                     </fieldset>
                     <div id="adminUserMessage" class="auth-message" style="margin-top: 1rem; text-align:center;"></div>
-                </div> </form> </div> <div class="modal-buttons" style="border-top: 1px solid var(--clr-border); padding-top: 1rem; margin-top:1rem;">
-                <button id="saveConfigBtn" type="button" title="Guardar Cambios de Tema" data-i18n-key="configModal_btnSaveThemeTitle" data-i18n-target-attr="title">
-                    <img src="imagenes/Guardar Configuracion.png" alt="Guardar Cambios de Tema" data-i18n-key="configModal_btnSaveThemeImgAlt" data-i18n-target-attr="alt">
-                </button>
-                <button id="resetConfigBtn" type="button" title="Restablecer Tema Predeterminado" data-i18n-key="configModal_btnResetThemeTitle" data-i18n-target-attr="title">
-                    <img src="imagenes/Restablecer Predeterminados.png" alt="Restablecer Tema" data-i18n-key="configModal_btnResetThemeImgAlt" data-i18n-target-attr="alt">
-                </button>
-            </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-buttons" style="border-top: 1px solid var(--clr-border); padding-top: 1rem; margin-top:1rem;">
+            <button id="saveConfigBtn" type="button" title="Guardar Cambios de Tema" data-i18n-key="configModal_btnSaveThemeTitle" data-i18n-target-attr="title">
+                <img src="imagenes/Guardar Configuracion.png" alt="Guardar Cambios de Tema" data-i18n-key="configModal_btnSaveThemeImgAlt" data-i18n-target-attr="alt">
+            </button>
+            <button id="resetConfigBtn" type="button" title="Restablecer Tema Predeterminado" data-i18n-key="configModal_btnResetThemeTitle" data-i18n-target-attr="title">
+                <img src="imagenes/Restablecer Predeterminados.png" alt="Restablecer Tema" data-i18n-key="configModal_btnResetThemeImgAlt" data-i18n-target-attr="alt">
+            </button>
         </div>
     </div>
+</div>
     
+
+
+
+
 
 // Modal External Search
 <div id="externalSearchModal" class="modal" style="z-index: 1002; display: none;">
