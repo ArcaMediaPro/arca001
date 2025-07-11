@@ -3,16 +3,7 @@ import { getText } from './i18n.js';
 
 // --- Constantes DOM ---
 export let initError = false;
-
-/**
- * Obtiene un elemento por su ID. Opcionalmente, puede buscar dentro de un elemento de contexto.
- * @param {string} id - El ID del elemento a buscar.
- * @param {boolean} required - Si es true, mostrará un error si no se encuentra.
- * @param {Document|HTMLElement} context - El contexto en el que buscar (por defecto, todo el documento).
- * @returns {HTMLElement|null}
- */
 export function getElem(id, required = true, context = document) {
-    // getElementById solo existe en 'document'. Para otros elementos, usamos querySelector.
     const elem = (context === document)
         ? document.getElementById(id)
         : context.querySelector(`#${id}`);
@@ -23,7 +14,6 @@ export function getElem(id, required = true, context = document) {
     }
     return elem;
 }
-
 
 export function escapeHtml(unsafe) {
     if (typeof unsafe !== 'string') {
@@ -49,16 +39,7 @@ export function debounce(func, wait) {
     };
 }
 
-export function toggleForm(show = true, formSection, clearFormCallback) {
-    if (!formSection) return;
-    formSection.style.display = show ? 'block' : 'none';
-    if (show) {
-        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-        if (typeof clearFormCallback === 'function') clearFormCallback();
-    }
-}
-
+// --- Lógica de Previsualización de Imágenes ---
 export function previewImage(fileInput, previewElement) {
     if (!fileInput?.files?.[0]) {
         if (previewElement) previewElement.innerHTML = '';
@@ -107,9 +88,10 @@ export function createFormStars(formRatingStarsContainer) {
         const star = document.createElement('label');
         star.className = 'star-10';
         star.dataset.value = i;
-        star.title = getText('domUtils_starRatingTitle').replace('{rating}', '0');
         formRatingStarsContainer.appendChild(star);
     }
+    // Inicializa los tooltips
+    updateFormStarsVisual('0', formRatingStarsContainer);
 }
 
 /**
@@ -152,6 +134,7 @@ export function handleFormStarMouseOut(hiddenInput, container) {
     
     container.querySelectorAll('.star-10').forEach(star => star.classList.remove('hover'));
     
+    // Al salir, restauramos la vista al valor que está guardado en el input oculto.
     updateFormStarsVisual(hiddenInput.value, container);
 }
 
@@ -165,6 +148,7 @@ export function handleFormStarClick(event, hiddenInput, container) {
     if (hiddenInput) {
         hiddenInput.value = clickedValue;
     }
+    // Llama a la función principal para fijar el nuevo estado visual y el tooltip.
     updateFormStarsVisual(clickedValue, container);
 }
 
