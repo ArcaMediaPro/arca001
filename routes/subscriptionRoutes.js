@@ -8,16 +8,19 @@ const authMiddleware = require('../middleware/auth');
 const { 
     createStripeSession, 
     createMercadoPagoPreference,
-    getStripeSessionStatus // <-- IMPORTAMOS LA NUEVA FUNCIÓN
+    getStripeSessionStatus,
+    cancelStripeSubscription // <-- IMPORTAMOS LA NUEVA FUNCIÓN DE CANCELACIÓN
 } = require('../controllers/subscriptionController');
 
 // Rutas para crear sesiones de pago
 router.post('/create-stripe-session', authMiddleware, createStripeSession);
 router.post('/create-mercadopago-preference', authMiddleware, createMercadoPagoPreference);
 
-// --- INICIO: NUEVA RUTA ---
 // Ruta para que el frontend verifique el estado de un pago y obtenga un nuevo token
 router.get('/stripe-session-status', authMiddleware, getStripeSessionStatus);
-// --- FIN: NUEVA RUTA ---
+
+// --- INICIO: NUEVA RUTA DE CANCELACIÓN ---
+router.post('/cancel-stripe-subscription', authMiddleware, cancelStripeSubscription);
+// --- FIN: NUEVA RUTA DE CANCELACIÓN ---
 
 module.exports = router;
