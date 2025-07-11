@@ -1,19 +1,18 @@
-// proposed_path: modals/configModalController.js
-import { getElem } from '../domUtils.js'; // Ajusta la ruta
-import { getCurrentUserRole } from '../authClient.js'; // Para visibilidad de pestañas
+// modals/configModalController.js
+import { getElem } from '../domUtils.js';
+import { getCurrentUserRole } from '../authClient.js';
 import { initThemeSettingsTab } from './configTabs/themeSettingsTab.js';
 import { initProfileTab, populateProfileTabDataOnOpen } from './configTabs/profileTab.js';
 import { initCollectionsTab } from './configTabs/collectionsTab.js';
-import { initAdminTabController } from './configTabs/adminTabController.js'; // Asume que adminTabController.js existe
+import { initAdminTabController } from './configTabs/adminTabController.js';
 
 let configModalElement, configModalContentElement, configModalHeaderElement, closeModalBtnConfigElement;
 let isDragging = false, xOffset = 0, yOffset = 0, currentX = 0, currentY = 0;
 
-// Callbacks para las pestañas
 let themeSettingsCallbacks = {};
 let loadInitialGamesForCollectionsCb = () => {};
 
-// --- Drag Logic (Copiado de modals.js) ---
+// --- Lógica de Arrastre (Drag) ---
 function dragStart(e) {
     if (e.button !== 0 || !configModalContentElement || !configModalHeaderElement || !configModalHeaderElement.contains(e.target)) return;
     isDragging = true;
@@ -24,8 +23,6 @@ function dragStart(e) {
     configModalContentElement.style.left = `${rect.left}px`;
     configModalContentElement.style.top = `${rect.top}px`;
     configModalContentElement.style.cursor = 'grabbing';
-    configModalContentElement.classList.add('dragging');
-    if (configModalElement) configModalElement.classList.add('is-dragging');
     document.addEventListener('mousemove', dragging);
     document.addEventListener('mouseup', dragEnd);
 }
@@ -44,63 +41,67 @@ function dragging(e) {
 }
 
 function dragEnd() {
-    if (!isDragging) return;
     isDragging = false;
     if (configModalContentElement) {
         configModalContentElement.style.cursor = 'grab';
-        configModalContentElement.classList.remove('dragging');
-    }
-    if (configModalElement) {
-        configModalElement.classList.remove('is-dragging');
     }
     document.removeEventListener('mousemove', dragging);
     document.removeEventListener('mouseup', dragEnd);
 }
 
-// --- Tab Logic ---
+// --- Lógica de Pestañas (Tabs) ---
 function initConfigTabsInternal(preferredTabId = null) {
-    const tabButtonsContainer = configModalElement ? configModalElement.querySelector('.config-tabs-nav') : null;
-    const tabsContainerParent = tabButtonsContainer ? tabButtonsContainer.closest('.config-tabs-container') : null;
+    const tabButtonsContainer = configModalElement?.querySelector('.config-tabs-nav');
+    if (!tabButtonsContainer) return;
 
-    if (!tabButtonsContainer || !tabsContainerParent) {
-        console.error("Error inicializando pestañas de configuración: contenedores no encontrados.");
-        return;
-    }
     const tabButtons = Array.from(tabButtonsContainer.querySelectorAll('.config-tab-button'));
-    const tabPanels = Array.from(tabsContainerParent.querySelectorAll('.config-tab-panel'));
+    const tabPanels = Array.from(configModalElement.querySelectorAll('.config-tab-panel'));
+    const mainSaveButtonsContainer = configModalElement.querySelector('.modal-buttons');
 
-    let buttonToActivate = null;
-
-    if (preferredTabId) {
-        buttonToActivate = tabButtons.find(btn => btn.dataset.tab === preferredTabId && btn.style.display !== 'none');
-    }
-    if (!buttonToActivate) {
-        const currentActiveButton = tabButtonsContainer.querySelector('.config-tab-button.active');
-        if (currentActiveButton && currentActiveButton.style.display !== 'none') {
-            buttonToActivate = currentActiveButton;
-        }
-    }
-    if (!buttonToActivate) {
-        buttonToActivate = tabButtons.find(btn => btn.style.display !== 'none');
-    }
-
-    if (buttonToActivate) {
+    const activateTab = (buttonToActivate) => {
+        if (!buttonToActivate) return;
+        
         tabButtons.forEach(btn => btn.classList.remove('active'));
         tabPanels.forEach(panel => panel.classList.remove('active'));
 
         buttonToActivate.classList.add('active');
-        const panelIdToActivate = buttonToActivate.dataset.tab;
-        const panelToActivate = document.getElementById(panelIdToActivate); // Asumiendo que los paneles tienen ID
+        const targetTabId = buttonToActivate.dataset.tab;
+        const panelToActivate = document.getElementById(targetTabId);
         if (panelToActivate) panelToActivate.classList.add('active');
+
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Controlamos la visibilidad del contenedor de botones de guardar/resetear tema.
+        const themeTabs = ['tab-general', 'tab-colors', 'tab-typography'];
+        if (mainSaveButtonsContainer) {
+            mainSaveButtonsContainer.style.display = themeTabs.includes(targetTabId) ? 'flex' : 'none';
+        }
+        // --- FIN DE LA CORRECCIÓN ---
+    };
+
+    if (tabButtonsContainer && !tabButtonsContainer.dataset.listenerAttached) {
+        tabButtonsContainer.addEventListener('click', (event) => {
+            const clickedButton = event.target.closest('.config-tab-button');
+            if (clickedButton && clickedButton.style.display !== 'none') {
+                activateTab(clickedButton);
+                if (clickedButton.dataset.tab === 'tab-profile') {
+                    populateProfileTabDataOnOpen();
+                }
+            }
+        });
+        tabButtonsContainer.dataset.listenerAttached = 'true';
     }
-} // Adaptado
+
+    let buttonToActivate = preferredTabId ? tabButtons.find(btn => btn.dataset.tab === preferredTabId && btn.style.display !== 'none') : null;
+    if (!buttonToActivate) {
+        buttonToActivate = tabButtons.find(btn => btn.style.display !== 'none');
+    }
+    activateTab(buttonToActivate);
+}
 
 export function initConfigModalController(callbacks) {
     configModalElement = getElem('configModal');
-    if (!configModalElement) {
-        console.error("CRITICAL: Elemento configModal no encontrado.");
-        return;
-    }
+    if (!configModalElement) return;
+
     configModalContentElement = configModalElement.querySelector('.modal-content');
     configModalHeaderElement = getElem('configModalHeader');
     closeModalBtnConfigElement = configModalElement.querySelector('.close');
@@ -113,93 +114,49 @@ export function initConfigModalController(callbacks) {
         configModalHeaderElement.addEventListener('mousedown', dragStart);
     }
 
-    // Initialize tab-specific modules
-    if (callbacks && callbacks.theme) {
+    if (callbacks?.theme) {
         themeSettingsCallbacks = callbacks.theme;
         initThemeSettingsTab(themeSettingsCallbacks.save, themeSettingsCallbacks.reset, themeSettingsCallbacks.load, themeSettingsCallbacks.apply);
     }
-    initProfileTab(); // Asume que no necesita callbacks en init, los toma de authClient
+    initProfileTab();
     
-    if (callbacks && typeof callbacks.loadInitialGames === 'function') {
+    if (typeof callbacks?.loadInitialGames === 'function') {
         loadInitialGamesForCollectionsCb = callbacks.loadInitialGames;
     }
     initCollectionsTab(loadInitialGamesForCollectionsCb);
     
-    initAdminTabController(); // Asume que maneja sus propias sub-inicializaciones
-
-    const tabButtonsContainer = configModalElement.querySelector('.config-tabs-nav');
-    if (tabButtonsContainer && !tabButtonsContainer.dataset.listenerAttached) {
-        tabButtonsContainer.addEventListener('click', (event) => {
-            const clickedButton = event.target.closest('.config-tab-button');
-            if (!clickedButton || clickedButton.style.display === 'none') return;
-
-            const tabPanels = configModalElement.querySelectorAll('.config-tab-panel');
-            const tabButtons = tabButtonsContainer.querySelectorAll('.config-tab-button');
-
-            tabButtons.forEach(button => button.classList.remove('active'));
-            tabPanels.forEach(panel => panel.classList.remove('active'));
-
-            clickedButton.classList.add('active');
-            const targetTabId = clickedButton.dataset.tab;
-            const targetPanel = document.getElementById(targetTabId);
-            if (targetPanel) {
-                targetPanel.classList.add('active');
-            }
-            if (targetTabId === 'tab-profile' && typeof populateProfileTabDataOnOpen === 'function') {
-                populateProfileTabDataOnOpen(); // Llamar al abrir la pestaña
-            }
-            // Podrías añadir llamadas similares para otras pestañas si necesitan refrescar datos al activarse
-        });
-        tabButtonsContainer.dataset.listenerAttached = 'true';
-    }
+    initAdminTabController();
+    
     console.log("Config Modal Controller Initialized");
 }
 
 export function openConfigModal(targetAdminTab = false, targetCollectionsTab = false, targetProfileTab = false) {
     if (!configModalElement || !configModalContentElement) return;
 
-    // Load theme settings into the form if the theme tab exists and is configured
     if (themeSettingsCallbacks.load && getElem('configForm', false)) {
         themeSettingsCallbacks.load(getElem('configForm', false));
     }
 
-    configModalElement.classList.remove('is-dragging');
-    configModalContentElement.classList.remove('dragging');
     configModalContentElement.style.position = '';
     configModalContentElement.style.top = '';
     configModalContentElement.style.left = '';
-    configModalContentElement.style.transform = ''; // Reset transform if any
-    configModalContentElement.style.cursor = 'grab';
     configModalElement.style.display = 'flex';
 
-    const userRole = getCurrentUserRole();
-    const isAdmin = userRole === 'admin';
-
+    const isAdmin = getCurrentUserRole() === 'admin';
     const adminTabButtonElem = getElem('admin-tab-button', false);
     if (adminTabButtonElem) adminTabButtonElem.style.display = isAdmin ? 'inline-flex' : 'none';
     
-    const collectionsTabButtonElem = getElem('collections-tab-button', false);
-    if (collectionsTabButtonElem) collectionsTabButtonElem.style.display = 'inline-flex'; // Siempre visible según tu HTML
-    
-    const profileTabButtonElem = getElem('profile-tab-button', false);
-    if (profileTabButtonElem) profileTabButtonElem.style.display = 'inline-flex'; // Siempre visible según tu HTML
-
     if (typeof populateProfileTabDataOnOpen === 'function') {
-        populateProfileTabDataOnOpen(); // Llenar datos del perfil al abrir el modal
+        populateProfileTabDataOnOpen();
     }
     
-    // Lógica para refrescar datos de la pestaña de admin si es necesario
-    // Esto podría delegarse a adminTabController.js si es complejo
-
-    let preferredTabId = null;
+    let preferredTabId = 'tab-general';
     if (targetProfileTab) preferredTabId = 'tab-profile';
     else if (targetCollectionsTab) preferredTabId = 'tab-collections';
     else if (isAdmin && targetAdminTab) preferredTabId = 'tab-admin';
-    else preferredTabId = 'tab-general'; // Pestaña por defecto
 
     initConfigTabsInternal(preferredTabId);
     
-    // Resetear mensajes de estado de import/export
     const exportStatusMsgEl = getElem('exportStatusMessage', false);
     if (exportStatusMsgEl) { exportStatusMsgEl.textContent = ''; exportStatusMsgEl.className = 'auth-message'; exportStatusMsgEl.style.display = 'none'; }
     const importStatusMsgEl = getElem('importStatusMessage', false);
@@ -210,7 +167,7 @@ export function openConfigModal(targetAdminTab = false, targetCollectionsTab = f
     if (importBtnEl) importBtnEl.disabled = true;
 
     console.log("Config Modal Opened");
-} // Parcialmente
+}
 
 export function closeConfigModal() {
     if (configModalElement) {
@@ -219,17 +176,11 @@ export function closeConfigModal() {
             isDragging = false;
             document.removeEventListener('mousemove', dragging);
             document.removeEventListener('mouseup', dragEnd);
-            if (configModalContentElement) {
-                configModalContentElement.classList.remove('dragging');
-                configModalContentElement.style.cursor = 'grab';
-            }
-            configModalElement.classList.remove('is-dragging');
         }
     }
     console.log("Config Modal Closed");
 }
 
-// Función para manejar input en el formulario de config, si es general
 export function handleConfigFormInput(event, applyThemeCb) {
     const target = event.target;
     let varName = null, newValue = null, applyUnit = '';
