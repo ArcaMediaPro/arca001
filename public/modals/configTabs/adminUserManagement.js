@@ -1,4 +1,4 @@
-// modals/configTabs/adminUserManagement.js (VERSIÓN CORREGIDA Y REESTRUCTURADA)
+// modals/configTabs/adminUserManagement.js (VERSIÓN DEFINITIVA Y COMPLETA)
 import { getElem, escapeHtml } from '../../domUtils.js';
 import * as adminService from '../../adminService.js';
 import { notificationService } from '../../notificationService.js';
