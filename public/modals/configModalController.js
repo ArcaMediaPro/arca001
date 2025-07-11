@@ -1,6 +1,8 @@
 // modals/configModalController.js
 import { getElem } from '../domUtils.js';
-import { getCurrentUserRole, updatePlanCounterUI } from '../authClient.js'; // <-- IMPORTAMOS updatePlanCounterUI
+// --- INICIO: IMPORTACIÓN CORREGIDA ---
+import { getCurrentUserRole, updatePlanCounterUI, checkAuthStatus } from '../authClient.js';
+// --- FIN: IMPORTACIÓN CORREGIDA ---
 import { initThemeSettingsTab } from './configTabs/themeSettingsTab.js';
 import { initProfileTab, populateProfileTabDataOnOpen } from './configTabs/profileTab.js';
 import { initCollectionsTab } from './configTabs/collectionsTab.js';
@@ -69,11 +71,13 @@ function initConfigTabsInternal(preferredTabId = null) {
         const panelToActivate = document.getElementById(targetTabId);
         if (panelToActivate) panelToActivate.classList.add('active');
 
+        // --- INICIO DE LA CORRECCIÓN ---
         // Controlamos la visibilidad del contenedor de botones de guardar/resetear tema.
         const themeTabs = ['tab-general', 'tab-colors', 'tab-typography'];
         if (mainSaveButtonsContainer) {
             mainSaveButtonsContainer.style.display = themeTabs.includes(targetTabId) ? 'flex' : 'none';
         }
+        // --- FIN DE LA CORRECCIÓN ---
     };
 
     if (tabButtonsContainer && !tabButtonsContainer.dataset.listenerAttached) {
@@ -167,7 +171,7 @@ export function openConfigModal(targetAdminTab = false, targetCollectionsTab = f
     console.log("Config Modal Opened");
 }
 
-export function closeConfigModal() {
+export async function closeConfigModal() { // <-- FUNCIÓN ASÍNCRONA AHORA
     if (configModalElement) {
         configModalElement.style.display = 'none';
         if (isDragging) {
@@ -178,10 +182,15 @@ export function closeConfigModal() {
     }
     
     // --- INICIO DE LA CORRECCIÓN ---
-    // Forzamos la actualización del contador del plan cada vez que se cierra el modal.
-    // Esto asegura que si un admin cambió un plan, la UI se refresque.
-    if (typeof updatePlanCounterUI === 'function') {
-        updatePlanCounterUI();
+    // Forzamos la actualización completa del estado del usuario al cerrar el modal.
+    // Esto asegura que cualquier cambio (plan, etc.) se refleje inmediatamente.
+    try {
+        console.log("Cerrando modal de config, refrescando estado de autenticación...");
+        await checkAuthStatus(); // Vuelve a pedir los datos del usuario al servidor
+        updatePlanCounterUI();   // Ahora actualiza el contador con los datos frescos
+        console.log("Estado de autenticación y contador de plan actualizados.");
+    } catch (error) {
+        console.error("Error al refrescar el estado del usuario al cerrar el modal:", error);
     }
     // --- FIN DE LA CORRECCIÓN ---
 
