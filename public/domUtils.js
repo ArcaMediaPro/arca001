@@ -1,18 +1,9 @@
-// domUtils.js (MODIFICADO Y CORREGIDO)
+// domUtils.js (MODIFICADO)
 import { getText } from './i18n.js';
 
 // --- Constantes DOM ---
 export let initError = false;
-
-/**
- * Obtiene un elemento por su ID. Opcionalmente, puede buscar dentro de un elemento de contexto.
- * @param {string} id - El ID del elemento a buscar.
- * @param {boolean} required - Si es true, mostrará un error si no se encuentra.
- * @param {Document|HTMLElement} context - El contexto en el que buscar (por defecto, todo el documento).
- * @returns {HTMLElement|null}
- */
 export function getElem(id, required = true, context = document) {
-    // getElementById solo existe en 'document'. Para otros elementos, usamos querySelector.
     const elem = (context === document)
         ? document.getElementById(id)
         : context.querySelector(`#${id}`);
@@ -23,7 +14,6 @@ export function getElem(id, required = true, context = document) {
     }
     return elem;
 }
-
 
 export function escapeHtml(unsafe) {
     if (typeof unsafe !== 'string') {
@@ -49,7 +39,16 @@ export function debounce(func, wait) {
     };
 }
 
-// --- Lógica de Previsualización de Imágenes ---
+export function toggleForm(show = true, formSection, clearFormCallback) {
+    if (!formSection) return;
+    formSection.style.display = show ? 'block' : 'none';
+    if (show) {
+        formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        if (typeof clearFormCallback === 'function') clearFormCallback();
+    }
+}
+
 export function previewImage(fileInput, previewElement) {
     if (!fileInput?.files?.[0]) {
         if (previewElement) previewElement.innerHTML = '';
@@ -104,18 +103,20 @@ export function createFormStars(formRatingStarsContainer) {
 }
 
 /**
- * Actualiza el estado visual de las estrellas a un valor permanente.
- * Esta es la función principal que dibuja el rating guardado.
+ * Actualiza el estado visual de las estrellas a un valor permanente y actualiza el tooltip.
  */
 export function updateFormStarsVisual(value, container) {
     if (!container) return;
     const rating = parseInt(value, 10) || 0;
     const stars = container.querySelectorAll('.star-10');
     
+    const titleText = getText('domUtils_starRatingTitle').replace('{rating}', rating.toString());
+
     stars.forEach(star => {
         const starValue = parseInt(star.dataset.value, 10);
-        star.classList.remove('hover'); // Limpia cualquier previsualización
+        star.classList.remove('hover');
         star.classList.toggle('active', starValue <= rating);
+        star.title = titleText;
     });
 }
 
@@ -134,11 +135,14 @@ export function handleFormStarHover(event, container) {
 }
 
 /**
- * Limpia la previsualización cuando el mouse sale del contenedor.
+ * Limpia la previsualización y restaura el estado guardado cuando el mouse sale.
  */
-export function handleFormStarMouseOut(container) {
-    if (!container) return;
+export function handleFormStarMouseOut(hiddenInput, container) {
+    if (!hiddenInput || !container) return;
+    
     container.querySelectorAll('.star-10').forEach(star => star.classList.remove('hover'));
+    
+    updateFormStarsVisual(hiddenInput.value, container);
 }
 
 /**
@@ -151,12 +155,11 @@ export function handleFormStarClick(event, hiddenInput, container) {
     if (hiddenInput) {
         hiddenInput.value = clickedValue;
     }
-    // Llama a la función principal para fijar el nuevo estado visual
     updateFormStarsVisual(clickedValue, container);
 }
 
 /**
- * Genera el HTML para mostrar estrellas (no interactivas) en la lista de juegos.
+ * Genera el HTML para mostrar estrellas (no interactivas).
  */
 export function generateDisplayStars10(rating) {
     let starsHTML = '';
