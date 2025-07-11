@@ -1,10 +1,9 @@
-// controllers/subscriptionController.js (CORREGIDO CON DEPURACIÓN Y VERIFICACIÓN DE SECRET)
+// controllers/subscriptionController.js (CON FUNCIÓN DE CANCELACIÓN)
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 const User = require('../models/User');
-const jwt = require('jsonwebtoken'); // Necesitaremos JWT para firmar el nuevo token
-
+const jwt = require('jsonwebtoken');
 
 const mpClient = new MercadoPagoConfig({
     accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
@@ -19,7 +18,6 @@ const MERCADOPAGO_PLANS = {
     medium: { title: 'Plan Coleccionista PRO', price: 4.99 },
     premium: { title: 'Plan Leyenda Arcade', price: 9.99 },
 };
-
 
 exports.createStripeSession = async (req, res) => {
     const { planId } = req.body;
@@ -172,6 +170,41 @@ exports.getStripeSessionStatus = async (req, res) => {
 // === FIN: NUEVA FUNCIÓN                                        ===
 // =================================================================
 
+
+// =================================================================
+// === INICIO: NUEVA FUNCIÓN PARA CANCELAR LA SUSCRIPCIÓN        ===
+// =================================================================
+/**
+ * Cancela una suscripción activa de Stripe al final del período de facturación.
+ */
+exports.cancelStripeSubscription = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user || !user.stripeSubscriptionId) {
+            return res.status(400).json({ message: 'No se encontró una suscripción activa para cancelar.' });
+        }
+
+        // Le decimos a Stripe que cancele la suscripción al final del período actual.
+        // El usuario mantendrá el acceso hasta la fecha de vencimiento.
+        await stripe.subscriptions.update(user.stripeSubscriptionId, {
+            cancel_at_period_end: true,
+        });
+
+        // Actualizamos el estado en nuestra base de datos para reflejar la cancelación pendiente.
+        user.subscriptionStatus = 'canceled';
+        await user.save();
+
+        res.status(200).json({ message: 'Tu suscripción ha sido cancelada y no se renovará. Seguirás teniendo acceso hasta el final de tu ciclo de facturación.' });
+
+    } catch (error) {
+        console.error("Error cancelando la suscripción de Stripe:", error);
+        res.status(500).json({ message: 'Error al procesar la cancelación de la suscripción.' });
+    }
+};
+// =================================================================
+// === FIN: NUEVA FUNCIÓN                                        ===
+// =================================================================
 
 
 
