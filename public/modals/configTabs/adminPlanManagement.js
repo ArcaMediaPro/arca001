@@ -3,7 +3,7 @@ import { getElem } from '../../domUtils.js';
 import * as adminService from '../../adminService.js';
 import { notificationService } from '../../notificationService.js';
 
-let freePlanLimitInput, mediumPlanLimitInput, savePlanLimitsBtn;
+let freePlanLimitInput, mediumPlanLimitInput, savePlanLimitsBtn, adminPlanMessageElement;
 
 async function loadCurrentPlanLimits() {
     try {
@@ -21,13 +21,28 @@ async function loadCurrentPlanLimits() {
 }
 
 async function handleSavePlanLimits() {
-    const freeLimit = parseInt(freePlanLimitInput.value, 10);
-    const mediumLimit = parseInt(mediumPlanLimitInput.value, 10);
-
-    if (isNaN(freeLimit) || isNaN(mediumLimit) || freeLimit < 1 || mediumLimit < 1) {
-        notificationService.error('Los límites deben ser números positivos.');
+    // --- INICIO DE LA CORRECCIÓN: Validación Mejorada ---
+    if (!freePlanLimitInput || !mediumPlanLimitInput) {
+        notificationService.error('Error interno: No se encontraron los campos de los límites.');
         return;
     }
+
+    const freeLimitValue = freePlanLimitInput.value;
+    const mediumLimitValue = mediumPlanLimitInput.value;
+
+    const freeLimit = parseInt(freeLimitValue, 10);
+    const mediumLimit = parseInt(mediumLimitValue, 10);
+
+    // Verificación más específica
+    if (isNaN(freeLimit) || freeLimit < 1) {
+        notificationService.error('El límite para el Plan Gratuito debe ser un número positivo.');
+        return;
+    }
+    if (isNaN(mediumLimit) || mediumLimit < 1) {
+        notificationService.error('El límite para el Plan Medium debe ser un número positivo.');
+        return;
+    }
+    // --- FIN DE LA CORRECCIÓN ---
 
     if (!confirm('¿Está seguro de que desea actualizar los límites de los planes? Esta acción afectará a todos los usuarios.')) {
         return;
@@ -35,6 +50,7 @@ async function handleSavePlanLimits() {
 
     savePlanLimitsBtn.disabled = true;
     savePlanLimitsBtn.textContent = 'Guardando...';
+    if (adminPlanMessageElement) adminPlanMessageElement.style.display = 'none';
 
     try {
         await adminService.updatePlanLimits({ free: freeLimit, medium: mediumLimit });
@@ -51,6 +67,7 @@ export function initAdminPlanManagement() {
     freePlanLimitInput = getElem('adminFreePlanLimit', false);
     mediumPlanLimitInput = getElem('adminMediumPlanLimit', false);
     savePlanLimitsBtn = getElem('adminSavePlanLimitsBtn', false);
+    adminPlanMessageElement = getElem('adminPlanMessage', false);
 
     if (savePlanLimitsBtn) {
         savePlanLimitsBtn.addEventListener('click', handleSavePlanLimits);

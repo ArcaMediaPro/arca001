@@ -51,3 +51,12 @@ git commit -m "Añadir carpeta de fuentes"
 git push origin main
 
 
+
+Borrar Archivo
+git add .
+
+git commit -m "Eliminado archivo innecesario: [nombre del archivo]"
+
+git push
+
+
