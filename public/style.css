@@ -827,7 +827,7 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
 
 /* --- Estilos Modal Configuración --- */
 #configModal { background: transparent; }
-#configModal .modal-content { width: 60vw; max-width: 700px; min-width: 350px; position: relative; }
+#configModal .modal-content { width: 60vw; max-width: 740px; min-width: 350px; position: relative; }
 #configModalHeader {
     cursor: grab;
     user-select: none;
