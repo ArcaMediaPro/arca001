@@ -138,6 +138,7 @@
     "subscription_currentPlan_legend": "Seu Plano Atual",
     "subscription_manage_legend": "Gerenciar Assinatura",
     "subscription_cancel_btn": "Cancelar Assinatura",
+    "subscription_cancel_confirm": "Tem certeza de que deseja cancelar sua assinatura?",
     "configModal_tabCollections": "Minhas Coleções",
     "configModal_tabAdmin": "Administração",
     "configGeneral_legendAppearance": "Aparência Geral",
