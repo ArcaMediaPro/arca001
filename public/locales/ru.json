@@ -137,6 +137,7 @@
   "configModal_tabSubscription": "Подписка",
   "subscription_currentPlan_legend": "Ваш текущий план",
   "subscription_manage_legend": "Управление подпиской",
+  "subscription_initiating": "Инициализация подписки...",
   "subscription_cancel_btn": "Отменить подписку",
   "subscription_cancel_confirm": "Вы уверены, что хотите отменить подписку?",
   "configModal_tabCollections": "Мои коллекции",

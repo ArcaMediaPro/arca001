@@ -137,6 +137,7 @@
   "configModal_tabSubscription": "订阅",
   "subscription_currentPlan_legend": "您当前的计划",
   "subscription_manage_legend": "管理订阅",
+  "subscription_initiating": "正在启动订阅...",
   "subscription_cancel_btn": "取消订阅",
   "subscription_cancel_confirm": "您确定要取消订阅吗？",
   "configModal_tabCollections": "我的收藏",

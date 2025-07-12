@@ -137,6 +137,7 @@
   "configModal_tabSubscription": "Abonnement",
   "subscription_currentPlan_legend": "Dein aktueller Plan",
   "subscription_manage_legend": "Abonnement verwalten",
+  "subscription_initiating": "Abonnement wird gestartet...",
   "subscription_cancel_btn": "Abonnement kündigen",
   "subscription_cancel_confirm": "Möchten Sie Ihr Abonnement wirklich kündigen?",
   "configModal_tabCollections": "Meine Sammlungen",

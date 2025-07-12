@@ -137,6 +137,7 @@
     "configModal_tabSubscription": "Abbonamento",
     "subscription_currentPlan_legend": "Il Tuo Piano Attuale",
     "subscription_manage_legend": "Gestisci Abbonamento",
+    "subscription_initiating": "Avvio dell'abbonamento...",
     "subscription_cancel_btn": "Annulla Abbonamento",
     "subscription_cancel_confirm": "Sei sicuro di voler annullare il tuo abbonamento?",
     "configModal_tabCollections": "Le Mie Collezioni",

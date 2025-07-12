@@ -137,6 +137,7 @@
   "configModal_tabSubscription": "サブスクリプション",
   "subscription_currentPlan_legend": "現在のプラン",
   "subscription_manage_legend": "サブスクリプションの管理",
+  "subscription_initiating": "サブスクリプションを開始しています...",
   "subscription_cancel_btn": "サブスクリプションをキャンセル",
   "subscription_cancel_confirm": "本当にサブスクリプションをキャンセルしますか？",
   "configModal_tabCollections": "マイコレクション",
