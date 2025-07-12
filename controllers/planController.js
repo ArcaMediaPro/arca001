@@ -25,17 +25,35 @@ exports.getPlanLimits = async (req, res) => {
     }
 };
 
-// Función para actualizar los límites
+// --- INICIO DE LA CORRECCIÓN ---
+// Función para actualizar los límites (ahora maneja actualizaciones parciales)
 exports.updatePlanLimits = async (req, res) => {
     const { free, medium } = req.body;
 
     try {
-        if (typeof free !== 'number' || typeof medium !== 'number') {
-            return res.status(400).json({ message: 'Los límites deben ser números.' });
+        const updatePromises = [];
+
+        // Si se proporcionó un límite para el plan 'free', lo actualizamos.
+        if (typeof free === 'number' && free >= 0) {
+            updatePromises.push(
+                Plan.updateOne({ name: 'free' }, { limit: free }, { upsert: true })
+            );
         }
 
-        await Plan.updateOne({ name: 'free' }, { limit: free }, { upsert: true });
-        await Plan.updateOne({ name: 'medium' }, { limit: medium }, { upsert: true });
+        // Si se proporcionó un límite para el plan 'medium', lo actualizamos.
+        if (typeof medium === 'number' && medium >= 0) {
+            updatePromises.push(
+                Plan.updateOne({ name: 'medium' }, { limit: medium }, { upsert: true })
+            );
+        }
+
+        // Si no se envió ningún dato para actualizar, devolvemos un error.
+        if (updatePromises.length === 0) {
+            return res.status(400).json({ message: 'No se proporcionaron datos válidos para actualizar.' });
+        }
+
+        // Ejecutamos todas las promesas de actualización en paralelo.
+        await Promise.all(updatePromises);
 
         res.json({ message: 'Límites de los planes actualizados correctamente.' });
 
@@ -44,3 +62,4 @@ exports.updatePlanLimits = async (req, res) => {
         res.status(500).json({ message: 'Error del servidor.' });
     }
 };
+// --- FIN DE LA CORRECCIÓN ---

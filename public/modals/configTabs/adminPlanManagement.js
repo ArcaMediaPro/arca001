@@ -2,10 +2,7 @@
 import { getElem } from '../../domUtils.js';
 import * as adminService from '../../adminService.js';
 import { notificationService } from '../../notificationService.js';
-// --- INICIO: IMPORTACIÓN AÑADIDA ---
-// Importamos la función para verificar el rol del usuario en el frontend.
 import { getCurrentUserRole } from '../../authClient.js';
-// --- FIN: IMPORTACIÓN AÑADIDA ---
 
 let freePlanLimitInput, mediumPlanLimitInput, savePlanLimitsBtn, adminPlanMessageElement;
 
@@ -25,8 +22,6 @@ async function loadCurrentPlanLimits() {
 }
 
 async function handleSavePlanLimits() {
-    // --- INICIO DE LA CORRECCIÓN ---
-    // 1. Verificamos el rol del usuario en el frontend antes de hacer la llamada.
     if (getCurrentUserRole() !== 'admin') {
         notificationService.error('Acción no permitida. Se requieren derechos de administrador.');
         return;
@@ -39,22 +34,32 @@ async function handleSavePlanLimits() {
 
     const freeLimitValue = freePlanLimitInput.value.trim();
     const mediumLimitValue = mediumPlanLimitInput.value.trim();
-
-    // 2. Validación más robusta para asegurar que los campos no estén vacíos.
-    if (freeLimitValue === '' || mediumLimitValue === '') {
-        notificationService.error('Ambos campos de límite son obligatorios.');
-        return;
-    }
     
-    const freeLimit = parseInt(freeLimitValue, 10);
-    const mediumLimit = parseInt(mediumLimitValue, 10);
+    const limitsToUpdate = {};
 
-    if (isNaN(freeLimit) || freeLimit < 1) {
-        notificationService.error('El límite para el Plan Gratuito debe ser un número positivo.');
-        return;
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Verificamos y añadimos cada límite de forma individual solo si tiene un valor válido.
+    if (freeLimitValue !== '') {
+        const freeLimit = parseInt(freeLimitValue, 10);
+        if (isNaN(freeLimit) || freeLimit < 1) {
+            notificationService.error('El límite para el Plan Gratuito debe ser un número positivo.');
+            return;
+        }
+        limitsToUpdate.free = freeLimit;
     }
-    if (isNaN(mediumLimit) || mediumLimit < 1) {
-        notificationService.error('El límite para el Plan Medium debe ser un número positivo.');
+
+    if (mediumLimitValue !== '') {
+        const mediumLimit = parseInt(mediumLimitValue, 10);
+        if (isNaN(mediumLimit) || mediumLimit < 1) {
+            notificationService.error('El límite para el Plan Medium debe ser un número positivo.');
+            return;
+        }
+        limitsToUpdate.medium = mediumLimit;
+    }
+
+    // Si no se ha modificado ningún campo, no hacemos nada.
+    if (Object.keys(limitsToUpdate).length === 0) {
+        notificationService.warn('No se ha modificado ningún límite.');
         return;
     }
     // --- FIN DE LA CORRECCIÓN ---
@@ -68,7 +73,8 @@ async function handleSavePlanLimits() {
     if (adminPlanMessageElement) adminPlanMessageElement.style.display = 'none';
 
     try {
-        await adminService.updatePlanLimits({ free: freeLimit, medium: mediumLimit });
+        // Ahora enviamos solo los límites que han cambiado.
+        await adminService.updatePlanLimits(limitsToUpdate);
         notificationService.success('Límites de los planes actualizados correctamente.');
     } catch (error) {
         notificationService.error(`Error al guardar los límites: ${error.message}`);
@@ -90,6 +96,5 @@ export function initAdminPlanManagement() {
 }
 
 export function onAdminPlanTabOpen() {
-    // Cada vez que se abre la pestaña, cargamos los datos más recientes.
     loadCurrentPlanLimits();
 }
