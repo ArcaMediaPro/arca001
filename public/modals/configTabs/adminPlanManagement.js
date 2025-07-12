@@ -2,6 +2,10 @@
 import { getElem } from '../../domUtils.js';
 import * as adminService from '../../adminService.js';
 import { notificationService } from '../../notificationService.js';
+// --- INICIO: IMPORTACIÓN AÑADIDA ---
+// Importamos la función para verificar el rol del usuario en el frontend.
+import { getCurrentUserRole } from '../../authClient.js';
+// --- FIN: IMPORTACIÓN AÑADIDA ---
 
 let freePlanLimitInput, mediumPlanLimitInput, savePlanLimitsBtn, adminPlanMessageElement;
 
@@ -21,19 +25,30 @@ async function loadCurrentPlanLimits() {
 }
 
 async function handleSavePlanLimits() {
-    // --- INICIO DE LA CORRECCIÓN: Validación Mejorada ---
+    // --- INICIO DE LA CORRECCIÓN ---
+    // 1. Verificamos el rol del usuario en el frontend antes de hacer la llamada.
+    if (getCurrentUserRole() !== 'admin') {
+        notificationService.error('Acción no permitida. Se requieren derechos de administrador.');
+        return;
+    }
+
     if (!freePlanLimitInput || !mediumPlanLimitInput) {
         notificationService.error('Error interno: No se encontraron los campos de los límites.');
         return;
     }
 
-    const freeLimitValue = freePlanLimitInput.value;
-    const mediumLimitValue = mediumPlanLimitInput.value;
+    const freeLimitValue = freePlanLimitInput.value.trim();
+    const mediumLimitValue = mediumPlanLimitInput.value.trim();
 
+    // 2. Validación más robusta para asegurar que los campos no estén vacíos.
+    if (freeLimitValue === '' || mediumLimitValue === '') {
+        notificationService.error('Ambos campos de límite son obligatorios.');
+        return;
+    }
+    
     const freeLimit = parseInt(freeLimitValue, 10);
     const mediumLimit = parseInt(mediumLimitValue, 10);
 
-    // Verificación más específica
     if (isNaN(freeLimit) || freeLimit < 1) {
         notificationService.error('El límite para el Plan Gratuito debe ser un número positivo.');
         return;
