@@ -14,3 +14,4 @@ router.get('/', authMiddleware, isAdmin, getPlanLimits);
 router.put('/', authMiddleware, isAdmin, updatePlanLimits);
 
 module.exports = router;
+
