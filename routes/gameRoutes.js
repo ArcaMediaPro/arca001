@@ -23,12 +23,12 @@ function slugify(text) {
     return text
         .toString()
         .toLowerCase()
-        .replace(/\s+/g, '-')           // Reemplaza espacios con -
-        .replace(/[^\w\-]+/g, '')       // Elimina caracteres no alfanuméricos (excepto -)
-        .replace(/\-\-+/g, '-')         // Reemplaza múltiples - con uno solo
-        .replace(/^-+/, '')             // Quita - del principio
-        .replace(/-+$/, '')             // Quita - del final
-        .substring(0, 50);              // Limita la longitud a 50 caracteres
+        .replace(/\s+/g, '-')       // Reemplaza espacios con -
+        .replace(/[^\w\-]+/g, '')    // Elimina caracteres no alfanuméricos (excepto -)
+        .replace(/\-\-+/g, '-')       // Reemplaza múltiples - con uno solo
+        .replace(/^-+/, '')           // Quita - del principio
+        .replace(/-+$/, '')           // Quita - del final
+        .substring(0, 50);           // Limita la longitud a 50 caracteres
 }
 
 

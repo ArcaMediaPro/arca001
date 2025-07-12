@@ -29,7 +29,6 @@ export async function searchAdminUsers(searchParams) {
 
 /**
  * Actualiza los datos de un usuario a través del endpoint de administrador.
- * El objeto userData puede incluir username, email, role y opcionalmente newPassword.
  */
 export async function updateAdminUser(userId, userData) {
     const response = await fetchAuthenticated(`${API_BASE_URL}/admin/users/${userId}`, {
@@ -90,3 +89,39 @@ export async function fetchCloudinaryStats() {
     }
     return await response.json();
 }
+
+// =================================================================
+// === INICIO: NUEVAS FUNCIONES PARA LA GESTIÓN DE LÍMITES DE PLANES ===
+// =================================================================
+
+/**
+ * Obtiene los límites actuales de los planes desde el backend.
+ */
+export async function getPlanLimits() {
+    const response = await fetchAuthenticated(`${API_BASE_URL}/plans`);
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: `Error ${response.status} al obtener los límites.` }));
+        throw new Error(errorData.message || `Error HTTP ${response.status}: No se pudieron obtener los límites de los planes.`);
+    }
+    return await response.json();
+}
+
+/**
+ * Actualiza los límites de los planes en el backend.
+ * @param {object} limits - Un objeto con los nuevos límites. Ej: { free: 50, medium: 500 }
+ */
+export async function updatePlanLimits(limits) {
+    const response = await fetchAuthenticated(`${API_BASE_URL}/plans`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(limits),
+    });
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: `Error ${response.status} al actualizar los límites.` }));
+        throw new Error(errorData.message || `Error HTTP ${response.status}: No se pudo actualizar los límites de los planes.`);
+    }
+    return await response.json();
+}
+// =================================================================
+// === FIN: NUEVAS FUNCIONES                                     ===
+// =================================================================

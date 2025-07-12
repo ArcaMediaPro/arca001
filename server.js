@@ -1,4 +1,4 @@
-// server.js (COMPLETO CON CORS CORREGIDO Y LIMPIADO)
+// server.js (COMPLETO CON RUTA DE PLANES)
 
 require('dotenv').config();
 const express = require('express');
@@ -22,6 +22,7 @@ const collectionRoutes = require('./routes/collectionRoutes');
 const preferenceRoutes = require('./routes/preferenceRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
+const planRoutes = require('./routes/planRoutes'); // 1. IMPORTAMOS LAS NUEVAS RUTAS
 const authMiddleware = require('./middleware/auth');
 const isAdmin = require('./middleware/adminAuth');
 
@@ -41,8 +42,6 @@ app.use(helmet({
   },
 }));
 
-// --- INICIO DE LA CORRECCIÓN DE CORS ---
-// Hacemos la configuración más explícita para máxima compatibilidad
 const allowedOrigins = [
     'http://localhost:5000',
     'http://127.0.0.1:5000',
@@ -52,14 +51,12 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: allowedOrigins,
-    credentials: true, // Permite que el navegador envíe cookies
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'X-CSRF-Token', 'Authorization']
 }));
-// --- FIN DE LA CORRECCIÓN DE CORS ---
 
 
-// Es crucial que la ruta de webhooks de Stripe se defina ANTES de `express.json()`
 app.use('/api/webhooks', webhookRoutes);
 
 
@@ -87,6 +84,7 @@ app.use('/api/games', gameRoutes);
 app.use('/api/collections', collectionRoutes);
 app.use('/api/preferences', preferenceRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/plans', planRoutes); // 2. USAMOS LAS NUEVAS RUTAS
 
 // --- RUTAS DE ADMINISTRADOR ---
 app.get('/api/admin/users', authMiddleware, isAdmin, async (req, res) => {

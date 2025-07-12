@@ -1997,3 +1997,36 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     height: 20px;
     cursor: default;
 }
+
+
+/* Estilos para la nueva sección de Gestión de Planes en el panel de admin */
+.plan-limit-editor {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 0.5rem;
+}
+
+.plan-limit-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.plan-limit-item label {
+    flex-basis: 180px; /* Ancho fijo para las etiquetas */
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.plan-limit-item .admin-input {
+    flex-grow: 1;
+    max-width: 150px; /* Ancho máximo para los inputs de número */
+}
+
+#adminSavePlanLimitsBtn {
+    align-self: flex-end; /* Alinea el botón a la derecha */
+    width: auto;
+    padding: 10px 20px;
+}
+
