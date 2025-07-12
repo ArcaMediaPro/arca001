@@ -1,25 +1,18 @@
-// routes/authRoutes.js (VERSIÓN FINAL, CON LÓGICA DE SUSCRIPCIÓN EN EL BACKEND)
+// routes/authRoutes.js (VERSIÓN FINAL, CON LÍMITES DE PLANES DINÁMICOS)
 
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const UserPreferences = require('../models/UserPreferences');
 const Game = require('../models/Game');
+const Plan = require('../models/Plan'); // 1. IMPORTAMOS EL MODELO DE PLANES
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const authMiddleware = require('../middleware/auth');
 const { sendEmail } = require('../services/emailService');
-
-// --- INICIO: IMPORTAMOS EL CONTROLADOR DE SUSCRIPCIONES ---
-// Necesitamos esto para poder iniciar un pago desde la ruta de login.
 const { createStripeSession } = require('../controllers/subscriptionController');
-// --- FIN: IMPORTACIÓN ---
 
-const PLAN_LIMITS = {
-    free: 50,
-    medium: 500,
-    premium: Infinity,
-};
+// La constante de límites ya no es necesaria, se leerá de la BD.
 
 const DEFAULT_THEME_SETTINGS_BACKEND = {
     '--clr-bg-body': '#2c2a3f', '--clr-text-main': '#e0e0e0', '--clr-text-secondary': '#bdbdbd',
@@ -36,48 +29,31 @@ const DEFAULT_THEME_SETTINGS_BACKEND = {
     '--font-size-ui': '0.9'
 };
 
-// --- RUTA DE REGISTRO (ACTUALIZADA) ---
+// --- RUTA DE REGISTRO ---
 router.post('/register', async (req, res) => {
     try {
-        // Ahora recibimos el planId opcional desde el frontend
         const { username, email, password, planId } = req.body;
         if (!username || !email || !password) {
             return res.status(400).json({ message: 'Se requiere nombre de usuario, correo electrónico y contraseña.' });
         }
-
         const existingUser = await User.findOne({ $or: [{ email: email.toLowerCase() }, { username }] });
         if (existingUser) {
             return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya existe.' });
         }
-        
         const verificationToken = crypto.randomBytes(32).toString('hex');
         const emailVerificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-        
-        // Guardamos la intención de compra en el nuevo campo
-        const newUser = new User({ 
-            username, 
-            email, 
-            password, 
-            emailVerificationToken,
-            pendingSubscriptionPlan: planId || null 
-        });
-        
+        const newUser = new User({ username, email, password, emailVerificationToken, pendingSubscriptionPlan: planId || null });
         await newUser.save();
-
         const defaultSettingsMap = new Map(Object.entries(DEFAULT_THEME_SETTINGS_BACKEND));
         const newPrefs = new UserPreferences({ user: newUser._id, themeSettings: defaultSettingsMap });
         await newPrefs.save();
-
         const verificationURL = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/verify-email.html?token=${verificationToken}`;
-        
         await sendEmail({
             to: newUser.email,
             subject: 'Verificación de Correo Electrónico - Catalogador PRO',
             html: `<p>¡Bienvenido a Catalogador PRO! Por favor, haz clic en el siguiente enlace para verificar tu cuenta:</p><p><a href="${verificationURL}">${verificationURL}</a></p>`
         });
-
         res.status(201).json({ message: '¡Registro exitoso! Por favor, revisa tu correo para verificar tu cuenta.' });
-
     } catch (error) {
         if (error.code === 11000) return res.status(400).json({ message: 'El nombre de usuario o correo electrónico ya está en uso.' });
         if (error.name === 'ValidationError') {
@@ -89,7 +65,6 @@ router.post('/register', async (req, res) => {
     }
 });
 
-
 // --- RUTA: VERIFICACIÓN DE CORREO ---
 router.post('/verify-email', async (req, res) => { 
     try {
@@ -97,88 +72,64 @@ router.post('/verify-email', async (req, res) => {
         if (!token) {
             return res.status(400).json({ message: 'Token de verificación no proporcionado.' });
         }
-
         const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-
-        const user = await User.findOne({ 
-            emailVerificationToken: hashedToken 
-        }).select('+emailVerificationToken');
-
+        const user = await User.findOne({ emailVerificationToken: hashedToken }).select('+emailVerificationToken');
         if (!user) {
             return res.status(400).json({ message: 'Token de verificación inválido o ya utilizado.' });
         }
-
         user.isVerified = true;
         user.emailVerificationToken = undefined;
         await user.save();
-
         res.status(200).json({ message: '¡Correo verificado con éxito! Ya puedes iniciar sesión.' });
-        
     } catch (error) {
         console.error("Error en /verify-email:", error);
         res.status(500).json({ message: 'Error del servidor durante la verificación.' });
     }
 });
 
-
 // --- RUTA DE INICIO DE SESIÓN (ACTUALIZADA) ---
 router.post('/login', async (req, res) => {
     try {
-        // Ya no recibimos el planId, lo leemos de la BD
         const { username, password } = req.body;
         if (!username || !password) {
             return res.status(400).json({ message: 'Se requiere nombre de usuario y contraseña.' });
         }
-        
         const user = await User.findOne({ username }).select('+password');
         if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas.' });
         }
-        
         if (!user.isVerified) {
-            return res.status(401).json({ 
-                message: 'Tu cuenta no ha sido verificada. Por favor, revisa el correo que te enviamos.',
-                notVerified: true
-            });
+            return res.status(401).json({ message: 'Tu cuenta no ha sido verificada. Por favor, revisa el correo que te enviamos.', notVerified: true });
         }
-
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Credenciales inválidas.' });
         }
 
-        // --- INICIO DE LA LÓGICA DE SUSCRIPCIÓN ---
-        // Si hay un plan pendiente en la BD Y el usuario es 'free', iniciamos el pago.
         if (user.pendingSubscriptionPlan && user.subscriptionPlan === 'free') {
             const planId = user.pendingSubscriptionPlan;
-            console.log(`Usuario ${username} tiene un plan pendiente: ${planId}. Redirigiendo a la selección de pago.`);
-            
-            // Limpiamos el plan pendiente de la BD para que no se le vuelva a cobrar
             user.pendingSubscriptionPlan = null;
             await user.save();
-            
-            // Creamos un 'req' simulado para pasarlo al controlador de suscripciones
             const mockReq = { body: { planId }, user: { id: user._id.toString() } };
-            const mockRes = {
-                status: (code) => ({
-                    json: (data) => res.status(code).json(data)
-                }),
-                json: (data) => res.json(data)
-            };
-            
-            // Llamamos a la función del controlador para crear la sesión de pago
+            const mockRes = { status: (code) => ({ json: (data) => res.status(code).json(data) }), json: (data) => res.json(data) };
             return await createStripeSession(mockReq, mockRes);
         }
-        // --- FIN DE LA LÓGICA DE SUSCRIPCIÓN ---
 
-        // Si no hay plan pendiente, es un login normal.
+        // 2. OBTENEMOS LOS LÍMITES DESDE LA BASE DE DATOS
+        const plans = await Plan.find({});
+        const planLimitsDB = {
+            free: plans.find(p => p.name === 'free')?.limit || 50,
+            medium: plans.find(p => p.name === 'medium')?.limit || 500,
+            premium: Infinity
+        };
+
         const payload = { id: user._id, username: user.username, role: user.role, email: user.email, plan: user.subscriptionPlan };
         const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
         res.cookie('authToken', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', maxAge: 3600000 });
         
         const csrfTokenToUse = res.locals._csrfToken || req.cookies._csrfToken;
         const gameCount = await Game.countDocuments({ owner: user._id });
-        const planLimit = PLAN_LIMITS[user.subscriptionPlan] || 0;
+        const planLimit = planLimitsDB[user.subscriptionPlan] || 0; // 3. USAMOS EL LÍMITE DE LA BD
         const userPrefsDoc = await UserPreferences.findOne({ user: user._id });
         
         res.status(200).json({
@@ -193,14 +144,13 @@ router.post('/login', async (req, res) => {
     }
 });
 
-
 // --- RUTA DE LOGOUT ---
 router.post('/logout', (req, res) => {
     res.clearCookie('authToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
     res.status(200).json({ message: 'Sesión cerrada correctamente.' });
 });
 
-// --- RUTA PARA VERIFICAR EL ESTADO DE AUTENTICACIÓN ---
+// --- RUTA PARA VERIFICAR EL ESTADO DE AUTENTICACIÓN (ACTUALIZADA) ---
 router.get('/status', authMiddleware, async (req, res) => {
     try {
         const freshUser = await User.findById(req.user.id).select('username email role subscriptionPlan');
@@ -208,13 +158,23 @@ router.get('/status', authMiddleware, async (req, res) => {
             res.clearCookie('authToken');
             return res.status(401).json({ isAuthenticated: false, message: 'Usuario no encontrado.' });
         }
+
+        // 2. OBTENEMOS LOS LÍMITES DESDE LA BASE DE DATOS
+        const plans = await Plan.find({});
+        const planLimitsDB = {
+            free: plans.find(p => p.name === 'free')?.limit || 50,
+            medium: plans.find(p => p.name === 'medium')?.limit || 500,
+            premium: Infinity
+        };
+
         const csrfTokenToUse = res.locals._csrfToken || req.cookies._csrfToken;
         const userPlan = freshUser.subscriptionPlan;
         const gameCount = await Game.countDocuments({ owner: freshUser._id });
-        const planLimit = PLAN_LIMITS[userPlan] || 0;
+        const planLimit = planLimitsDB[userPlan] || 0; // 3. USAMOS EL LÍMITE DE LA BD
         let userPrefsDocStatus = await UserPreferences.findOne({ user: req.user.id });
         let userLanguageStatus = userPrefsDocStatus?.language || 'es';
         let themeSettingsToReturnStatus = userPrefsDocStatus && userPrefsDocStatus.themeSettings ? Object.fromEntries(userPrefsDocStatus.themeSettings) : { ...DEFAULT_THEME_SETTINGS_BACKEND };
+        
         res.status(200).json({
             isAuthenticated: true,
             user: { id: freshUser._id, username: freshUser.username, email: freshUser.email, role: freshUser.role, planName: userPlan, gameCount, planLimit, language: userLanguageStatus },
@@ -224,28 +184,6 @@ router.get('/status', authMiddleware, async (req, res) => {
     } catch (error) {
         console.error('Error en GET /status:', error);
         res.status(500).json({ isAuthenticated: false, message: 'Error interno del servidor.' });
-    }
-});
-
-// --- RUTA: SOLICITAR RESTABLECIMIENTO DE CONTRASEÑA ---
-router.post('/request-password-reset', async (req, res) => {
-    try {
-        const { email } = req.body;
-        if (!email) {
-            return res.status(400).json({ message: 'Por favor, proporciona un correo electrónico.' });
-        }
-        const user = await User.findOne({ email: email.toLowerCase() });
-        if (!user) {
-            return res.status(200).json({ message: 'Si tu correo electrónico está registrado, recibirás un enlace.' });
-        }
-        const resetToken = user.createPasswordResetToken();
-        await user.save({ validateBeforeSave: false });
-        const resetURL = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/reset-password.html?token=${resetToken}`;
-        await sendEmail({ to: user.email, subject: 'Restablecimiento de Contraseña', html: `<p>Solicitaste restablecer tu contraseña. Haz clic en este enlace (válido por 10 minutos): <a href="${resetURL}">${resetURL}</a></p>` });
-        res.status(200).json({ message: 'Si tu correo electrónico está registrado, recibirás un enlace.' });
-    } catch (error) {
-        console.error('Error en /request-password-reset:', error);
-        res.status(500).json({ message: 'Error interno del servidor.' });
     }
 });
 
