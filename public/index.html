@@ -893,6 +893,32 @@
                             </div>
                     </fieldset>
                     
+
+
+
+ <!-- === INICIO: NUEVA SECCIÓN DE GESTIÓN DE PLANES === -->
+                    <fieldset class="config-section" style="margin-top: 1.5rem;">
+                        <legend class="config-section-legend" data-i18n-key="configAdmin_legendPlanManagement">Gestión de Límites de Planes</legend>
+                        <div class="plan-limit-editor">
+                            <div class="plan-limit-item">
+                                <label for="adminFreePlanLimit" data-i18n-key="configAdmin_labelFreeLimit">Límite Plan Gratuito:</label>
+                                <input type="number" id="adminFreePlanLimit" class="admin-input" min="1">
+                            </div>
+                            <div class="plan-limit-item">
+                                <label for="adminMediumPlanLimit" data-i18n-key="configAdmin_labelMediumLimit">Límite Plan Medium:</label>
+                                <input type="number" id="adminMediumPlanLimit" class="admin-input" min="1">
+                            </div>
+                            <button type="button" id="adminSavePlanLimitsBtn" class="admin-button primary" data-i18n-key="configAdmin_btnSaveChanges">Guardar Cambios</button>
+                        </div>
+                        <div id="adminPlanMessage" class="auth-message" style="margin-top: 1rem; text-align:center;"></div>
+                    </fieldset>
+                    <!-- === FIN: NUEVA SECCIÓN === -->
+
+
+
+
+
+
                     <fieldset id="adminEditUserSection" class="config-section" style="margin-top: 1.5rem; display:none;">
                         <legend class="config-section-legend"><span data-i18n-key="configAdmin_legendEditUser">Modificar Usuario: </span><span id="editingUserUsername" style="color: var(--clr-accent-1);"></span></legend>
                         <input type="hidden" id="editingUserId">
