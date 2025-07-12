@@ -2,7 +2,10 @@
 import { getElem } from '../../domUtils.js';
 import * as adminService from '../../adminService.js';
 import { notificationService } from '../../notificationService.js';
-import { getCurrentUserRole } from '../../authClient.js';
+// --- INICIO DE LA CORRECCIÓN ---
+// Importamos las funciones de autenticación necesarias.
+import { getCurrentUserRole, checkAuthStatus } from '../../authClient.js';
+// --- FIN DE LA CORRECCIÓN ---
 
 let freePlanLimitInput, mediumPlanLimitInput, savePlanLimitsBtn, adminPlanMessageElement;
 
@@ -27,22 +30,15 @@ async function handleSavePlanLimits() {
         return;
     }
 
-    if (!freePlanLimitInput || !mediumPlanLimitInput) {
-        notificationService.error('Error interno: No se encontraron los campos de los límites.');
-        return;
-    }
-
     const freeLimitValue = freePlanLimitInput.value.trim();
     const mediumLimitValue = mediumPlanLimitInput.value.trim();
     
     const limitsToUpdate = {};
 
-    // --- INICIO DE LA CORRECCIÓN ---
-    // Verificamos y añadimos cada límite de forma individual solo si tiene un valor válido.
     if (freeLimitValue !== '') {
         const freeLimit = parseInt(freeLimitValue, 10);
-        if (isNaN(freeLimit) || freeLimit < 1) {
-            notificationService.error('El límite para el Plan Gratuito debe ser un número positivo.');
+        if (isNaN(freeLimit) || freeLimit < 0) { // Permitimos 0
+            notificationService.error('El límite para el Plan Gratuito debe ser un número igual o mayor a 0.');
             return;
         }
         limitsToUpdate.free = freeLimit;
@@ -57,12 +53,10 @@ async function handleSavePlanLimits() {
         limitsToUpdate.medium = mediumLimit;
     }
 
-    // Si no se ha modificado ningún campo, no hacemos nada.
     if (Object.keys(limitsToUpdate).length === 0) {
         notificationService.warn('No se ha modificado ningún límite.');
         return;
     }
-    // --- FIN DE LA CORRECCIÓN ---
 
     if (!confirm('¿Está seguro de que desea actualizar los límites de los planes? Esta acción afectará a todos los usuarios.')) {
         return;
@@ -73,9 +67,15 @@ async function handleSavePlanLimits() {
     if (adminPlanMessageElement) adminPlanMessageElement.style.display = 'none';
 
     try {
-        // Ahora enviamos solo los límites que han cambiado.
         await adminService.updatePlanLimits(limitsToUpdate);
         notificationService.success('Límites de los planes actualizados correctamente.');
+
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Después de una acción de admin exitosa, refrescamos el estado de autenticación
+        // para asegurar que el frontend tenga la información más reciente.
+        await checkAuthStatus();
+        // --- FIN DE LA CORRECCIÓN ---
+
     } catch (error) {
         notificationService.error(`Error al guardar los límites: ${error.message}`);
     } finally {
