@@ -140,6 +140,7 @@
     "subscription_initiating": "Iniciando assinatura...",
     "subscription_cancel_btn": "Cancelar Assinatura",
     "subscription_cancel_confirm": "Tem certeza de que deseja cancelar sua assinatura?",
+    "subscription_manage_info": "Se você cancelar, ainda terá acesso ao seu plano atual até o final do período de faturamento.",
     "configAdmin_legendPlanManagement": "Gerenciamento de Limites de Plano",
     "configAdmin_labelFreeLimit": "Limite do Plano Gratuito:",
     "configAdmin_labelMediumLimit": "Limite do Plano Médio:",

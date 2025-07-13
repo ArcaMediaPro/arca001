@@ -140,6 +140,7 @@
   "subscription_initiating": "サブスクリプションを開始しています...",
   "subscription_cancel_btn": "サブスクリプションをキャンセル",
   "subscription_cancel_confirm": "本当にサブスクリプションをキャンセルしますか？",
+  "subscription_manage_info": "キャンセルした場合でも、請求期間が終了するまで現在のプランにアクセスできます。",
   "configAdmin_legendPlanManagement": "プラン上限の管理",
   "configAdmin_labelFreeLimit": "無料プランの上限：",
   "configAdmin_labelMediumLimit": "ミディアムプランの上限：",

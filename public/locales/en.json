@@ -140,6 +140,7 @@
     "subscription_initiating": "Initiating subscription...",
     "subscription_cancel_btn": "Cancel Subscription",
     "subscription_cancel_confirm": "Are you sure you want to cancel your subscription?",
+    "subscription_manage_info": "If you cancel, you will still have access to your current plan until the end of the billing period.",
     "configAdmin_legendPlanManagement": "Plan Limits Management",
     "configAdmin_labelFreeLimit": "Free Plan Limit:",
     "configAdmin_labelMediumLimit": "Medium Plan Limit:",

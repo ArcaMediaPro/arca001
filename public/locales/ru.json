@@ -140,6 +140,7 @@
   "subscription_initiating": "Инициализация подписки...",
   "subscription_cancel_btn": "Отменить подписку",
   "subscription_cancel_confirm": "Вы уверены, что хотите отменить подписку?",
+  "subscription_manage_info": "Если вы отмените подписку, у вас останется доступ к вашему текущему плану до конца расчетного периода.",
   "configAdmin_legendPlanManagement": "Управление лимитами планов",
   "configAdmin_labelFreeLimit": "Лимит бесплатного плана:",
   "configAdmin_labelMediumLimit": "Лимит среднего плана:",

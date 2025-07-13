@@ -140,6 +140,7 @@
     "subscription_initiating": "Lancement de l'abonnement...",
     "subscription_cancel_btn": "Annuler l'abonnement",
     "subscription_cancel_confirm": "Êtes-vous sûr de vouloir annuler votre abonnement ?",
+    "subscription_manage_info": "Si vous annulez, vous aurez toujours accès à votre forfait actuel jusqu'à la fin de la période de facturation.",
     "configAdmin_legendPlanManagement": "Gestion des Limites de Forfait",
     "configAdmin_labelFreeLimit": "Limite du Forfait Gratuit :",
     "configAdmin_labelMediumLimit": "Limite du Forfait Medium :",

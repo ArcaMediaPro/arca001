@@ -140,6 +140,7 @@
     "subscription_initiating": "Avvio dell'abbonamento...",
     "subscription_cancel_btn": "Annulla Abbonamento",
     "subscription_cancel_confirm": "Sei sicuro di voler annullare il tuo abbonamento?",
+    "subscription_manage_info": "Se annulli, avrai comunque accesso al tuo piano attuale fino alla fine del periodo di fatturazione.",
     "configAdmin_legendPlanManagement": "Gestione Limiti dei Piani",
     "configAdmin_labelFreeLimit": "Limite Piano Gratuito:",
     "configAdmin_labelMediumLimit": "Limite Piano Medium:",
