@@ -1,4 +1,4 @@
-// main.js (MODIFICADO Y CORREGIDO)
+// main.js (COMPLETO CON FLUJO DE UPGRADE CORREGIDO)
 import { initError as domInitError, getElem, handleFormStarClick, handleFormStarHover, handleFormStarMouseOut } from './domUtils.js';
 import { loadThemeSettings, saveThemeSettings, resetThemeSettings, applyThemeProperty } from './config.js';
 import {
@@ -14,9 +14,8 @@ import {
     isAuthenticated,
     saveLanguagePreference,
     currentUserLanguage,
-    // --- IMPORTACIONES AÑADIDAS ---
-    currentUserPlanName, // Importamos el plan actual del usuario
-    initiateSubscription // Asegúrate de que esta función esté exportada en authClient.js
+    currentUserPlanName
+    // Ya no necesitamos 'initiateSubscription' aquí
 } from './authClient.js';
 import {
     initGameManager,
@@ -276,7 +275,6 @@ async function initializeFilterData() {
     }
 }
 
-// --- INICIO: FUNCIÓN FALTANTE AÑADIDA ---
 function getUpdateDeleteButtonStateLogic() {
     const gameListElem = getElem('gameList', false);
     const deleteBtn = getElem('deleteSelectedBtn', false);
@@ -288,7 +286,6 @@ function getUpdateDeleteButtonStateLogic() {
     }
 }
 
-// --- INICIO: FUNCIÓN FALTANTE AÑADIDA ---
 function configureUIAfterAuth() {
     const userRole = getCurrentUserRole();
     const adminPanelButton = getElem('admin-panel-link-button', false);
@@ -346,7 +343,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const externalLoadBtn = getElem('externalLoadBtn', false);
     if (externalLoadBtn) {
-        externalLoadBtn.addEventListener('click', openExternalSearchModal);
+        externalLoadBtn.addEventListener('click', () => {
+            if (currentUserPlanName === 'medium' || currentUserPlanName === 'premium') {
+                openExternalSearchModal();
+            } else {
+                notificationService.warn(getText('upgrade_for_external_load'));
+            }
+        });
+        
         getElem('closeExternalSearchBtn', true, getElem('externalSearchModal')).addEventListener('click', closeExternalSearchModal);
         getElem('performExternalSearchBtn', true, getElem('externalSearchModal')).addEventListener('click', performSearch);
         getElem('externalSearchInput', true, getElem('externalSearchModal')).addEventListener('keyup', (e) => { if (e.key === 'Enter') performSearch(); });
@@ -365,9 +369,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         configModal.addEventListener('click', (e) => {
             if (e.target.classList.contains('btn-subscribe-app')) {
                 const planId = e.target.dataset.planId;
-                if (planId && typeof initiateSubscription === 'function') {
+                if (planId) {
                     closeConfigModal();
-                    initiateSubscription(planId);
+                    // --- INICIO DE LA CORRECCIÓN ---
+                    // Redirigimos a la página de selección de pago con el plan elegido
+                    window.location.href = `/select-payment.html?plan=${planId}`;
+                    // --- FIN DE LA CORRECCIÓN ---
                 }
             }
         });
