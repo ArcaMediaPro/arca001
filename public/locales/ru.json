@@ -198,7 +198,7 @@
   "configCollections_pExportInfo": "Сохраните резервную копию вашей коллекции игр в файл JSON.",
   "configCollections_btnExport": "Экспортировать коллекцию",
   "configCollections_legendImport": "Импортировать мою коллекцию",
-  "configCollections_pImportWarning": "<strong>Внимание!</strong> Импорт файла может добавить или обновить игры в вашей текущей коллекции в зависимости от совпадения названия и платформы.",
+  "configCollections_pImportWarning": "¡Внимание! Импорт файла может добавить или обновить игры в вашей текущей коллекции в зависимости от совпадения названия и платформы.",
   "configCollections_labelImportFile": "Выберите файл JSON:",
   "configCollections_btnImport": "Импортировать коллекцию",
   "configAdmin_legendUserManagement": "Управление пользователями системы",

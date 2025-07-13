@@ -198,7 +198,7 @@
     "configCollections_pExportInfo": "Enregistrez une copie de sauvegarde de votre collection de jeux dans un fichier JSON.",
     "configCollections_btnExport": "Exporter la collection",
     "configCollections_legendImport": "Importer ma collection",
-    "configCollections_pImportWarning": "<strong>Attention !</strong> L'importation d'un fichier peut ajouter ou mettre à jour des jeux dans votre collection actuelle si le titre et la plateforme correspondent.",
+    "configCollections_pImportWarning": "¡Attention! L'importation d'un fichier peut ajouter ou mettre à jour des jeux dans votre collection actuelle si le titre et la plateforme correspondent.",
     "configCollections_labelImportFile": "Sélectionner un fichier JSON :",
     "configCollections_btnImport": "Importer la collection",
     "configAdmin_legendUserManagement": "Gestion des utilisateurs du système",

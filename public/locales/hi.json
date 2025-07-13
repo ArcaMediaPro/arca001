@@ -198,7 +198,7 @@
   "configCollections_pExportInfo": "अपने खेल संग्रह का एक बैकअप JSON फ़ाइल में सहेजें।",
   "configCollections_btnExport": "संग्रह निर्यात करें",
   "configCollections_legendImport": "मेरा संग्रह आयात करें",
-  "configCollections_pImportWarning": "<strong>ध्यान दें!</strong> फ़ाइल आयात करने से आपके वर्तमान संग्रह में शीर्षक और प्लेटफ़ॉर्म के मिलान के आधार पर गेम जुड़ सकते हैं या अपडेट हो सकते हैं।",
+  "configCollections_pImportWarning": "¡ध्यान दें! फ़ाइल आयात करने से आपके वर्तमान संग्रह में शीर्षक और प्लेटफ़ॉर्म के मिलान के आधार पर गेम जुड़ सकते हैं या अपडेट हो सकते हैं।",
   "configCollections_labelImportFile": "JSON फ़ाइल चुनें:",
   "configCollections_btnImport": "संग्रह आयात करें",
   "configAdmin_legendUserManagement": "सिस्टम उपयोगकर्ता प्रबंधन",

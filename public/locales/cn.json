@@ -198,7 +198,7 @@
   "configCollections_pExportInfo": "将您的游戏收藏备份保存到JSON文件中。",
   "configCollections_btnExport": "导出收藏",
   "configCollections_legendImport": "导入我的收藏",
-  "configCollections_pImportWarning": "<strong>注意！</strong> 导入文件可能会根据标题和平台的匹配情况，在您当前的收藏中添加或更新游戏。",
+  "configCollections_pImportWarning": "¡注意！导入文件可能会根据标题和平台的匹配情况，在您当前的收藏中添加或更新游戏。",
   "configCollections_labelImportFile": "选择JSON文件:",
   "configCollections_btnImport": "导入收藏",
   "configAdmin_legendUserManagement": "系统用户管理",

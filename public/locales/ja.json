@@ -198,7 +198,7 @@
   "configCollections_pExportInfo": "ゲームコレクションのバックアップをJSONファイルに保存します。",
   "configCollections_btnExport": "コレクションをエクスポート",
   "configCollections_legendImport": "マイコレクションをインポート",
-  "configCollections_pImportWarning": "<strong>注意！</strong> ファイルをインポートすると、タイトルとプラットフォームが一致する場合、現在のコレクションのゲームが追加または更新されることがあります。",
+  "configCollections_pImportWarning": "¡注意！ファイルをインポートすると、タイトルとプラットフォームが一致する場合、現在のコレクションのゲームが追加または更新されることがあります。",
   "configCollections_labelImportFile": "JSONファイルを選択:",
   "configCollections_btnImport": "コレクションをインポート",
   "configAdmin_legendUserManagement": "システムユーザー管理",
