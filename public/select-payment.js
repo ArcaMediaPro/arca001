@@ -6,9 +6,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('payment-loader');
     const errorP = document.getElementById('payment-error');
 
-    // Leemos el plan que viene en la URL (ej: ?plan=medium)
     const urlParams = new URLSearchParams(window.location.search);
     const planId = urlParams.get('plan');
+
+    // Función para resetear la UI a su estado inicial
+    const resetUI = () => {
+        if (loader) loader.style.display = 'none';
+        if (errorP) errorP.style.display = 'none';
+        if (stripeBtn) stripeBtn.style.display = 'inline-block';
+        if (mpBtn) mpBtn.style.display = 'inline-block';
+    };
+
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Escuchamos el evento 'pageshow', que se dispara cada vez que la página se muestra.
+    // Esto incluye cuando se vuelve atrás desde la caché del navegador (bfcache).
+    window.addEventListener('pageshow', (event) => {
+        // La propiedad 'persisted' es true si la página se cargó desde la bfcache.
+        if (event.persisted) {
+            console.log('Página cargada desde bfcache. Reseteando UI.');
+            resetUI();
+        }
+    });
+    // --- FIN DE LA CORRECCIÓN ---
 
     if (!planId) {
         showError('Error: No se ha especificado un plan. Serás redirigido.');
@@ -25,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
             : '/api/subscriptions/create-mercadopago-preference';
 
         try {
-            // Usamos el token de autenticación que ya está en las cookies
             const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
