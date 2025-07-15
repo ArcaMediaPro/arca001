@@ -1,12 +1,32 @@
 // public/select-payment.js (con lógica de i18n)
 import { loadTranslations, getText } from './i18n.js';
 
+// --- INICIO DE LA CORRECCIÓN ---
+// Función para leer una cookie específica
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const ca = document.cookie.split(';');
+    for(let i=0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+// --- FIN DE LA CORRECCIÓN ---
+
 // --- FUNCIONES DE TRADUCCIÓN (ESPECÍFICAS PARA ESTA PÁGINA) ---
 const applyTranslations = () => {
     document.querySelectorAll('[data-i18n-key]').forEach(element => {
         const key = element.getAttribute('data-i18n-key');
         try {
-            element.textContent = getText(key);
+            const translatedText = getText(key);
+            const targetAttr = element.getAttribute('data-i18n-target-attr');
+            if (targetAttr) {
+                element.setAttribute(targetAttr, translatedText);
+            } else {
+                element.textContent = translatedText;
+            }
         } catch (e) {
             console.warn(`Clave de traducción no encontrada: ${key}`);
         }
@@ -15,7 +35,12 @@ const applyTranslations = () => {
 
 const initializeLanguage = async () => {
     const supportedLanguages = ['es', 'en', 'it', 'pt', 'ja', 'ru', 'fr', 'hi', 'cn', 'de'];
-    let langToUse = localStorage.getItem('userLanguage') || (navigator.language || navigator.userLanguage).split(/[-_]/)[0];
+    
+    // --- INICIO DE LA CORRECCIÓN ---
+    // Ahora busca en localStorage, luego en la cookie, y finalmente en el navegador.
+    let langToUse = localStorage.getItem('userLanguage') || getCookie('preferredLanguage') || (navigator.language || navigator.userLanguage).split(/[-_]/)[0];
+    // --- FIN DE LA CORRECCIÓN ---
+
     if (!supportedLanguages.includes(langToUse)) {
         langToUse = 'es';
     }
@@ -64,6 +89,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 : '/api/subscriptions/create-mercadopago-preference';
 
             try {
+                // Para iniciar un pago, el usuario ya debe estar autenticado,
+                // por lo que la cookie de sesión se enviará automáticamente.
                 const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
