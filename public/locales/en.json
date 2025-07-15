@@ -662,6 +662,7 @@
 "feature5_desc": "Keep track of the games you are playing, those you have completed, and those you have pending.",
 "feature6_title": "Secure and Reliable",
 "feature6_desc": "Your data is saved securely. Access your collection from anywhere (backend functionality).",
+"subscription_changePlan_legend": "Change Plan",
 "plan_pro_title": "Collector PRO",
 "plan_pro_feat1": "Unlimited games",
 "plan_pro_feat2": "All advanced features",

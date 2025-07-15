@@ -664,6 +664,7 @@
 "feature5_desc": "Lleva un control de los juegos que estás jugando, los que has completado o los que tienes pendientes.",
 "feature6_title": "Seguro y Confiable",
 "feature6_desc": "Tus datos se guardan de forma segura. Accede a tu colección desde cualquier lugar (funcionalidad backend).",
+"subscription_changePlan_legend": "Cambiar de Plan",
 "plan_pro_title": "Coleccionista PRO",
 "plan_pro_feat1": "Juegos ilimitados",
 "plan_pro_feat2": "Todas las funciones avanzadas",
