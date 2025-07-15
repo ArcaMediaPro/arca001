@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seleccionar Método de Pago - Catalogador PRO</title>
+    <title data-i18n-key="selectPayment_pageTitle">Seleccionar Método de Pago - Catalogador PRO</title>
     <link rel="stylesheet" href="payment-status.css">
 </head>
 <body>
     <div class="status-container">
-        <h1>Elige tu Método de Pago</h1>
-        <p>Estás a un paso de mejorar tu plan. Por favor, selecciona cómo te gustaría pagar.</p>
+        <h1 data-i18n-key="selectPayment_title">Elige tu Método de Pago</h1>
+        <p data-i18n-key="selectPayment_description">Estás a un paso de mejorar tu plan. Por favor, selecciona cómo te gustaría pagar.</p>
         
         <div class="payment-options">
-            <button id="pay-with-stripe" class="button-primary">
+            <button id="pay-with-stripe" class="button-primary" data-i18n-key="selectPayment_stripeBtn">
                 Pagar con Tarjeta
             </button>
-            <button id="pay-with-mercadopago" class="button-mercadopago">
+            <button id="pay-with-mercadopago" class="button-mercadopago" data-i18n-key="selectPayment_mpBtn">
                 Pagar con Mercado Pago
             </button>
         </div>
@@ -23,9 +23,11 @@
         <div id="payment-loader" class="loader" style="display: none;"></div>
         <p id="payment-error" class="error-message" style="display: none;"></p>
 
-        <a href="/index.html" class="button-secondary" style="margin-top: 1rem;">Cancelar y volver</a>
+        <a href="/index.html" class="button-secondary" style="margin-top: 1rem;" data-i18n-key="selectPayment_cancelLink">Cancelar y volver</a>
     </div>
 
-    <script src="select-payment.js" defer></script>
+    <!-- Ahora importamos dos scripts: uno para las traducciones y otro para la lógica de pago -->
+    <script type="module" src="i18n.js"></script>
+    <script type="module" src="select-payment.js" defer></script>
 </body>
 </html>

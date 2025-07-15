@@ -144,6 +144,21 @@
     "configAdmin_legendPlanManagement": "Gestione Limiti dei Piani",
     "configAdmin_labelFreeLimit": "Limite Piano Gratuito:",
     "configAdmin_labelMediumLimit": "Limite Piano Medium:",
+
+
+
+    "selectPayment_pageTitle": "Seleziona Metodo di Pagamento",
+    "selectPayment_title": "Scegli il tuo Metodo di Pagamento",
+    "selectPayment_description": "Sei a un passo dall'aggiornare il tuo piano. Seleziona come desideri pagare.",
+    "selectPayment_stripeBtn": "Paga con Carta",
+    "selectPayment_mpBtn": "Paga con Mercado Pago",
+    "selectPayment_cancelLink": "Annulla e torna indietro",
+    "selectPayment_errorNoPlan": "Errore: Nessun piano specificato. Verrai reindirizzato.",
+
+
+
+
+
     "configModal_tabCollections": "Le Mie Collezioni",
     "configModal_tabAdmin": "Amministrazione",
     "configGeneral_legendAppearance": "Aspetto Generale",

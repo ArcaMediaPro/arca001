@@ -144,6 +144,20 @@
   "configAdmin_legendPlanManagement": "Verwaltung der Plangrenzen",
   "configAdmin_labelFreeLimit": "Limit für kostenlosen Plan:",
   "configAdmin_labelMediumLimit": "Limit für mittleren Plan:",
+
+
+  
+  "selectPayment_pageTitle": "Zahlungsmethode auswählen",
+  "selectPayment_title": "Wählen Sie Ihre Zahlungsmethode",
+  "selectPayment_description": "Sie sind nur einen Schritt von der Aufwertung Ihres Plans entfernt. Bitte wählen Sie, wie Sie bezahlen möchten.",
+  "selectPayment_stripeBtn": "Mit Karte bezahlen",
+  "selectPayment_mpBtn": "Mit Mercado Pago bezahlen",
+  "selectPayment_cancelLink": "Abbrechen und zurück",
+  "selectPayment_errorNoPlan": "Fehler: Kein Plan angegeben. Sie werden weitergeleitet.",
+
+
+
+
   "configModal_tabCollections": "Meine Sammlungen",
   "configModal_tabAdmin": "Verwaltung",
   "configGeneral_legendAppearance": "Allgemeines Erscheinungsbild",

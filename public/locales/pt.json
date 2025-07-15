@@ -144,6 +144,19 @@
     "configAdmin_legendPlanManagement": "Gerenciamento de Limites de Plano",
     "configAdmin_labelFreeLimit": "Limite do Plano Gratuito:",
     "configAdmin_labelMediumLimit": "Limite do Plano Médio:",
+
+
+    "selectPayment_pageTitle": "Selecionar Método de Pagamento",
+    "selectPayment_title": "Escolha seu Método de Pagamento",
+    "selectPayment_description": "Você está a um passo de atualizar seu plano. Por favor, selecione como gostaria de pagar.",
+    "selectPayment_stripeBtn": "Pagar com Cartão",
+    "selectPayment_mpBtn": "Pagar com Mercado Pago",
+    "selectPayment_cancelLink": "Cancelar e voltar",
+    "selectPayment_errorNoPlan": "Erro: Nenhum plano especificado. Você será redirecionado.",
+
+
+
+
     "configModal_tabCollections": "Minhas Coleções",
     "configModal_tabAdmin": "Administração",
     "configGeneral_legendAppearance": "Aparência Geral",

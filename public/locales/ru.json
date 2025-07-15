@@ -144,6 +144,20 @@
   "configAdmin_legendPlanManagement": "Управление лимитами планов",
   "configAdmin_labelFreeLimit": "Лимит бесплатного плана:",
   "configAdmin_labelMediumLimit": "Лимит среднего плана:",
+
+
+  "selectPayment_pageTitle": "Выберите способ оплаты",
+  "selectPayment_title": "Выберите способ оплаты",
+  "selectPayment_description": "Вы в одном шаге от обновления вашего плана. Пожалуйста, выберите, как вы хотите заплатить.",
+  "selectPayment_stripeBtn": "Оплатить картой",
+  "selectPayment_mpBtn": "Оплатить через Mercado Pago",
+  "selectPayment_cancelLink": "Отменить и вернуться",
+  "selectPayment_errorNoPlan": "Ошибка: План не указан. Вы будете перенаправлены.",
+
+
+
+
+
   "configModal_tabCollections": "Мои коллекции",
   "configModal_tabAdmin": "Администрирование",
   "configGeneral_legendAppearance": "Общий вид",

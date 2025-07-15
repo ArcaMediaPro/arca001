@@ -144,6 +144,19 @@
   "configAdmin_legendPlanManagement": "套餐限制管理",
   "configAdmin_labelFreeLimit": "免费套餐限制：",
   "configAdmin_labelMediumLimit": "中级套餐限制：",
+
+
+  "selectPayment_pageTitle": "选择付款方式",
+  "selectPayment_title": "选择您的付款方式",
+  "selectPayment_description": "您距离升级计划仅一步之遥。请选择您的付款方式。",
+  "selectPayment_stripeBtn": "用卡支付",
+  "selectPayment_mpBtn": "使用Mercado Pago支付",
+  "selectPayment_cancelLink": "取消并返回",
+  "selectPayment_errorNoPlan": "错误：未指定计划。您将被重定向。",
+
+
+
+
   "configModal_tabCollections": "我的收藏",
   "configModal_tabAdmin": "管理",
   "configGeneral_legendAppearance": "常规外观",

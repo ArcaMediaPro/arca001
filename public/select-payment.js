@@ -1,91 +1,112 @@
-// Este script maneja la lógica de la página de selección de pago.
+// public/select-payment.js (con lógica de i18n)
+import { loadTranslations, getText } from './i18n.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const stripeBtn = document.getElementById('pay-with-stripe');
-    const mpBtn = document.getElementById('pay-with-mercadopago');
-    const loader = document.getElementById('payment-loader');
-    const errorP = document.getElementById('payment-error');
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const planId = urlParams.get('plan');
-
-    // Función para resetear la UI a su estado inicial
-    const resetUI = () => {
-        if (loader) loader.style.display = 'none';
-        if (errorP) errorP.style.display = 'none';
-        if (stripeBtn) stripeBtn.style.display = 'inline-block';
-        if (mpBtn) mpBtn.style.display = 'inline-block';
-    };
-
-    // --- INICIO DE LA CORRECCIÓN ---
-    // Escuchamos el evento 'pageshow', que se dispara cada vez que la página se muestra.
-    // Esto incluye cuando se vuelve atrás desde la caché del navegador (bfcache).
-    window.addEventListener('pageshow', (event) => {
-        // La propiedad 'persisted' es true si la página se cargó desde la bfcache.
-        if (event.persisted) {
-            console.log('Página cargada desde bfcache. Reseteando UI.');
-            resetUI();
+// --- FUNCIONES DE TRADUCCIÓN (ESPECÍFICAS PARA ESTA PÁGINA) ---
+const applyTranslations = () => {
+    document.querySelectorAll('[data-i18n-key]').forEach(element => {
+        const key = element.getAttribute('data-i18n-key');
+        try {
+            element.textContent = getText(key);
+        } catch (e) {
+            console.warn(`Clave de traducción no encontrada: ${key}`);
         }
     });
-    // --- FIN DE LA CORRECCIÓN ---
+};
 
-    if (!planId) {
-        showError('Error: No se ha especificado un plan. Serás redirigido.');
-        setTimeout(() => { window.location.href = '/promocional.html'; }, 4000);
-        return;
+const initializeLanguage = async () => {
+    const supportedLanguages = ['es', 'en', 'it', 'pt', 'ja', 'ru', 'fr', 'hi', 'cn', 'de'];
+    let langToUse = localStorage.getItem('userLanguage') || (navigator.language || navigator.userLanguage).split(/[-_]/)[0];
+    if (!supportedLanguages.includes(langToUse)) {
+        langToUse = 'es';
     }
+    await loadTranslations(langToUse);
+    applyTranslations();
+};
 
-    const initiatePayment = async (provider) => {
-        showLoader(true);
-        showError('');
+// --- LÓGICA DE PAGO ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Primero, inicializamos el idioma
+    initializeLanguage().then(() => {
+        // Una vez cargadas las traducciones, configuramos los botones
+        const stripeBtn = document.getElementById('pay-with-stripe');
+        const mpBtn = document.getElementById('pay-with-mercadopago');
+        const loader = document.getElementById('payment-loader');
+        const errorP = document.getElementById('payment-error');
 
-        const endpoint = provider === 'stripe'
-            ? '/api/subscriptions/create-stripe-session'
-            : '/api/subscriptions/create-mercadopago-preference';
+        const urlParams = new URLSearchParams(window.location.search);
+        const planId = urlParams.get('plan');
 
-        try {
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ planId }),
-            });
+        const resetUI = () => {
+            if (loader) loader.style.display = 'none';
+            if (errorP) errorP.style.display = 'none';
+            if (stripeBtn) stripeBtn.style.display = 'inline-block';
+            if (mpBtn) mpBtn.style.display = 'inline-block';
+        };
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'No se pudo iniciar el proceso de pago.');
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                resetUI();
             }
+        });
 
-            const session = await response.json();
+        if (!planId) {
+            showError(getText('selectPayment_errorNoPlan'));
+            setTimeout(() => { window.location.href = '/promocional.html'; }, 4000);
+            return;
+        }
 
-            if (session.redirectUrl) {
-                window.location.href = session.redirectUrl;
-            } else {
-                throw new Error('No se recibió una URL de redirección.');
+        const initiatePayment = async (provider) => {
+            showLoader(true);
+            showError('');
+
+            const endpoint = provider === 'stripe'
+                ? '/api/subscriptions/create-stripe-session'
+                : '/api/subscriptions/create-mercadopago-preference';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ planId }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'No se pudo iniciar el proceso de pago.');
+                }
+
+                const session = await response.json();
+
+                if (session.redirectUrl) {
+                    window.location.href = session.redirectUrl;
+                } else {
+                    throw new Error('No se recibió una URL de redirección.');
+                }
+
+            } catch (error) {
+                showError(error.message);
+                showLoader(false);
             }
+        };
 
-        } catch (error) {
-            showError(error.message);
-            showLoader(false);
+        const showLoader = (show) => {
+            if (loader) loader.style.display = show ? 'block' : 'none';
+            if (stripeBtn) stripeBtn.style.display = show ? 'none' : 'inline-block';
+            if (mpBtn) mpBtn.style.display = show ? 'none' : 'inline-block';
+        };
+
+        const showError = (message) => {
+            if (errorP) {
+                errorP.textContent = message;
+                errorP.style.display = message ? 'block' : 'none';
+            }
+        };
+
+        if (stripeBtn) {
+            stripeBtn.addEventListener('click', () => initiatePayment('stripe'));
         }
-    };
-
-    const showLoader = (show) => {
-        if (loader) loader.style.display = show ? 'block' : 'none';
-        if (stripeBtn) stripeBtn.style.display = show ? 'none' : 'inline-block';
-        if (mpBtn) mpBtn.style.display = show ? 'none' : 'inline-block';
-    };
-
-    const showError = (message) => {
-        if (errorP) {
-            errorP.textContent = message;
-            errorP.style.display = message ? 'block' : 'none';
+        if (mpBtn) {
+            mpBtn.addEventListener('click', () => initiatePayment('mercadopago'));
         }
-    };
-
-    if (stripeBtn) {
-        stripeBtn.addEventListener('click', () => initiatePayment('stripe'));
-    }
-    if (mpBtn) {
-        mpBtn.addEventListener('click', () => initiatePayment('mercadopago'));
-    }
+    });
 });

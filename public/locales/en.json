@@ -144,6 +144,20 @@
     "configAdmin_legendPlanManagement": "Plan Limits Management",
     "configAdmin_labelFreeLimit": "Free Plan Limit:",
     "configAdmin_labelMediumLimit": "Medium Plan Limit:",
+
+
+    "selectPayment_pageTitle": "Select Payment Method",
+    "selectPayment_title": "Choose Your Payment Method",
+    "selectPayment_description": "You are one step away from upgrading your plan. Please select how you would like to pay.",
+    "selectPayment_stripeBtn": "Pay with Card",
+    "selectPayment_mpBtn": "Pay with Mercado Pago",
+    "selectPayment_cancelLink": "Cancel and go back",
+    "selectPayment_errorNoPlan": "Error: No plan specified. You will be redirected.",
+
+
+
+
+
     "configModal_tabCollections": "My Collections",
     "configModal_tabAdmin": "Administration",
     "configGeneral_legendAppearance": "General Appearance",

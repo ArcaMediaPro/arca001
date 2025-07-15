@@ -144,6 +144,20 @@
   "configAdmin_legendPlanManagement": "योजना सीमा प्रबंधन",
   "configAdmin_labelFreeLimit": "मुफ्त योजना की सीमा:",
   "configAdmin_labelMediumLimit": "मध्यम योजना की सीमा:",
+
+
+  
+  "selectPayment_pageTitle": "भुगतान विधि चुनें",
+  "selectPayment_title": "अपनी भुगतान विधि चुनें",
+  "selectPayment_description": "आप अपनी योजना को अपग्रेड करने से एक कदम दूर हैं। कृपया चुनें कि आप कैसे भुगतान करना चाहेंगे।",
+  "selectPayment_stripeBtn": "कार्ड से भुगतान करें",
+  "selectPayment_mpBtn": "Mercado Pago से भुगतान करें",
+  "selectPayment_cancelLink": "रद्द करें और वापस जाएं",
+  "selectPayment_errorNoPlan": "त्रुटि: कोई योजना निर्दिष्ट नहीं है। आपको रीडायरेक्ट कर दिया जाएगा।",
+
+
+
+
   "configModal_tabCollections": "मेरे संग्रह",
   "configModal_tabAdmin": "प्रशासन",
   "configGeneral_legendAppearance": "सामान्य दिखावट",
