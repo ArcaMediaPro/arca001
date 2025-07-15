@@ -144,6 +144,21 @@
     "configAdmin_legendPlanManagement": "Gestion des Limites de Forfait",
     "configAdmin_labelFreeLimit": "Limite du Forfait Gratuit :",
     "configAdmin_labelMediumLimit": "Limite du Forfait Medium :",
+
+
+
+    "selectPayment_pageTitle": "Sélectionner la Méthode de Paiement",
+    "selectPayment_title": "Choisissez votre mode de paiement",
+    "selectPayment_description": "Vous êtes à un pas de mettre à niveau votre forfait. Veuillez sélectionner comment vous souhaitez payer.",
+    "selectPayment_stripeBtn": "Payer par Carte",
+    "selectPayment_mpBtn": "Payer avec Mercado Pago",
+    "selectPayment_cancelLink": "Annuler et retourner",
+    "selectPayment_errorNoPlan": "Erreur : Aucun forfait spécifié. Vous allez être redirigé.",
+    
+
+
+
+
     "configModal_tabCollections": "Mes collections",
     "configModal_tabAdmin": "Administration",
     "configGeneral_legendAppearance": "Apparence générale",
