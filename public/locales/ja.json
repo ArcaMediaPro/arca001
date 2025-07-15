@@ -699,6 +699,7 @@
 
   "header_externalLoadBtnTitle": "APIからの外部読み込み",
   "externalSearch_title": "外部ゲーム検索",
+  "upgrade_for_external_load": "これはプレミアム機能です！プランをアップグレードして自動読み込みを使用してください。",
   "externalSearch_placeholder": "ゲーム名を入力...",
   "externalSearch_button": "検索",
   "externalSearch_initialPrompt": "検索語を入力してゲームを見つけてください。",

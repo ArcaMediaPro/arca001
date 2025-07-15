@@ -32,12 +32,17 @@ const userSchema = new mongoose.Schema({
         default: 'free',
     },
 
+
+
 // --- AÑADE ESTE NUEVO CAMPO ---
     pendingSubscriptionPlan: {
         type: String,
         enum: ['medium', 'premium', null],
         default: null,
     },
+
+
+
 
     // --- CAMPOS AÑADIDOS Y REFINADOS ---
     isVerified: {

@@ -698,6 +698,7 @@
   
   "header_externalLoadBtnTitle": "Внешняя загрузка из API",
   "externalSearch_title": "Внешний поиск игр",
+  "upgrade_for_external_load": "Это премиум-функция! Обновите свой план, чтобы использовать автоматическую загрузку.",
   "externalSearch_placeholder": "Введите название игры...",
   "externalSearch_button": "Поиск",
   "externalSearch_initialPrompt": "Введите поисковый запрос, чтобы найти игры.",

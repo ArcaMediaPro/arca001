@@ -698,6 +698,7 @@
 
   "header_externalLoadBtnTitle": "从API外部加载",
   "externalSearch_title": "外部游戏搜索",
+  "upgrade_for_external_load": "这是一项高级功能！升级您的套餐以使用自动加载。",
   "externalSearch_placeholder": "输入游戏名称...",
   "externalSearch_button": "搜索",
   "externalSearch_initialPrompt": "输入搜索词以查找游戏。",

@@ -699,6 +699,7 @@
 
   "header_externalLoadBtnTitle": "Externes Laden von API",
   "externalSearch_title": "Externe Spielsuche",
+  "upgrade_for_external_load": "Dies ist eine Premium-Funktion! Führen Sie ein Upgrade Ihres Plans durch, um das automatische Laden zu verwenden.",
   "externalSearch_placeholder": "Spielnamen eingeben...",
   "externalSearch_button": "Suchen",
   "externalSearch_initialPrompt": "Geben Sie einen Suchbegriff ein, um Spiele zu finden.",

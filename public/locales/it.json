@@ -699,6 +699,7 @@
 
   "header_externalLoadBtnTitle": "Caricamento Esterno da API",
   "externalSearch_title": "Ricerca Esterna di Giochi",
+  "upgrade_for_external_load": "Questa è una funzione premium! Aggiorna il tuo piano per utilizzare il caricamento automatico.",
   "externalSearch_placeholder": "Scrivi il nome del gioco...",
   "externalSearch_button": "Cerca",
   "externalSearch_initialPrompt": "Inserisci un termine di ricerca per trovare giochi.",
