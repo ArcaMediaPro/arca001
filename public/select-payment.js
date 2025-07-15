@@ -2,14 +2,12 @@
 import { loadTranslations, getText } from './i18n.js';
 
 // --- INICIO DE LA CORRECCIÓN ---
-// Función para leer una cookie específica
+// Función para leer una cookie específica (VERSIÓN MÁS ROBUSTA)
 function getCookie(name) {
-    const nameEQ = name + "=";
-    const ca = document.cookie.split(';');
-    for(let i=0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0)==' ') c = c.substring(1,c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+        return parts.pop().split(';').shift();
     }
     return null;
 }
@@ -37,8 +35,8 @@ const initializeLanguage = async () => {
     const supportedLanguages = ['es', 'en', 'it', 'pt', 'ja', 'ru', 'fr', 'hi', 'cn', 'de'];
     
     // --- INICIO DE LA CORRECCIÓN ---
-    // Ahora busca en localStorage, luego en la cookie, y finalmente en el navegador.
-    let langToUse = localStorage.getItem('userLanguage') || getCookie('preferredLanguage') || (navigator.language || navigator.userLanguage).split(/[-_]/)[0];
+    // Ahora busca primero en la cookie, luego en localStorage, y finalmente en el navegador.
+    let langToUse = getCookie('preferredLanguage') || localStorage.getItem('userLanguage') || (navigator.language || navigator.userLanguage).split(/[-_]/)[0];
     // --- FIN DE LA CORRECCIÓN ---
 
     if (!supportedLanguages.includes(langToUse)) {
