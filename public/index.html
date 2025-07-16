@@ -619,7 +619,12 @@
         <div id="galleryIndicator" class="gallery-indicator"></div>
     </div>
 
-    <div id="configModal" class="modal">
+    
+
+
+
+
+<div id="configModal" class="modal">
     <div class="modal-content">
         <span class="close" title="Cerrar" data-i18n-key="configModal_closeBtnTitle" data-i18n-target-attr="title">&times;</span>
         <h2 id="configModalHeader" data-i18n-key="configModal_header">Configuración</h2>
@@ -629,17 +634,20 @@
                 <button type="button" class="config-tab-button active" data-tab="tab-general" data-i18n-key="configModal_tabGeneral">General</button>
                 <button type="button" class="config-tab-button" data-tab="tab-colors" data-i18n-key="configModal_tabColors">Colores</button>
                 <button type="button" class="config-tab-button" data-tab="tab-typography" data-i18n-key="configModal_tabTypography">Tipografía</button>
-                
-                <!-- === INICIO: NUEVA PESTAÑA DE SUSCRIPCIÓN === -->
                 <button type="button" class="config-tab-button" data-tab="tab-subscription" id="subscription-tab-button" data-i18n-key="configModal_tabSubscription">Suscripción</button>
-                <!-- === FIN: NUEVA PESTAÑA === -->
-
                 <button type="button" class="config-tab-button" data-tab="tab-profile" id="profile-tab-button" data-i18n-key="configModal_tabProfile">Mi Perfil</button>
                 <button type="button" class="config-tab-button" data-tab="tab-collections" id="collections-tab-button" data-i18n-key="configModal_tabCollections">Mis Colecciones</button>
                 <button type="button" class="config-tab-button" data-tab="tab-admin" id="admin-tab-button" style="display: none;" data-i18n-key="configModal_tabAdmin">Administración</button>
             </div>
 
             <form id="configForm">
+
+
+
+
+
+
+
                 <div id="tab-general" class="config-tab-panel active">
                     <fieldset class="config-section">
                         <legend class="config-section-legend" data-i18n-key="configGeneral_legendAppearance">Apariencia General</legend>
@@ -765,8 +773,15 @@
                     </fieldset>
                 </div>
 
-                <!-- === INICIO: CONTENIDO DE LA NUEVA PESTAÑA DE SUSCRIPCIÓN === -->
-                <div id="tab-subscription" class="config-tab-panel">
+               
+
+
+
+
+
+
+
+<div id="tab-subscription" class="config-tab-panel">
                     <fieldset class="config-section">
                         <legend class="config-section-legend" data-i18n-key="subscription_currentPlan_legend">Tu Plan Actual</legend>
                         <div class="current-plan-info">
@@ -783,18 +798,15 @@
                     <fieldset id="upgrade-subscription-section" class="config-section" style="margin-top: 1.5rem;">
                         <legend class="config-section-legend" data-i18n-key="subscription_changePlan_legend">Cambiar de Plan</legend>
                         <div class="promo-pricing-grid" style="padding-top: 1rem;">
-                            <div class="promo-price-plan recommended">
-                                <h3 data-i18n-key="plan_pro_title">Coleccionista PRO</h3>
-                                <p class="promo-price-amount">$4.99<span data-i18n-key="plan_per_month">/mes</span></p>
-                                <ul>
-                                    <li data-i18n-key="plan_pro_feat1">Juegos ilimitados</li>
-                                    <li data-i18n-key="plan_pro_feat2">Todas las funciones avanzadas</li>
-                                    <li data-i18n-key="plan_pro_feat3">Backup en la nube (simulado)</li>
-                                    <li data-i18n-key="plan_pro_feat4">Soporte prioritario</li>
-                                </ul>
-                                <button type="button" class="promo-cta-button btn-subscribe-app" data-plan-id="medium" data-i18n-key="plan_pro_cta">Obtener PRO</button>
-                            </div>
-                            <div class="promo-price-plan">
+                            
+
+
+
+
+                            <!-- === INICIO: CAMBIO EN HTML === -->
+                            <!-- Añadimos un ID único a cada tarjeta de plan -->
+                            <div id="upgrade-to-premium" class="promo-price-plan">
+                            <!-- === FIN: CAMBIO EN HTML === -->
                                 <h3 data-i18n-key="plan_legend_title">Leyenda Arcade</h3>
                                 <p class="promo-price-amount">$9.99<span data-i18n-key="plan_per_month">/mes</span></p>
                                 <ul>
@@ -807,6 +819,14 @@
                         </div>
                     </fieldset>
                 </div>
+
+
+
+
+
+
+
+
                 <!-- === FIN: CONTENIDO DE LA NUEVA PESTAÑA === -->
 
                 <div id="tab-profile" class="config-tab-panel">
