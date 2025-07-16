@@ -271,6 +271,11 @@
   "gameManager_noGamesInCollection": "まだゲームを追加していないか、コレクションが空です。",
   "gameManager_errorLoadGames_notification": "ゲームリストの読み込み中にエラーが発生しました。後でもう一度お試しください。",
   "gameManager_errorLoadGames_list": "ゲームの読み込み中にエラーが発生しました。もう一度お試しください。",
+
+
+  "gameManager_error_prepareEditForm": "編集フォームの準備中にエラーが発生しました。",
+
+
   "error_loadMoreGames": "さらにゲームを読み込み中にエラーが発生しました。",
   "alt_existingScreenshot": "既存のスクリーンショット {index}",
   "alt_coverPreview": "カバーのプレビュー: {title}",
@@ -394,6 +399,14 @@
   "gameDetail_error_modalNotFoundCritical": "致命的: gameDetailModal要素が見つかりません。",
   "gameDetail_error_modalMissingHTML": "致命的エラー: ゲーム詳細モーダルがHTMLにありません。",
   "gameDetail_error_fetchCbInvalid": "initGameDetailModal: fetchCbは有効な関数ではありません。",
+
+
+  "gameDetail_error_couldNotLoadDetails_notification": "詳細の読み込みエラー",
+  "gameDetail_error_couldNotLoadDetails": "このゲームの詳細を読み込めませんでした。後でもう一度お試しください。",
+
+
+
+
   "gameDetail_log_initialized": "ゲーム詳細モーダルが初期化されました",
   "gameDetail_error_modalNotInitialized": "詳細モーダルが初期化されていません。",
   "gameDetail_loadingDetails": "詳細を読み込み中...",

@@ -271,6 +271,12 @@
   "gameManager_noGamesInCollection": "您尚未添加任何游戏，或收藏为空。",
   "gameManager_errorLoadGames_notification": "加载游戏列表时出错。请稍后重试。",
   "gameManager_errorLoadGames_list": "加载游戏时出错。请重试。",
+
+
+  "gameManager_error_prepareEditForm": "准备编辑表单时出错。",
+
+
+
   "error_loadMoreGames": "加载更多游戏时出错。",
   "alt_existingScreenshot": "现有截图 {index}",
   "alt_coverPreview": "封面预览: {title}",
@@ -394,6 +400,13 @@
   "gameDetail_error_modalNotFoundCritical": "严重: 找不到gameDetailModal元素。",
   "gameDetail_error_modalMissingHTML": "严重错误: HTML中缺少游戏详细信息模态框。",
   "gameDetail_error_fetchCbInvalid": "initGameDetailModal: fetchCb不是有效函数。",
+
+
+  "gameDetail_error_couldNotLoadDetails_notification": "加载详细信息时出错",
+  "gameDetail_error_couldNotLoadDetails": "无法加载此游戏的详细信息。请稍后重试。",
+
+   
+
   "gameDetail_log_initialized": "游戏详细信息模态框已初始化",
   "gameDetail_error_modalNotInitialized": "详细信息模态框未初始化。",
   "gameDetail_loadingDetails": "正在加载详细信息...",

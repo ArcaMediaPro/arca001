@@ -272,6 +272,11 @@
   "gameManager_noGamesInCollection": "Вы еще не добавили игры, или коллекция пуста.",
   "gameManager_errorLoadGames_notification": "Ошибка при загрузке списка игр. Попробуйте снова позже.",
   "gameManager_errorLoadGames_list": "Ошибка при загрузке игр. Попробуйте снова.",
+
+
+  "gameManager_error_prepareEditForm": "Ошибка при подготовке формы редактирования.",
+
+
   "error_loadMoreGames": "Ошибка при загрузке следующих игр.",
   "alt_existingScreenshot": "Существующий скриншот {index}",
   "alt_coverPreview": "Предпросмотр обложки: {title}",
@@ -395,6 +400,13 @@
   "gameDetail_error_modalNotFoundCritical": "КРИТИЧЕСКАЯ ОШИБКА: Элемент gameDetailModal не найден.",
   "gameDetail_error_modalMissingHTML": "Критическая ошибка: Отсутствует модальное окно с деталями игры в HTML.",
   "gameDetail_error_fetchCbInvalid": "initGameDetailModal: fetchCb не является допустимой функцией.",
+
+
+  "gameDetail_error_couldNotLoadDetails_notification": "Ошибка загрузки сведений",
+  "gameDetail_error_couldNotLoadDetails": "Не удалось загрузить сведения для этой игры. Пожалуйста, повторите попытку позже.",
+
+
+
   "gameDetail_log_initialized": "Модальное окно с деталями игры инициализировано",
   "gameDetail_error_modalNotInitialized": "Модальное окно с деталями не инициализировано.",
   "gameDetail_loadingDetails": "Загрузка деталей...",

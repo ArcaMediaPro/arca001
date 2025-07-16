@@ -272,6 +272,11 @@
   "gameManager_noGamesInCollection": "आपने अभी तक कोई खेल नहीं जोड़ा है, या संग्रह खाली है।",
   "gameManager_errorLoadGames_notification": "खेल सूची लोड करते समय त्रुटि हुई। कृपया बाद में पुनः प्रयास करें।",
   "gameManager_errorLoadGames_list": "खेल लोड करते समय त्रुटि हुई। पुनः प्रयास करें।",
+
+
+  "gameManager_error_prepareEditForm": "संपादन फ़ॉर्म तैयार करने में त्रुटि।",
+
+
   "error_loadMoreGames": "अधिक खेल लोड करते समय त्रुटि हुई।",
   "alt_existingScreenshot": "मौजूदा स्क्रीनशॉट {index}",
   "alt_coverPreview": "कवर का पूर्वावलोकन: {title}",
@@ -395,6 +400,13 @@
   "gameDetail_error_modalNotFoundCritical": "गंभीर: gameDetailModal तत्व नहीं मिला।",
   "gameDetail_error_modalMissingHTML": "गंभीर त्रुटि: HTML में खेल विवरण मोडल गायब है।",
   "gameDetail_error_fetchCbInvalid": "initGameDetailModal: fetchCb एक मान्य फ़ंक्शन नहीं है।",
+
+
+  "gameDetail_error_couldNotLoadDetails_notification": "विवरण लोड करने में त्रुटि",
+  "gameDetail_error_couldNotLoadDetails": "इस गेम के विवरण लोड नहीं किए जा सके। कृपया बाद में पुनः प्रयास करें।",
+
+
+
   "gameDetail_log_initialized": "खेल विवरण मोडल आरंभीकृत",
   "gameDetail_error_modalNotInitialized": "विवरण मोडल आरंभीकृत नहीं है।",
   "gameDetail_loadingDetails": "विवरण लोड हो रहा है...",

@@ -272,6 +272,11 @@
     "gameManager_noGamesInCollection": "You haven't added any games yet, or the collection is empty.",
     "gameManager_errorLoadGames_notification": "Error loading the game list. Please try again later.",
     "gameManager_errorLoadGames_list": "Error loading games. Please try again.",
+
+
+    "gameManager_error_prepareEditForm": "Error preparing the edit form.",
+
+
     "error_loadMoreGames": "Error loading more games.",
     "alt_existingScreenshot": "Existing screenshot {index}",
     "alt_coverPreview": "Cover preview: {title}",
@@ -395,6 +400,13 @@
     "gameDetail_error_modalNotFoundCritical": "Critical Error: Modal element #gameDetailModal not found.",
     "gameDetail_error_modalMissingHTML": "Game detail modal HTML is missing from the page.",
     "gameDetail_error_fetchCbInvalid": "Error: Callback provided to initGameDetailModal is not a function.",
+
+
+    "gameDetail_error_couldNotLoadDetails_notification": "Error Loading Details",
+    "gameDetail_error_couldNotLoadDetails": "Could not load the details for this game. Please try again later.",
+
+
+
     "gameDetail_log_initialized": "Game detail modal initialized.",
     "gameDetail_error_modalNotInitialized": "Error: Game detail modal has not been initialized.",
     "gameDetail_loadingDetails": "Loading details...",

@@ -271,6 +271,12 @@
     "gameManager_noGamesInCollection": "Aún no has añadido juegos o la colección está vacía.",
     "gameManager_errorLoadGames_notification": "Error al cargar la lista de juegos. Inténtalo de nuevo más tarde.",
     "gameManager_errorLoadGames_list": "Error al cargar juegos. Inténtalo de nuevo.",
+
+
+    "gameManager_error_prepareEditForm": "Error al preparar el formulario de edición.",
+
+
+
     "error_loadMoreGames": "Error al cargar más juegos.",
     "alt_existingScreenshot": "Captura existente {index}",
     "alt_coverPreview": "Vista previa de portada: {title}",
@@ -394,6 +400,13 @@
     "gameDetail_error_modalNotFoundCritical": "CRÍTICO: Elemento gameDetailModal no encontrado.",
     "gameDetail_error_modalMissingHTML": "Error crítico: Falta el modal de detalle del juego en el HTML.",
     "gameDetail_error_fetchCbInvalid": "initGameDetailModal: fetchCb no es una función válida.",
+
+
+    "gameDetail_error_couldNotLoadDetails_notification": "Error al cargar los detalles",
+    "gameDetail_error_couldNotLoadDetails": "No se pudieron cargar los detalles para este juego. Por favor, inténtalo de nuevo más tarde.",
+
+
+
     "gameDetail_log_initialized": "Game Detail Modal Initialized",
     "gameDetail_error_modalNotInitialized": "Modal de detalles no inicializado.",
     "gameDetail_loadingDetails": "Cargando detalles...",
