@@ -799,10 +799,21 @@
                         <legend class="config-section-legend" data-i18n-key="subscription_changePlan_legend">Cambiar de Plan</legend>
                         <div class="promo-pricing-grid" style="padding-top: 1rem;">
                             
-
-
-
-
+                            <!-- === INICIO: CAMBIO EN HTML === -->
+                            <!-- Añadimos un ID único a cada tarjeta de plan -->
+                            <div id="upgrade-to-medium" class="promo-price-plan recommended">
+                            <!-- === FIN: CAMBIO EN HTML === -->
+                                <h3 data-i18n-key="plan_pro_title">Coleccionista PRO</h3>
+                                <p class="promo-price-amount">$4.99<span data-i18n-key="plan_per_month">/mes</span></p>
+                                <ul>
+                                    <li data-i18n-key="plan_pro_feat1">Juegos ilimitados</li>
+                                    <li data-i18n-key="plan_pro_feat2">Todas las funciones avanzadas</li>
+                                    <li data-i18n-key="plan_pro_feat3">Backup en la nube (simulado)</li>
+                                    <li data-i18n-key="plan_pro_feat4">Soporte prioritario</li>
+                                </ul>
+                                <button type="button" class="promo-cta-button btn-subscribe-app" data-plan-id="medium" data-i18n-key="plan_pro_cta">Obtener PRO</button>
+                            </div>
+                            
                             <!-- === INICIO: CAMBIO EN HTML === -->
                             <!-- Añadimos un ID único a cada tarjeta de plan -->
                             <div id="upgrade-to-premium" class="promo-price-plan">
@@ -819,7 +830,6 @@
                         </div>
                     </fieldset>
                 </div>
-
 
 
 
