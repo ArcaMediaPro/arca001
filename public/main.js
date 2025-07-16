@@ -14,9 +14,7 @@ import {
     isAuthenticated,
     saveLanguagePreference,
     currentUserLanguage,
-    // --- IMPORTACIONES AÑADIDAS ---
-    currentUserPlanName, // Importamos el plan actual del usuario
-    initiateSubscription // Asegúrate de que esta función esté exportada en authClient.js
+    currentUserPlanName
 } from './authClient.js';
 import {
     initGameManager,
@@ -383,9 +381,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         configModal.addEventListener('click', (e) => {
             if (e.target.classList.contains('btn-subscribe-app')) {
                 const planId = e.target.dataset.planId;
-                if (planId && typeof initiateSubscription === 'function') {
+                if (planId) {
                     closeConfigModal();
-                    initiateSubscription(planId);
+                    // --- INICIO DE LA CORRECCIÓN ---
+                    // Redirigimos a la página de selección de pago con el plan elegido
+                    window.location.href = `/select-payment.html?plan=${planId}`;
+                    // --- FIN DE LA CORRECCIÓN ---
                 }
             }
         });
