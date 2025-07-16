@@ -14,7 +14,8 @@ import {
     isAuthenticated,
     saveLanguagePreference,
     currentUserLanguage,
-    currentUserPlanName
+    currentUserPlanName,
+    initiateSubscription
 } from './authClient.js';
 import {
     initGameManager,
@@ -175,7 +176,7 @@ const performSearch = async () => {
     }
 };
 
-// --- LÓGICA PARA LA PESTAÑA DE SUSCRIPCIÓN ---
+// --- INICIO: FUNCIÓN CORREGIDA ---
 function prepareSubscriptionTab() {
     const plan = currentUserPlanName || 'free';
     
@@ -189,17 +190,26 @@ function prepareSubscriptionTab() {
         planTextElem.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
     }
 
-    // Lógica de visibilidad corregida y explícita
-    const showManage = plan === 'medium' || plan === 'premium';
-    const showUpgrade = plan === 'free' || plan === 'medium';
-    const showUpgradeToMedium = plan === 'free';
-    const showUpgradeToPremium = plan === 'free' || plan === 'medium';
+    // Ocultamos todo por defecto para empezar de cero
+    if (manageSection) manageSection.style.display = 'none';
+    if (upgradeSection) upgradeSection.style.display = 'none';
+    if (upgradeToMediumCard) upgradeToMediumCard.style.display = 'none';
+    if (upgradeToPremiumCard) upgradeToPremiumCard.style.display = 'none';
 
-    if (manageSection) manageSection.style.display = showManage ? 'block' : 'none';
-    if (upgradeSection) upgradeSection.style.display = showUpgrade ? 'block' : 'none';
-    if (upgradeToMediumCard) upgradeToMediumCard.style.display = showUpgradeToMedium ? 'block' : 'none';
-    if (upgradeToPremiumCard) upgradeToPremiumCard.style.display = showUpgradeToPremium ? 'block' : 'none';
+    // Lógica de visibilidad explícita
+    if (plan === 'free') {
+        if (upgradeSection) upgradeSection.style.display = 'block';
+        if (upgradeToMediumCard) upgradeToMediumCard.style.display = 'block';
+        if (upgradeToPremiumCard) upgradeToPremiumCard.style.display = 'block';
+    } else if (plan === 'medium') {
+        if (manageSection) manageSection.style.display = 'block';
+        if (upgradeSection) upgradeSection.style.display = 'block';
+        if (upgradeToPremiumCard) upgradeToPremiumCard.style.display = 'block';
+    } else if (plan === 'premium') {
+        if (manageSection) manageSection.style.display = 'block';
+    }
 }
+// --- FIN: FUNCIÓN CORREGIDA ---
 
 async function handleCancelSubscription() {
     if (!confirm(getText('subscription_cancel_confirm'))) return;
@@ -374,8 +384,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const configModal = getElem('configModal', false);
     if (configModal) {
         configModal.addEventListener('click', (e) => {
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Usamos .closest() para asegurarnos de capturar el clic aunque se haga en un elemento hijo del botón.
             const subscribeButton = e.target.closest('.btn-subscribe-app');
             if (subscribeButton) {
                 const planId = subscribeButton.dataset.planId;
@@ -384,7 +392,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     window.location.href = `/select-payment.html?plan=${planId}`;
                 }
             }
-            // --- FIN DE LA CORRECCIÓN ---
         });
         const cancelBtn = getElem('cancel-subscription-btn', true, configModal);
         if (cancelBtn) cancelBtn.addEventListener('click', handleCancelSubscription);
