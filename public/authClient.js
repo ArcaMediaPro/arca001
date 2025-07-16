@@ -37,17 +37,13 @@ export async function initiateSubscription(planId) {
 
     try {
         notificationService.info(getText('subscription_initiating') || 'Iniciando suscripción...');
-
         localStorage.removeItem('pendingSubscriptionPlan');
-
         const response = await fetchAuthenticated(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ planId }),
         });
-
         const session = await response.json();
-
         if (session.redirectUrl) {
             window.location.href = session.redirectUrl;
         } else {
@@ -117,38 +113,41 @@ export function initAuthUI() {
 }
 
 function displayAuthFormView(viewToShow) {
-    const loginEl = getElem('login-form-container', false);
-    const registerEl = getElem('register-form-container', false);
-    const resetEl = getElem('request-reset-form-container', false) || getElem('promo-request-reset-form-container', false);
-    const msgEl = getElem('auth-message', false);
+    if (loginFormContainer) loginFormContainer.style.display = (viewToShow === 'login' ? 'block' : 'none');
+    if (registerFormContainer) registerFormContainer.style.display = (viewToShow === 'register' ? 'block' : 'none');
+    if (requestResetFormContainer) requestResetFormContainer.style.display = (viewToShow === 'requestReset' ? 'block' : 'none');
 
-    if (loginEl) loginEl.style.display = (viewToShow === 'login' ? 'block' : 'none');
-    if (registerEl) registerEl.style.display = (viewToShow === 'register' ? 'block' : 'none');
-    if (resetEl) resetEl.style.display = (viewToShow === 'requestReset' ? 'block' : 'none');
-    if (msgEl) {
-        msgEl.textContent = '';
-        msgEl.className = 'auth-message';
+    if (authMessageDiv) {
+        authMessageDiv.textContent = '';
+        authMessageDiv.className = 'auth-message';
     }
 }
+
 
 export function showLoginFormView() {
     localStorage.removeItem('pendingSubscriptionPlan');
     displayAuthFormView('login');
 }
-export function showRegisterFormView() { 
-    displayAuthFormView('register'); 
+export function showRegisterFormView() {
+    displayAuthFormView('register');
 }
 export function showRequestResetFormView() { displayAuthFormView('requestReset'); }
 
+// --- INICIO DE LA CORRECCIÓN ---
 export function showAuthUI() {
+    // Reseteamos las variables globales de usuario
     currentLoggedInUsername = null;
     currentUserRole = null;
     currentLoggedInUserEmail = null;
     globalCsrfToken = null;
     currentUserThemeSettings = null;
+    currentUserPlanName = null;
+    currentUserGameCount = 0;
+    currentUserPlanLimit = 0;
 
     const isPromoPage = !!document.getElementById('promo-page-content');
     if (isPromoPage) {
+        // Lógica para la página promocional (sin cambios)
         const promoAuthModal = document.getElementById('auth-modal-overlay');
         if (promoAuthModal) {
             const promoAuthMessage = promoAuthModal.querySelector('#auth-message');
@@ -159,15 +158,31 @@ export function showAuthUI() {
         }
         console.log(getText('auth_log_showAuthUIPromo'));
     } else {
+        // Lógica para la aplicación principal (index.html)
         if (authArea) authArea.style.display = 'flex';
         if (gameArea) gameArea.style.display = 'none';
         if (userInfoDiv) userInfoDiv.style.display = 'none';
         if (loggedInUsernameSpan) loggedInUsernameSpan.textContent = '';
         document.body.classList.add('auth-view-active');
+        
+        // Deshabilitamos los botones del header que requieren autenticación
+        const addGameBtn = getElem('addGameBtn', false);
+        const deleteSelectedBtn = getElem('deleteSelectedBtn', false);
+        const undoDeleteBtn = getElem('undoDeleteBtn', false);
+        const externalLoadBtn = getElem('externalLoadBtn', false);
+        const configBtn = getElem('configBtn', false);
+
+        if (addGameBtn) addGameBtn.disabled = true;
+        if (deleteSelectedBtn) deleteSelectedBtn.disabled = true;
+        if (undoDeleteBtn) undoDeleteBtn.disabled = true;
+        if (externalLoadBtn) externalLoadBtn.disabled = true;
+        if (configBtn) configBtn.disabled = true;
+
         showLoginFormView();
         console.log(getText('auth_log_showAuthUIIndex'));
     }
 }
+// --- FIN DE LA CORRECCIÓN ---
 
 
 export async function showGameUI(usernameToDisplay) {
@@ -175,7 +190,7 @@ export async function showGameUI(usernameToDisplay) {
     if (isPromoPage) {
         console.log(getText('auth_log_showGameUIPromoRedirect'));
         window.location.href = 'index.html';
-        return; // Añadimos return para evitar que siga ejecutando
+        return;
     }
 
     if (authArea) authArea.style.display = 'none';
@@ -188,13 +203,19 @@ export async function showGameUI(usernameToDisplay) {
     document.body.classList.remove('auth-view-active');
     console.log(getText('auth_log_showGameUIIndex'));
     
-    // Se llama a la actualización del contador AQUÍ, después de que la UI es visible.
+    // Habilitamos los botones del header que requieren autenticación
+    const addGameBtn = getElem('addGameBtn', false);
+    const deleteSelectedBtn = getElem('deleteSelectedBtn', false);
+    const externalLoadBtn = getElem('externalLoadBtn', false);
+    const configBtn = getElem('configBtn', false);
+
+    if (addGameBtn) addGameBtn.disabled = false;
+    if (deleteSelectedBtn) deleteSelectedBtn.disabled = true; // El botón de borrar se activa solo al seleccionar
+    if (externalLoadBtn) externalLoadBtn.disabled = false;
+    if (configBtn) configBtn.disabled = false;
+
     updatePlanCounterUI(); 
 }
-
-
-
-
 
 export function displayAuthMessage(message, isError = true, clearAfterDelay = false, targetElementId = null) {
     const targetDiv = targetElementId ? getElem(targetElementId, false) : authMessageDiv;
