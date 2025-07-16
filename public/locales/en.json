@@ -478,6 +478,7 @@
     "gameForm_genre_puzzle": "Puzzle",
     "gameForm_genre_fps": "First-Person Shooter (FPS)",
     "gameForm_genre_program": "Program",
+    "gameForm_genre_verticalShooter": "Vertical Scrolling Shooter",
     "gameForm_genre_simulation": "Simulation",
     "gameForm_genre_flightSim": "Flight Simulator",
     "gameForm_genre_racingSim": "Racing Simulator",

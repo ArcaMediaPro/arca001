@@ -478,6 +478,7 @@
     "gameForm_genre_puzzle": "Puzzle",
     "gameForm_genre_fps": "Tiro em Primeira Pessoa - FPS",
     "gameForm_genre_program": "Programa",
+    "gameForm_genre_verticalShooter": "Jogo de tiro com rolagem vertical",
     "gameForm_genre_simulation": "Simulação",
     "gameForm_genre_flightSim": "Simulador de Voo",
     "gameForm_genre_racingSim": "Simulador de Corrida",
