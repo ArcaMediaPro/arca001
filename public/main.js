@@ -1,4 +1,4 @@
-// main.js (COMPLETO CON FLUJO DE UPGRADE CORREGIDO)
+// main.js (MODIFICADO Y CORREGIDO)
 import { initError as domInitError, getElem, handleFormStarClick, handleFormStarHover, handleFormStarMouseOut } from './domUtils.js';
 import { loadThemeSettings, saveThemeSettings, resetThemeSettings, applyThemeProperty } from './config.js';
 import {
@@ -14,8 +14,9 @@ import {
     isAuthenticated,
     saveLanguagePreference,
     currentUserLanguage,
-    currentUserPlanName
-    // Ya no necesitamos 'initiateSubscription' aquí
+    // --- IMPORTACIONES AÑADIDAS ---
+    currentUserPlanName, // Importamos el plan actual del usuario
+    initiateSubscription // Asegúrate de que esta función esté exportada en authClient.js
 } from './authClient.js';
 import {
     initGameManager,
@@ -182,15 +183,28 @@ function prepareSubscriptionTab() {
     const planTextElem = getElem('current-user-plan');
     const manageSection = getElem('manage-subscription-section');
     const upgradeSection = getElem('upgrade-subscription-section');
+    const upgradeToMediumCard = getElem('upgrade-to-medium');
+    const upgradeToPremiumCard = getElem('upgrade-to-premium');
+
     if (planTextElem) {
         planTextElem.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
     }
-    if (plan === 'medium' || plan === 'premium') {
-        if (manageSection) manageSection.style.display = 'block';
-        if (upgradeSection) upgradeSection.style.display = 'none';
-    } else {
-        if (manageSection) manageSection.style.display = 'none';
+
+    if (manageSection) manageSection.style.display = 'none';
+    if (upgradeSection) upgradeSection.style.display = 'none';
+    if (upgradeToMediumCard) upgradeToMediumCard.style.display = 'none';
+    if (upgradeToPremiumCard) upgradeToPremiumCard.style.display = 'none';
+
+    if (plan === 'free') {
         if (upgradeSection) upgradeSection.style.display = 'block';
+        if (upgradeToMediumCard) upgradeToMediumCard.style.display = 'block';
+        if (upgradeToPremiumCard) upgradeToPremiumCard.style.display = 'block';
+    } else if (plan === 'medium') {
+        if (manageSection) manageSection.style.display = 'block';
+        if (upgradeSection) upgradeSection.style.display = 'block';
+        if (upgradeToPremiumCard) upgradeToPremiumCard.style.display = 'block';
+    } else if (plan === 'premium') {
+        if (manageSection) manageSection.style.display = 'block';
     }
 }
 
@@ -369,12 +383,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         configModal.addEventListener('click', (e) => {
             if (e.target.classList.contains('btn-subscribe-app')) {
                 const planId = e.target.dataset.planId;
-                if (planId) {
+                if (planId && typeof initiateSubscription === 'function') {
                     closeConfigModal();
-                    // --- INICIO DE LA CORRECCIÓN ---
-                    // Redirigimos a la página de selección de pago con el plan elegido
-                    window.location.href = `/select-payment.html?plan=${planId}`;
-                    // --- FIN DE LA CORRECCIÓN ---
+                    initiateSubscription(planId);
                 }
             }
         });
