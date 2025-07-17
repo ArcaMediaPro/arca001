@@ -16,17 +16,11 @@ export let currentUserPlanName = null;
 export let currentUserGameCount = 0;
 export let currentUserPlanLimit = 0;
 
-
-
 // --- INICIO: Variables para el Temporizador de Sesión ---
 let sessionTimerInterval = null;
 let sessionTimeoutDuration = 3600; // 1 hora en segundos por defecto
 let sessionTimerElement, sessionTimerContainerElement;
 // --- FIN: Variables para el Temporizador ---
-
-
-
-
 
 let authArea;
 let gameArea;
@@ -40,10 +34,6 @@ let loginForm;
 let registerForm;
 let requestResetForm;
 let authMessageDiv;
-
-
-
-
 
 // --- INICIO: Lógica del Temporizador de Sesión ---
 
@@ -86,12 +76,6 @@ function stopSessionTimer() {
 
 // --- FIN: Lógica del Temporizador ---
 
-
-
-
-
-
-
 export async function initiateSubscription(planId) {
     const provider = 'stripe';
     const endpoint = provider === 'stripe'
@@ -119,8 +103,6 @@ export async function initiateSubscription(planId) {
 }
 
 
-
-
 export function initAuthUI() {
     authArea = getElem('auth-area', false);
     gameArea = getElem('game-area', false);
@@ -134,6 +116,9 @@ export function initAuthUI() {
     registerForm = getElem('register-form', false);
     requestResetForm = getElem('request-reset-form', false) || getElem('promo-request-reset-form', false);
     authMessageDiv = getElem('auth-message', false);
+    
+    sessionTimerElement = getElem('session-timer', false);
+    sessionTimerContainerElement = getElem('session-timer-container', false);
 
     if (loginForm) {
         loginForm.addEventListener('submit', async (event) => {
@@ -209,10 +194,10 @@ export function showAuthUI() {
     currentUserPlanName = null;
     currentUserGameCount = 0;
     currentUserPlanLimit = 0;
+    stopSessionTimer(); // Detenemos el timer
 
     const isPromoPage = !!document.getElementById('promo-page-content');
     if (isPromoPage) {
-        // Lógica para la página promocional (sin cambios)
         const promoAuthModal = document.getElementById('auth-modal-overlay');
         if (promoAuthModal) {
             const promoAuthMessage = promoAuthModal.querySelector('#auth-message');
@@ -280,23 +265,15 @@ export async function showGameUI(usernameToDisplay) {
     if (configBtn) configBtn.disabled = false;
 
     updatePlanCounterUI(); 
-
-
-
-
-// --- INICIO: LÓGICA PARA INICIAR EL TIMER ---
+    
+    // Iniciamos el timer si corresponde
     const plan = currentUserPlanName || 'free';
     if (plan === 'medium' || plan === 'premium') {
         if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'flex';
-        startSessionTimer(sessionTimeoutDuration); // Inicia el timer con la duración por defecto (1h)
+        startSessionTimer(sessionTimeoutDuration);
     } else {
-        stopSessionTimer(); // Nos aseguramos de que no haya timer para usuarios 'free'
+        stopSessionTimer();
     }
-    // --- FIN: LÓGICA PARA INICIAR EL TIMER ---
-
-
-
-
 }
 
 export function displayAuthMessage(message, isError = true, clearAfterDelay = false, targetElementId = null) {
@@ -421,9 +398,8 @@ export async function logoutUser() {
         notificationService.error(getText('auth_error_logoutServer'), error);
     } finally {
         localStorage.removeItem('pendingSubscriptionPlan');
-	stopSessionTimer();
-	
-
+        stopSessionTimer();
+    
         currentLoggedInUsername = null;
         currentUserRole = null;
         currentLoggedInUserEmail = null;
@@ -457,7 +433,6 @@ export async function checkAuthStatus() {
                 currentUserGameCount = data.user.gameCount;
                 currentUserPlanLimit = data.user.planLimit;
                 
-                // --- INICIO: LÓGICA PARA OBTENER LA DURACIÓN REAL DEL TOKEN ---
                 try {
                     const tokenPayload = JSON.parse(atob(data.jwtToken.split('.')[1]));
                     const nowInSeconds = Math.floor(Date.now() / 1000);
@@ -466,7 +441,6 @@ export async function checkAuthStatus() {
                     console.warn("No se pudo decodificar el token para obtener la expiración, se usará el valor por defecto.");
                     sessionTimeoutDuration = 3600;
                 }
-                // --- FIN: LÓGICA DE DURACIÓN ---
 
                 return { isAuthenticated: true, user: data.user };
             }
@@ -637,17 +611,6 @@ export function updateCurrentUserGameCount(changeAmount) {
         currentUserGameCount = 0;
     }
     updatePlanCounterUI();
-
-// --- INICIO: LÓGICA PARA INICIAR EL TIMER ---
-    const plan = currentUserPlanName || 'free';
-    if (plan === 'medium' || plan === 'premium') {
-        if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'flex';
-        startSessionTimer(sessionTimeoutDuration);
-    } else {
-        stopSessionTimer();
-    }
-    // --- FIN: LÓGICA PARA INICIAR EL TIMER ---
-
 }
 
 export async function saveLanguagePreference(languageCode) {
