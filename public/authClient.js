@@ -41,6 +41,57 @@ let registerForm;
 let requestResetForm;
 let authMessageDiv;
 
+
+
+
+
+// --- INICIO: Lógica del Temporizador de Sesión ---
+
+function updateTimerDisplay(seconds) {
+    if (!sessionTimerElement) return;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    sessionTimerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
+export function resetSessionTimer() {
+    if (sessionTimerInterval) {
+        console.log("Actividad detectada, reseteando temporizador de sesión.");
+        stopSessionTimer();
+        startSessionTimer(sessionTimeoutDuration);
+    }
+}
+
+function startSessionTimer(duration) {
+    if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+
+    let timer = duration;
+    sessionTimeoutDuration = duration;
+
+    sessionTimerInterval = setInterval(() => {
+        updateTimerDisplay(timer);
+        if (--timer < 0) {
+            console.log("La sesión ha expirado por inactividad.");
+            notificationService.warn(getText('auth_error_sessionExpired'));
+            logoutUser();
+        }
+    }, 1000);
+}
+
+function stopSessionTimer() {
+    clearInterval(sessionTimerInterval);
+    sessionTimerInterval = null;
+    if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'none';
+}
+
+// --- FIN: Lógica del Temporizador ---
+
+
+
+
+
+
+
 export async function initiateSubscription(planId) {
     const provider = 'stripe';
     const endpoint = provider === 'stripe'
@@ -66,55 +117,6 @@ export async function initiateSubscription(planId) {
         notificationService.error(error.message || getText('subscription_error_start') || 'No se pudo iniciar el proceso de pago.');
     }
 }
-
-
-
-
-
-
-// --- INICIO: Lógica del Temporizador de Sesión ---
-
-function updateTimerDisplay(seconds) {
-    if (!sessionTimerElement) return;
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    sessionTimerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-}
-
-export function resetSessionTimer() {
-    // Solo resetea si el timer está activo (para usuarios de pago)
-    if (sessionTimerInterval) {
-        console.log("Actividad detectada, reseteando temporizador de sesión.");
-        stopSessionTimer();
-        startSessionTimer(sessionTimeoutDuration);
-    }
-}
-
-function startSessionTimer(duration) {
-    if (sessionTimerInterval) clearInterval(sessionTimerInterval);
-
-    let timer = duration;
-    sessionTimeoutDuration = duration; // Guardamos la duración para poder resetearla
-
-    sessionTimerInterval = setInterval(() => {
-        updateTimerDisplay(timer);
-        if (--timer < 0) {
-            console.log("La sesión ha expirado por inactividad.");
-            notificationService.warn(getText('auth_error_sessionExpired'));
-            logoutUser();
-        }
-    }, 1000);
-}
-
-function stopSessionTimer() {
-    clearInterval(sessionTimerInterval);
-    sessionTimerInterval = null;
-    if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'none';
-}
-
-// --- FIN: Lógica del Temporizador ---
-
-
 
 
 
@@ -419,6 +421,8 @@ export async function logoutUser() {
         notificationService.error(getText('auth_error_logoutServer'), error);
     } finally {
         localStorage.removeItem('pendingSubscriptionPlan');
+	stopSessionTimer();
+	
 
         currentLoggedInUsername = null;
         currentUserRole = null;
@@ -452,12 +456,8 @@ export async function checkAuthStatus() {
                 currentUserPlanName = data.user.planName;
                 currentUserGameCount = data.user.gameCount;
                 currentUserPlanLimit = data.user.planLimit;
-
-
-
-
-
-// --- INICIO: LÓGICA PARA OBTENER LA DURACIÓN REAL DEL TOKEN ---
+                
+                // --- INICIO: LÓGICA PARA OBTENER LA DURACIÓN REAL DEL TOKEN ---
                 try {
                     const tokenPayload = JSON.parse(atob(data.jwtToken.split('.')[1]));
                     const nowInSeconds = Math.floor(Date.now() / 1000);
@@ -467,9 +467,6 @@ export async function checkAuthStatus() {
                     sessionTimeoutDuration = 3600;
                 }
                 // --- FIN: LÓGICA DE DURACIÓN ---
-
-
-
 
                 return { isAuthenticated: true, user: data.user };
             }
@@ -640,6 +637,17 @@ export function updateCurrentUserGameCount(changeAmount) {
         currentUserGameCount = 0;
     }
     updatePlanCounterUI();
+
+// --- INICIO: LÓGICA PARA INICIAR EL TIMER ---
+    const plan = currentUserPlanName || 'free';
+    if (plan === 'medium' || plan === 'premium') {
+        if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'flex';
+        startSessionTimer(sessionTimeoutDuration);
+    } else {
+        stopSessionTimer();
+    }
+    // --- FIN: LÓGICA PARA INICIAR EL TIMER ---
+
 }
 
 export async function saveLanguagePreference(languageCode) {
