@@ -2030,3 +2030,31 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     padding: 10px 20px;
 }
 
+
+
+/* --- Estilos para el Temporizador de Sesión --- */
+#session-timer-container {
+    display: flex; /* Se hará visible con JS */
+    align-items: center;
+    gap: 0.5rem;
+    background-color: rgba(0, 0, 0, 0.25);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9em;
+    color: var(--clr-accent-1);
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-left: 1rem;
+}
+
+#session-timer-container img {
+    width: 16px;
+    height: 16px;
+    opacity: 0.8;
+}
+
+
+
+
+

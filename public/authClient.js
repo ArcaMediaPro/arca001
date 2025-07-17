@@ -16,6 +16,18 @@ export let currentUserPlanName = null;
 export let currentUserGameCount = 0;
 export let currentUserPlanLimit = 0;
 
+
+
+// --- INICIO: Variables para el Temporizador de Sesión ---
+let sessionTimerInterval = null;
+let sessionTimeoutDuration = 3600; // 1 hora en segundos por defecto
+let sessionTimerElement, sessionTimerContainerElement;
+// --- FIN: Variables para el Temporizador ---
+
+
+
+
+
 let authArea;
 let gameArea;
 let userInfoDiv;
@@ -54,6 +66,57 @@ export async function initiateSubscription(planId) {
         notificationService.error(error.message || getText('subscription_error_start') || 'No se pudo iniciar el proceso de pago.');
     }
 }
+
+
+
+
+
+
+// --- INICIO: Lógica del Temporizador de Sesión ---
+
+function updateTimerDisplay(seconds) {
+    if (!sessionTimerElement) return;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    sessionTimerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
+export function resetSessionTimer() {
+    // Solo resetea si el timer está activo (para usuarios de pago)
+    if (sessionTimerInterval) {
+        console.log("Actividad detectada, reseteando temporizador de sesión.");
+        stopSessionTimer();
+        startSessionTimer(sessionTimeoutDuration);
+    }
+}
+
+function startSessionTimer(duration) {
+    if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+
+    let timer = duration;
+    sessionTimeoutDuration = duration; // Guardamos la duración para poder resetearla
+
+    sessionTimerInterval = setInterval(() => {
+        updateTimerDisplay(timer);
+        if (--timer < 0) {
+            console.log("La sesión ha expirado por inactividad.");
+            notificationService.warn(getText('auth_error_sessionExpired'));
+            logoutUser();
+        }
+    }, 1000);
+}
+
+function stopSessionTimer() {
+    clearInterval(sessionTimerInterval);
+    sessionTimerInterval = null;
+    if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'none';
+}
+
+// --- FIN: Lógica del Temporizador ---
+
+
+
+
 
 
 export function initAuthUI() {
@@ -215,6 +278,23 @@ export async function showGameUI(usernameToDisplay) {
     if (configBtn) configBtn.disabled = false;
 
     updatePlanCounterUI(); 
+
+
+
+
+// --- INICIO: LÓGICA PARA INICIAR EL TIMER ---
+    const plan = currentUserPlanName || 'free';
+    if (plan === 'medium' || plan === 'premium') {
+        if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'flex';
+        startSessionTimer(sessionTimeoutDuration); // Inicia el timer con la duración por defecto (1h)
+    } else {
+        stopSessionTimer(); // Nos aseguramos de que no haya timer para usuarios 'free'
+    }
+    // --- FIN: LÓGICA PARA INICIAR EL TIMER ---
+
+
+
+
 }
 
 export function displayAuthMessage(message, isError = true, clearAfterDelay = false, targetElementId = null) {
@@ -372,6 +452,25 @@ export async function checkAuthStatus() {
                 currentUserPlanName = data.user.planName;
                 currentUserGameCount = data.user.gameCount;
                 currentUserPlanLimit = data.user.planLimit;
+
+
+
+
+
+// --- INICIO: LÓGICA PARA OBTENER LA DURACIÓN REAL DEL TOKEN ---
+                try {
+                    const tokenPayload = JSON.parse(atob(data.jwtToken.split('.')[1]));
+                    const nowInSeconds = Math.floor(Date.now() / 1000);
+                    sessionTimeoutDuration = tokenPayload.exp - nowInSeconds;
+                } catch (e) {
+                    console.warn("No se pudo decodificar el token para obtener la expiración, se usará el valor por defecto.");
+                    sessionTimeoutDuration = 3600;
+                }
+                // --- FIN: LÓGICA DE DURACIÓN ---
+
+
+
+
                 return { isAuthenticated: true, user: data.user };
             }
         }

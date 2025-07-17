@@ -14,7 +14,9 @@ import {
     isAuthenticated,
     saveLanguagePreference,
     currentUserLanguage,
-    currentUserPlanName
+    currentUserPlanName,
+    initiateSubscription,
+    resetSessionTimer // <-- 1. IMPORTACIÓN AÑADIDA
 } from './authClient.js';
 import {
     initGameManager,
@@ -189,13 +191,11 @@ function prepareSubscriptionTab() {
         planTextElem.textContent = plan.charAt(0).toUpperCase() + plan.slice(1);
     }
 
-    // Ocultamos todo por defecto para empezar de cero
     if (manageSection) manageSection.style.display = 'none';
     if (upgradeSection) upgradeSection.style.display = 'none';
     if (upgradeToMediumCard) upgradeToMediumCard.style.display = 'none';
     if (upgradeToPremiumCard) upgradeToPremiumCard.style.display = 'none';
 
-    // Lógica de visibilidad explícita y correcta
     if (plan === 'free') {
         if (upgradeSection) upgradeSection.style.display = 'block';
         if (upgradeToMediumCard) upgradeToMediumCard.style.display = 'block';
@@ -327,6 +327,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     setupFooter();
     
+    // --- INICIO DE LA CORRECCIÓN: BFCache ---
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            console.log('Página cargada desde bfcache. Forzando actualización de UI.');
+            const lang = getCookie('preferredLanguage') || 'es';
+            applyPageTranslations();
+            updateLocalizedImages(lang);
+            updatePlanCounterUI();
+            const languageSwitcherElement = getElem('languageSwitcher', false);
+            if (languageSwitcherElement) {
+                languageSwitcherElement.value = lang;
+            }
+        }
+    });
+    // --- FIN DE LA CORRECCIÓN ---
+
     originalInitAuthUI();
     initGameManager();
     initFilterSort();
@@ -397,22 +413,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const languageSwitcherElement = getElem('languageSwitcher', false);
     if (languageSwitcherElement) {
-        languageSwitcherElement.addEventListener('change', async (event) => {
-            const selectedLang = event.target.value;
-            try {
-                await loadTranslations(selectedLang);
-                applyPageTranslations();
-                updatePlanCounterUI();
-                updateLocalizedImages(selectedLang);
-                setCookie('preferredLanguage', selectedLang, 30);
-                if (isAuthenticated()) await saveLanguagePreference(selectedLang);
-                populateGenreFilterDropdown(cachedAllGenres);
-                populatePlatformFilterList();
-                await loadInitialGames();
-            } catch (error) {
-                notificationService.error(`Error al cambiar a ${selectedLang}`, error);
-            }
-        });
+        if (!languageSwitcherElement.dataset.listenerAttached) {
+            languageSwitcherElement.addEventListener('change', async (event) => {
+                const selectedLang = event.target.value;
+                try {
+                    await loadTranslations(selectedLang);
+                    applyPageTranslations();
+                    updatePlanCounterUI();
+                    updateLocalizedImages(selectedLang);
+                    setCookie('preferredLanguage', selectedLang, 30);
+                    if (isAuthenticated()) await saveLanguagePreference(selectedLang);
+                    populateGenreFilterDropdown(cachedAllGenres);
+                    populatePlatformFilterList();
+                    await loadInitialGames();
+                } catch (error) {
+                    notificationService.error(`Error al cambiar a ${selectedLang}`, error);
+                }
+            });
+            languageSwitcherElement.dataset.listenerAttached = 'true';
+        }
     }
 
     const formRatingStarsContainer = getElem('formRatingStars', false);
@@ -425,6 +444,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             formRatingStarsContainer.dataset.listenerAttached = 'true';
         }
     }
+
+    // --- INICIO: LISTENER GLOBAL PARA RESETEAR EL TIMER ---
+    document.addEventListener('click', resetSessionTimer);
+    // --- FIN: LISTENER GLOBAL ---
 
     try {
         const authStatus = await checkAuthStatus();
