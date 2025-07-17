@@ -2049,9 +2049,10 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
 }
 
 #session-timer-container img {
-    width: 16px;
-    height: 16px;
-    opacity: 0.8;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 
