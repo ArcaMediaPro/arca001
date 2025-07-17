@@ -35,7 +35,7 @@ let registerForm;
 let requestResetForm;
 let authMessageDiv;
 
-// --- INICIO: Lógica del Temporizador de Sesión ---
+// --- INICIO: Lógica del Temporizador de Sesión (Corregida) ---
 
 function updateTimerDisplay(seconds) {
     if (!sessionTimerElement) return;
@@ -44,16 +44,24 @@ function updateTimerDisplay(seconds) {
     sessionTimerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
 
+function stopSessionTimerInterval() {
+    clearInterval(sessionTimerInterval);
+    sessionTimerInterval = null;
+}
+
 export function resetSessionTimer() {
     if (sessionTimerInterval) {
-        console.log("Actividad detectada, reseteando temporizador de sesión.");
-        stopSessionTimer();
+        stopSessionTimerInterval();
         startSessionTimer(sessionTimeoutDuration);
     }
 }
 
 function startSessionTimer(duration) {
-    if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+    stopSessionTimerInterval(); // Limpia cualquier temporizador existente
+
+    if (sessionTimerContainerElement) {
+        sessionTimerContainerElement.style.display = 'flex';
+    }
 
     let timer = duration;
     sessionTimeoutDuration = duration;
@@ -68,10 +76,11 @@ function startSessionTimer(duration) {
     }, 1000);
 }
 
-function stopSessionTimer() {
-    clearInterval(sessionTimerInterval);
-    sessionTimerInterval = null;
-    if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'none';
+function hideAndStopTimer() {
+    stopSessionTimerInterval();
+    if (sessionTimerContainerElement) {
+        sessionTimerContainerElement.style.display = 'none';
+    }
 }
 
 // --- FIN: Lógica del Temporizador ---
@@ -183,9 +192,7 @@ export function showRegisterFormView() {
 }
 export function showRequestResetFormView() { displayAuthFormView('requestReset'); }
 
-// --- INICIO DE LA CORRECCIÓN ---
 export function showAuthUI() {
-    // Reseteamos las variables globales de usuario
     currentLoggedInUsername = null;
     currentUserRole = null;
     currentLoggedInUserEmail = null;
@@ -194,7 +201,7 @@ export function showAuthUI() {
     currentUserPlanName = null;
     currentUserGameCount = 0;
     currentUserPlanLimit = 0;
-    stopSessionTimer(); // Detenemos el timer
+    hideAndStopTimer(); // Detenemos y ocultamos el timer
 
     const isPromoPage = !!document.getElementById('promo-page-content');
     if (isPromoPage) {
@@ -208,14 +215,12 @@ export function showAuthUI() {
         }
         console.log(getText('auth_log_showAuthUIPromo'));
     } else {
-        // Lógica para la aplicación principal (index.html)
         if (authArea) authArea.style.display = 'flex';
         if (gameArea) gameArea.style.display = 'none';
         if (userInfoDiv) userInfoDiv.style.display = 'none';
         if (loggedInUsernameSpan) loggedInUsernameSpan.textContent = '';
         document.body.classList.add('auth-view-active');
         
-        // Deshabilitamos los botones del header que requieren autenticación
         const addGameBtn = getElem('addGameBtn', false);
         const deleteSelectedBtn = getElem('deleteSelectedBtn', false);
         const undoDeleteBtn = getElem('undoDeleteBtn', false);
@@ -232,7 +237,6 @@ export function showAuthUI() {
         console.log(getText('auth_log_showAuthUIIndex'));
     }
 }
-// --- FIN DE LA CORRECCIÓN ---
 
 
 export async function showGameUI(usernameToDisplay) {
@@ -253,26 +257,23 @@ export async function showGameUI(usernameToDisplay) {
     document.body.classList.remove('auth-view-active');
     console.log(getText('auth_log_showGameUIIndex'));
     
-    // Habilitamos los botones del header que requieren autenticación
     const addGameBtn = getElem('addGameBtn', false);
     const deleteSelectedBtn = getElem('deleteSelectedBtn', false);
     const externalLoadBtn = getElem('externalLoadBtn', false);
     const configBtn = getElem('configBtn', false);
 
     if (addGameBtn) addGameBtn.disabled = false;
-    if (deleteSelectedBtn) deleteSelectedBtn.disabled = true; // El botón de borrar se activa solo al seleccionar
+    if (deleteSelectedBtn) deleteSelectedBtn.disabled = true;
     if (externalLoadBtn) externalLoadBtn.disabled = false;
     if (configBtn) configBtn.disabled = false;
 
     updatePlanCounterUI(); 
     
-    // Iniciamos el timer si corresponde
     const plan = currentUserPlanName || 'free';
     if (plan === 'medium' || plan === 'premium') {
-        if (sessionTimerContainerElement) sessionTimerContainerElement.style.display = 'flex';
         startSessionTimer(sessionTimeoutDuration);
     } else {
-        stopSessionTimer();
+        hideAndStopTimer();
     }
 }
 
@@ -398,7 +399,7 @@ export async function logoutUser() {
         notificationService.error(getText('auth_error_logoutServer'), error);
     } finally {
         localStorage.removeItem('pendingSubscriptionPlan');
-        stopSessionTimer();
+        hideAndStopTimer();
     
         currentLoggedInUsername = null;
         currentUserRole = null;
