@@ -418,6 +418,8 @@ export async function logoutUser() {
     }
 }
 
+
+
 export async function checkAuthStatus() {
     try {
         const response = await fetchAuthenticated(`${API_BASE_URL}/auth/status`);
@@ -449,6 +451,9 @@ export async function checkAuthStatus() {
         return { isAuthenticated: false, error: error };
     }
 }
+
+
+
 export async function fetchAuthenticated(url, options = {}) {
     const defaultOptions = {
         credentials: 'include',

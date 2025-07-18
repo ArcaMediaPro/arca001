@@ -130,6 +130,8 @@
   "gameForm_titleSubmit_edit": "Обновить изменения",
   "configModal_closeBtnTitle": "Закрыть",
   "configModal_header": "Настройки",
+  "header_sessionTimerAlt": "Время сеанса",
+  "header_sessionTimerTitle": "Оставшееся время сеанса",
   "configModal_tabGeneral": "Общие",
   "configModal_tabColors": "Цвета",
   "configModal_tabTypography": "Типографика",

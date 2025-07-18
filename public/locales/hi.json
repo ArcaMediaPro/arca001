@@ -130,6 +130,8 @@
   "gameForm_titleSubmit_edit": "परिवर्तन अपडेट करें",
   "configModal_closeBtnTitle": "बंद करें",
   "configModal_header": "सेटिंग्स",
+  "header_sessionTimerAlt": "सत्र का समय",
+  "header_sessionTimerTitle": "शेष सत्र समय",
   "configModal_tabGeneral": "सामान्य",
   "configModal_tabColors": "रंग",
   "configModal_tabTypography": "टाइपोग्राफी",

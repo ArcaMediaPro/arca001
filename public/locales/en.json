@@ -130,6 +130,8 @@
     "gameForm_titleSubmit_edit": "Update Changes",
     "configModal_closeBtnTitle": "Close",
     "configModal_header": "Settings",
+    "header_sessionTimerAlt": "Session time",
+    "header_sessionTimerTitle": "Remaining session time",
     "configModal_tabGeneral": "General",
     "configModal_tabColors": "Colors",
     "configModal_tabTypography": "Typography",

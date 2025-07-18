@@ -130,6 +130,8 @@
   "gameForm_titleSubmit_edit": "変更を更新",
   "configModal_closeBtnTitle": "閉じる",
   "configModal_header": "設定",
+  "header_sessionTimerAlt": "セッション時間",
+  "header_sessionTimerTitle": "残りのセッション時間",
   "configModal_tabGeneral": "一般",
   "configModal_tabColors": "色",
   "configModal_tabTypography": "タイポグラフィ",

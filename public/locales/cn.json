@@ -130,6 +130,8 @@
   "gameForm_titleSubmit_edit": "更新更改",
   "configModal_closeBtnTitle": "关闭",
   "configModal_header": "设置",
+  "header_sessionTimerAlt": "会话时间",
+  "header_sessionTimerTitle": "剩余会话时间",
   "configModal_tabGeneral": "常规",
   "configModal_tabColors": "颜色",
   "configModal_tabTypography": "排版",

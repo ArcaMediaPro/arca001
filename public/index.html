@@ -47,9 +47,19 @@
 
 <!-- === INICIO: NUEVO TIMER DE SESIÓN === -->
 <div id="session-timer-container" style="display: none; align-items: center; gap: 0.5rem; margin-left: 1rem;">
-    <img src="imagenes/timer-icon.png" alt="Tiempo de sesión" title="Tiempo de sesión restante" style="width: 28px; height: 28px;">
+    
+    <!-- === INICIO DE LA CORRECCIÓN === -->
+    <img src="imagenes/timer-icon.png" 
+         alt="Tiempo de sesión" 
+         title="Tiempo de sesión restante" 
+         style="width: 27px; height: 27px;"
+         data-i18n-key="header_sessionTimerAlt" 
+         data-i18n-target-attr="alt"
+         data-i18n-key-title="header_sessionTimerTitle">
+    <!-- === FIN DE LA CORRECCIÓN === -->
+
     <span id="session-timer">--:--</span>
-</div><!-- === FIN: NUEVO TIMER DE SESIÓN === -->
+</div></div><!-- === FIN: NUEVO TIMER DE SESIÓN === -->
 
 
 
