@@ -16,7 +16,7 @@ import {
     currentUserLanguage,
     currentUserPlanName,
     initiateSubscription,
-    resetSessionTimer // <-- 1. IMPORTACIÓN AÑADIDA
+    resetSessionTimer
 } from './authClient.js';
 import {
     initGameManager,
@@ -327,7 +327,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     setupFooter();
     
-    // --- INICIO DE LA CORRECCIÓN: BFCache ---
     window.addEventListener('pageshow', function(event) {
         if (event.persisted) {
             console.log('Página cargada desde bfcache. Forzando actualización de UI.');
@@ -341,7 +340,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
-    // --- FIN DE LA CORRECCIÓN ---
 
     originalInitAuthUI();
     initGameManager();
@@ -445,9 +443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // --- INICIO: LISTENER GLOBAL PARA RESETEAR EL TIMER ---
     document.addEventListener('click', resetSessionTimer);
-    // --- FIN: LISTENER GLOBAL ---
 
     try {
         const authStatus = await checkAuthStatus();
@@ -477,7 +473,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             showAuthUI();
             if (authStatus.error) {
-                notificationService.error(getText('auth_error_checkAuthStatusNotify'), authStatus.error);
+                // Ya no mostramos un segundo toast aquí
+                console.error("Error en el chequeo inicial de estado:", authStatus.error);
             }
         }
     } catch (error) {

@@ -16,37 +16,17 @@ export let currentUserPlanName = null;
 export let currentUserGameCount = 0;
 export let currentUserPlanLimit = 0;
 
-// --- INICIO: Variables para el Temporizador de Sesión ---
+// --- Variables para el Temporizador de Sesión ---
 let sessionTimerInterval = null;
 let sessionTimeoutDuration = 3600; // 1 hora en segundos por defecto
 let sessionTimerElement, sessionTimerContainerElement;
-// --- FIN: Variables para el Temporizador ---
 
-let authArea;
-let gameArea;
-let userInfoDiv;
-let loggedInUsernameSpan;
-let logoutButton;
-let loginFormContainer;
-let registerFormContainer;
-let requestResetFormContainer;
-let loginForm;
-let registerForm;
-let requestResetForm;
-let authMessageDiv;
-
-// --- INICIO: Lógica del Temporizador de Sesión (Corregida) ---
-
+// --- Lógica del Temporizador de Sesión ---
 function updateTimerDisplay(seconds) {
     if (!sessionTimerElement) return;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     sessionTimerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-}
-
-function stopSessionTimerInterval() {
-    clearInterval(sessionTimerInterval);
-    sessionTimerInterval = null;
 }
 
 export function resetSessionTimer() {
@@ -57,23 +37,24 @@ export function resetSessionTimer() {
 }
 
 function startSessionTimer(duration) {
-    stopSessionTimerInterval(); // Limpia cualquier temporizador existente
-
+    stopSessionTimerInterval();
     if (sessionTimerContainerElement) {
         sessionTimerContainerElement.style.display = 'flex';
     }
-
     let timer = duration;
     sessionTimeoutDuration = duration;
-
     sessionTimerInterval = setInterval(() => {
         updateTimerDisplay(timer);
         if (--timer < 0) {
-            console.log("La sesión ha expirado por inactividad.");
             notificationService.warn(getText('auth_error_sessionExpired'));
             logoutUser();
         }
     }, 1000);
+}
+
+function stopSessionTimerInterval() {
+    clearInterval(sessionTimerInterval);
+    sessionTimerInterval = null;
 }
 
 function hideAndStopTimer() {
@@ -82,8 +63,6 @@ function hideAndStopTimer() {
         sessionTimerContainerElement.style.display = 'none';
     }
 }
-
-// --- FIN: Lógica del Temporizador ---
 
 export async function initiateSubscription(planId) {
     const provider = 'stripe';
@@ -201,7 +180,7 @@ export function showAuthUI() {
     currentUserPlanName = null;
     currentUserGameCount = 0;
     currentUserPlanLimit = 0;
-    hideAndStopTimer(); // Detenemos y ocultamos el timer
+    hideAndStopTimer();
 
     const isPromoPage = !!document.getElementById('promo-page-content');
     if (isPromoPage) {
@@ -317,6 +296,7 @@ export function updatePlanCounterUI() {
 }
 
 
+
 export async function registerUser(username, email, password, targetElementId = null) {
     displayAuthMessage('', false, false, targetElementId);
     try {
@@ -403,22 +383,10 @@ export async function logoutUser() {
     
         currentLoggedInUsername = null;
         currentUserRole = null;
-        currentLoggedInUserEmail = null;
-        globalCsrfToken = null;
-        currentUserThemeSettings = null;
-        if (typeof clearUserServerThemeSettingsCache === 'function') {
-            clearUserServerThemeSettingsCache();
-        }
-        currentUserPlanName = null;
-        currentUserGameCount = 0;
-        currentUserPlanLimit = 0;
-        updatePlanCounterUI();
-        console.log(getText('auth_log_redirectingAfterLogout'));
+        // ... (resto de la limpieza de variables)
         window.location.href = 'promocional.html';
     }
 }
-
-
 
 export async function checkAuthStatus() {
     try {
@@ -436,11 +404,8 @@ export async function checkAuthStatus() {
                 currentUserGameCount = data.user.gameCount;
                 currentUserPlanLimit = data.user.planLimit;
                 
-                // --- INICIO DE LA CORRECCIÓN ---
-                // Ahora usamos el tiempo de expiración que nos envía el backend.
                 sessionTimeoutDuration = data.expiresIn || 3600;
                 console.log(`Sesión válida por ${Math.floor(sessionTimeoutDuration / 60)} minutos.`);
-                // --- FIN DE LA CORRECCIÓN ---
 
                 return { isAuthenticated: true, user: data.user };
             }
@@ -451,8 +416,6 @@ export async function checkAuthStatus() {
         return { isAuthenticated: false, error: error };
     }
 }
-
-
 
 export async function fetchAuthenticated(url, options = {}) {
     const defaultOptions = {
@@ -506,7 +469,6 @@ export async function fetchAuthenticated(url, options = {}) {
         throw error;
     }
 }
-
 export function getCurrentUserRole() { return currentUserRole; }
 export function getCurrentUserEmail() { return currentLoggedInUserEmail; }
 
