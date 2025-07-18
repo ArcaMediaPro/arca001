@@ -472,10 +472,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             configureUIAfterAuth();
         } else {
             showAuthUI();
+            // --- INICIO DE LA CORRECCIÓN ---
+            // Ya no mostramos un segundo toast aquí, solo registramos el error en la consola.
             if (authStatus.error) {
-                // Ya no mostramos un segundo toast aquí
-                console.error("Error en el chequeo inicial de estado:", authStatus.error);
+                console.error("Error en el chequeo inicial de estado (silenciado para el usuario):", authStatus.error);
             }
+            // --- FIN DE LA CORRECCIÓN ---
         }
     } catch (error) {
         console.error("Error fatal durante la inicialización:", error);
