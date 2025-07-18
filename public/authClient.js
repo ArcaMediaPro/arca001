@@ -297,6 +297,7 @@ export function updatePlanCounterUI() {
 
 
 
+
 export async function registerUser(username, email, password, targetElementId = null) {
     displayAuthMessage('', false, false, targetElementId);
     try {
@@ -469,6 +470,7 @@ export async function fetchAuthenticated(url, options = {}) {
         throw error;
     }
 }
+
 export function getCurrentUserRole() { return currentUserRole; }
 export function getCurrentUserEmail() { return currentLoggedInUserEmail; }
 
