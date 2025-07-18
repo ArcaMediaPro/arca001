@@ -2049,10 +2049,11 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
 }
 
 #session-timer-container img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    /* === INICIO DE LA CORRECCIÓN === */
+    width: 49px;  /* Ajustado para coincidir con el botón "Agregar Juego" */
+    height: 49px; /* Ajustado para coincidir con el botón "Agregar Juego" */
+    /* === FIN DE LA CORRECCIÓN === */
+    opacity: 0.8;
 }
 
 
