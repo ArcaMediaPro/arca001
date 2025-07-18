@@ -1,18 +1,16 @@
-// routes/authRoutes.js (VERSIÓN FINAL, CON LÍMITES DE PLANES DINÁMICOS)
+// routes/authRoutes.js (VERSIÓN FINAL, CON LÓGICA DE DURACIÓN DE SESIÓN)
 
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const UserPreferences = require('../models/UserPreferences');
 const Game = require('../models/Game');
-const Plan = require('../models/Plan'); // 1. IMPORTAMOS EL MODELO DE PLANES
+const Plan = require('../models/Plan'); // Importamos el modelo de Plan
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const authMiddleware = require('../middleware/auth');
 const { sendEmail } = require('../services/emailService');
 const { createStripeSession } = require('../controllers/subscriptionController');
-
-// La constante de límites ya no es necesaria, se leerá de la BD.
 
 const DEFAULT_THEME_SETTINGS_BACKEND = {
     '--clr-bg-body': '#2c2a3f', '--clr-text-main': '#e0e0e0', '--clr-text-secondary': '#bdbdbd',
@@ -106,6 +104,10 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Credenciales inválidas.' });
         }
 
+        const payload = { id: user._id, username: user.username, role: user.role, email: user.email, plan: user.subscriptionPlan };
+        const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.cookie('authToken', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', maxAge: 3600000 });
+
         if (user.pendingSubscriptionPlan && user.subscriptionPlan === 'free') {
             const planId = user.pendingSubscriptionPlan;
             user.pendingSubscriptionPlan = null;
@@ -115,21 +117,16 @@ router.post('/login', async (req, res) => {
             return await createStripeSession(mockReq, mockRes);
         }
 
-        // 2. OBTENEMOS LOS LÍMITES DESDE LA BASE DE DATOS
         const plans = await Plan.find({});
         const planLimitsDB = {
             free: plans.find(p => p.name === 'free')?.limit || 50,
             medium: plans.find(p => p.name === 'medium')?.limit || 500,
             premium: Infinity
         };
-
-        const payload = { id: user._id, username: user.username, role: user.role, email: user.email, plan: user.subscriptionPlan };
-        const jwtToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.cookie('authToken', jwtToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', maxAge: 3600000 });
         
         const csrfTokenToUse = res.locals._csrfToken || req.cookies._csrfToken;
         const gameCount = await Game.countDocuments({ owner: user._id });
-        const planLimit = planLimitsDB[user.subscriptionPlan] || 0; // 3. USAMOS EL LÍMITE DE LA BD
+        const planLimit = planLimitsDB[user.subscriptionPlan] || 0;
         const userPrefsDoc = await UserPreferences.findOne({ user: user._id });
         
         res.status(200).json({
@@ -141,6 +138,55 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Error en /login:', error);
         res.status(500).json({ message: 'Error en el inicio de sesión.' });
+    }
+});
+
+// --- RUTA DE LOGOUT ---
+router.post('/logout', (req, res) => {
+    res.clearCookie('authToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', path: '/' });
+    res.status(200).json({ message: 'Sesión cerrada correctamente.' });
+});
+
+// --- RUTA PARA VERIFICAR EL ESTADO DE AUTENTICACIÓN (ACTUALIZADA) ---
+router.get('/status', authMiddleware, async (req, res) => {
+    try {
+        const freshUser = await User.findById(req.user.id).select('username email role subscriptionPlan');
+        if (!freshUser) {
+            res.clearCookie('authToken');
+            return res.status(401).json({ isAuthenticated: false, message: 'Usuario no encontrado.' });
+        }
+
+        const plans = await Plan.find({});
+        const planLimitsDB = {
+            free: plans.find(p => p.name === 'free')?.limit || 50,
+            medium: plans.find(p => p.name === 'medium')?.limit || 500,
+            premium: Infinity
+        };
+
+        const csrfTokenToUse = res.locals._csrfToken || req.cookies._csrfToken;
+        const userPlan = freshUser.subscriptionPlan;
+        const gameCount = await Game.countDocuments({ owner: freshUser._id });
+        const planLimit = planLimitsDB[userPlan] || 0;
+        let userPrefsDocStatus = await UserPreferences.findOne({ user: req.user.id });
+        let userLanguageStatus = userPrefsDocStatus?.language || 'es';
+        let themeSettingsToReturnStatus = userPrefsDocStatus && userPrefsDocStatus.themeSettings ? Object.fromEntries(userPrefsDocStatus.themeSettings) : { ...DEFAULT_THEME_SETTINGS_BACKEND };
+        
+        // --- INICIO DE LA CORRECCIÓN ---
+        const nowInSeconds = Math.floor(Date.now() / 1000);
+        const tokenExpiresAt = req.user.exp; // El 'exp' viene del payload del JWT verificado por el middleware
+        const expiresInSeconds = tokenExpiresAt - nowInSeconds;
+        // --- FIN DE LA CORRECCIÓN ---
+        
+        res.status(200).json({
+            isAuthenticated: true,
+            user: { id: freshUser._id, username: freshUser.username, email: freshUser.email, role: freshUser.role, planName: userPlan, gameCount, planLimit, language: userLanguageStatus },
+            csrfToken: csrfTokenToUse,
+            themeSettings: themeSettingsToReturnStatus,
+            expiresIn: expiresInSeconds > 0 ? expiresInSeconds : 0 // Enviamos el tiempo restante al frontend
+        });
+    } catch (error) {
+        console.error('Error en GET /status:', error);
+        res.status(500).json({ isAuthenticated: false, message: 'Error interno del servidor.' });
     }
 });
 
