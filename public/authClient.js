@@ -434,26 +434,21 @@ export async function checkAuthStatus() {
                 currentUserGameCount = data.user.gameCount;
                 currentUserPlanLimit = data.user.planLimit;
                 
-                try {
-                    const tokenPayload = JSON.parse(atob(data.jwtToken.split('.')[1]));
-                    const nowInSeconds = Math.floor(Date.now() / 1000);
-                    sessionTimeoutDuration = tokenPayload.exp - nowInSeconds;
-                } catch (e) {
-                    console.warn("No se pudo decodificar el token para obtener la expiración, se usará el valor por defecto.");
-                    sessionTimeoutDuration = 3600;
-                }
+                // --- INICIO DE LA CORRECCIÓN ---
+                // Ahora usamos el tiempo de expiración que nos envía el backend.
+                sessionTimeoutDuration = data.expiresIn || 3600;
+                console.log(`Sesión válida por ${Math.floor(sessionTimeoutDuration / 60)} minutos.`);
+                // --- FIN DE LA CORRECCIÓN ---
 
                 return { isAuthenticated: true, user: data.user };
             }
         }
         return { isAuthenticated: false };
-
     } catch (error) {
         console.error(getText('auth_error_checkAuthStatusFetch') + ": " + error.message);
         return { isAuthenticated: false, error: error };
     }
 }
-
 export async function fetchAuthenticated(url, options = {}) {
     const defaultOptions = {
         credentials: 'include',
