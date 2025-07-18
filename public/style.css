@@ -2032,31 +2032,6 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
 
 
 
-/* --- Estilos para el Temporizador de Sesión --- */
-#session-timer-container {
-    display: flex; /* Se hará visible con JS */
-    align-items: center; /* Centra verticalmente el texto y el icono */
-    gap: 0.8rem;
-    background-color: rgba(0, 0, 0, 0.25);
-    padding: 0 12px;
-    border-radius: 30px; /* Un radio más grande para un contenedor más alto */
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 1.1rem;
-    color: var(--clr-accent-1);
-    font-weight: bold;
-    letter-spacing: 1px;
-    margin-left: 1rem;
-}
-
-#session-timer-container img {
-    width: 49px;  /* Tamaño deseado, igual al botón de "Agregar Juego" */
-    height: 49px;
-    opacity: 0.8;
-    padding: 4px 0; /* Añadir un pequeño padding vertical para que no toque los bordes */
-    box-sizing: border-box;
-}
-
-
 
 
 
