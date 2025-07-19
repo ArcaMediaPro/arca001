@@ -559,7 +559,12 @@
     "gameForm_cpu_at_i80486": "PC AT i80486",
     "gameForm_cpu_at_pentium": "PC AT Pentium",
     "gameForm_cpu_at_pentium_mmx": "PC AT Pentium MMX",
-    "gameForm_cpu_intel_i3": "PC Intel i3",
+    
+    "gameForm_cpu_at_pentium_II": "PC AT Pentium II",
+    "gameForm_cpu_at_pentium_III": "PC AT Pentium III",
+    "gameForm_cpu_at_pentium_4": "PC AT Pentium 4",
+    
+"gameForm_cpu_intel_i3": "PC Intel i3",
     "gameForm_cpu_intel_i5": "PC Intel i5",
     "gameForm_cpu_intel_i7": "PC Intel i7",
     "gameForm_cpu_motorola_680x0": "Motorola 68000/20/30/40",

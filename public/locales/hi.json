@@ -557,6 +557,11 @@
   "gameForm_cpu_at_i80486": "पीसी एटी i80486",
   "gameForm_cpu_at_pentium": "पीसी एटी पेंटियम",
   "gameForm_cpu_at_pentium_mmx": "पीसी एटी पेंटियम एमएमएक्स",
+
+  "gameForm_cpu_at_pentium_II": "PC ATx पेंटियम II",
+  "gameForm_cpu_at_pentium_III": "PC ATx पेंटियम III",
+  "gameForm_cpu_at_pentium_4": "PC ATx पेंटियम 4",
+
   "gameForm_cpu_intel_i3": "पीसी इंटेल i3",
   "gameForm_cpu_intel_i5": "पीसी इंटेल i5",
   "gameForm_cpu_intel_i7": "पीसी इंटेल i7",
