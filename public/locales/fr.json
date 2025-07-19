@@ -560,9 +560,9 @@
     "gameForm_cpu_at_pentium": "PC AT Pentium",
     "gameForm_cpu_at_pentium_mmx": "PC AT Pentium MMX",
     
-    "gameForm_cpu_at_pentium_II": "PC AT Pentium II",
-    "gameForm_cpu_at_pentium_III": "PC AT Pentium III",
-    "gameForm_cpu_at_pentium_4": "PC AT Pentium 4",
+    "gameForm_cpu_at_pentium_II": "PC ATx Pentium II",
+    "gameForm_cpu_at_pentium_III": "PC ATx Pentium III",
+    "gameForm_cpu_at_pentium_4": "PC ATx Pentium 4",
     
 "gameForm_cpu_intel_i3": "PC Intel i3",
     "gameForm_cpu_intel_i5": "PC Intel i5",
