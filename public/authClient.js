@@ -16,14 +16,11 @@ export let currentUserPlanName = null;
 export let currentUserGameCount = 0;
 export let currentUserPlanLimit = 0;
 
-// --- INICIO: Variables para el Temporizador de Sesión ---
+// --- Variables para el Temporizador de Sesión ---
 let sessionTimerInterval = null;
 let sessionTimeoutDuration = 3600; // 1 hora en segundos por defecto
 let sessionTimerElement, sessionTimerContainerElement;
-// --- FIN: Variables para el Temporizador ---
 
-// --- INICIO: Declaración de Variables del DOM ---
-// Nos aseguramos de que todas las variables estén declaradas en el ámbito del módulo.
 let authArea;
 let gameArea;
 let userInfoDiv;
@@ -36,14 +33,18 @@ let loginForm;
 let registerForm;
 let requestResetForm;
 let authMessageDiv;
-// --- FIN: Declaración de Variables del DOM ---
 
-// --- INICIO: Lógica del Temporizador de Sesión ---
+// --- Lógica del Temporizador de Sesión (Corregida) ---
 function updateTimerDisplay(seconds) {
     if (!sessionTimerElement) return;
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     sessionTimerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
+function stopSessionTimerInterval() {
+    clearInterval(sessionTimerInterval);
+    sessionTimerInterval = null;
 }
 
 export function resetSessionTimer() {
@@ -63,15 +64,10 @@ function startSessionTimer(duration) {
     sessionTimerInterval = setInterval(() => {
         updateTimerDisplay(timer);
         if (--timer < 0) {
-            notificationService.warn(getText('auth_error_sessionExpired'));
+            console.log("La sesión ha expirado por inactividad.");
             logoutUser();
         }
     }, 1000);
-}
-
-function stopSessionTimerInterval() {
-    clearInterval(sessionTimerInterval);
-    sessionTimerInterval = null;
 }
 
 function hideAndStopTimer() {
@@ -80,7 +76,6 @@ function hideAndStopTimer() {
         sessionTimerContainerElement.style.display = 'none';
     }
 }
-// --- FIN: Lógica del Temporizador ---
 
 export async function initiateSubscription(planId) {
     const provider = 'stripe';
@@ -322,12 +317,6 @@ export function updatePlanCounterUI() {
 }
 
 
-
-
-
-
-
-
 export async function registerUser(username, email, password, targetElementId = null) {
     displayAuthMessage('', false, false, targetElementId);
     try {
@@ -400,11 +389,6 @@ export async function loginUser(username, password, targetElementId = null) {
     }
 }
 
-
-
-
-
-
 export async function logoutUser() {
     console.log(getText('auth_log_attemptingLogout'));
     try {
@@ -419,7 +403,14 @@ export async function logoutUser() {
     
         currentLoggedInUsername = null;
         currentUserRole = null;
-        // ... (resto de la limpieza de variables)
+        currentLoggedInUserEmail = null;
+        globalCsrfToken = null;
+        currentUserThemeSettings = null;
+        currentUserPlanName = null;
+        currentUserGameCount = 0;
+        currentUserPlanLimit = 0;
+        updatePlanCounterUI();
+        console.log(getText('auth_log_redirectingAfterLogout'));
         window.location.href = 'promocional.html';
     }
 }
@@ -452,12 +443,6 @@ export async function checkAuthStatus() {
         return { isAuthenticated: false, error: error };
     }
 }
-
-
-
-
-
-
 
 export async function fetchAuthenticated(url, options = {}) {
     const defaultOptions = {
@@ -512,16 +497,8 @@ export async function fetchAuthenticated(url, options = {}) {
     }
 }
 
-
-
-
-
 export function getCurrentUserRole() { return currentUserRole; }
 export function getCurrentUserEmail() { return currentLoggedInUserEmail; }
-
-
-
-
 
 async function handleRequestPasswordReset(event) {
     event.preventDefault();
