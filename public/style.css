@@ -986,9 +986,9 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     outline-offset: 1px;
     opacity: 1;
 }
-.form-buttons {
+    .form-buttons {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     gap: 1rem;
 }
@@ -997,7 +997,7 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
 
 
 
-/* Estilo para el botón Limpiar Formulario en el modal como icono */
+				/* Estilo para el botón Limpiar Formulario en el modal como icono */
 #clearFormBtnInModal {
     background-color: transparent;
     border: none;
@@ -1027,7 +1027,7 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     opacity: 1;
 }
 
-/* Estilo para el botón Cancelar en el modal como icono */
+				/* Estilo para el botón Cancelar en el modal como icono */
 #cancelFormBtnInModal {
     background-color: transparent;
     border: none;
@@ -1056,6 +1056,10 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     outline: none;
     opacity: 1;
 }
+
+
+
+
 
 /* Estilos para los botones personalizados de carga de archivos */
 .custom-file-upload-btn {
