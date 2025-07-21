@@ -2030,7 +2030,27 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     padding: 10px 20px;
 }
 
+/* --- Estilos para el Footer de la Barra Lateral --- */
 
+/* Hacemos que la lista de plataformas ocupe todo el espacio disponible,
+   empujando el footer hacia abajo. */
+#platformListFilter {
+    flex-grow: 1;
+}
+
+.sidebar-footer {
+    padding-top: 1rem;
+    margin-top: 1rem; /* Un pequeño margen para separarlo de la lista */
+    border-top: 1px solid var(--clr-border);
+    text-align: center;
+}
+
+.sidebar-footer p {
+    font-size: 0.8rem;
+    color: var(--clr-text-secondary);
+    margin: 0.25rem 0;
+    opacity: 0.7;
+}
 
 
 
