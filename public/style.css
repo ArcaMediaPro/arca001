@@ -971,10 +971,12 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     transition: opacity 0.2s ease;
 }
 #submitGameFormBtn img {
-    display: block;
+    display: Flex;
     width: 100%;
     height: 100%;
     object-fit: contain;
+    justify-content: flex-end; /* Esto mueve los botones a la derecha */
+    gap: 1rem; /* Añade un espacio entre los botones */
 }
 #submitGameFormBtn:hover {
     opacity: 0.8;
@@ -1014,6 +1016,8 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     object-fit: contain;
     justify-content: flex-end; /* Esto mueve los botones a la derecha */
     gap: 1rem; /* Añade un espacio entre los botones */
+
+    
 }
 #clearFormBtnInModal:hover {
     opacity: 0.8;
@@ -1042,6 +1046,8 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     object-fit: contain;
     justify-content: flex-end; /* Esto mueve los botones a la derecha */
     gap: 1rem; /* Añade un espacio entre los botones */
+
+ 
 }
 #cancelFormBtnInModal:hover {
     opacity: 0.8;
@@ -1067,12 +1073,11 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     justify-content: center;
 }
 .custom-file-upload-btn img {
-    display: Flex;
+    display: Block;
     width: 100%;
     height: 100%;
     object-fit: contain;
-    justify-content: flex-end; /* Esto mueve los botones a la derecha */
-    gap: 1rem; /* Añade un espacio entre los botones */
+    
 }
 .custom-file-upload-btn:hover {
     opacity: 0.8;
@@ -1081,6 +1086,11 @@ p { /* Estilo general para párrafos, podría necesitar ser más específico */
     outline: none;
     opacity: 1;
 }
+
+
+
+
+
 
 /* Ajustes para los contenedores de carga de Portada y Contraportada */
 #gameForm > div:has(> #cover),
