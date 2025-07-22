@@ -1,87 +1,79 @@
+// proposed_path: modals/gameFormModalController.js
 import { getElem } from '../domUtils.js';
-import { getText } from '../i18n.js';
+// --- NUEVA IMPORTACIÓN ---
+import { getText } from '../i18n.js'; // Ajusta la ruta si i18n.js no está un nivel arriba
+// --- FIN DE NUEVA IMPORTACIÓN ---
 
-let gameFormModal, gameFormElement, gameFormLegend, closeButtons;
-let clearFormCallback = () => {};
-let isFormDirty = false; // 1. Flag para detectar cambios
+let gameFormModalElement, closeModalBtnGameFormElement, gameFormLegendElement, titleInputInGameForm;
+let clearAndResetGameFormCallbackForModal = () => console.warn('clearAndResetGameFormCallbackForModal not set in gameFormModalController.js');
 
-/**
- * Marca el formulario como "modificado".
- */
-function setFormDirty() {
-    isFormDirty = true;
-}
-
-/**
- * Resetea el estado del formulario a "sin modificar".
- */
-function resetFormDirtyState() {
-    isFormDirty = false;
-}
-
-export function initGameFormModalController(clearCb) {
-    gameFormModal = getElem('gameFormModal');
-    if (!gameFormModal) return;
-
-    gameFormElement = getElem('gameForm', true, gameFormModal);
-    gameFormLegend = getElem('gameFormLegend', true, gameFormModal);
-    closeButtons = gameFormModal.querySelectorAll('.close-game-form');
-
-    if (typeof clearCb === 'function') {
-        clearFormCallback = clearCb;
+export function initGameFormModalController(clearFormCb) {
+    gameFormModalElement = getElem('gameFormModal');
+    if (!gameFormModalElement) {
+        console.error("CRITICAL: Elemento gameFormModal no encontrado.");
+        return;
     }
+    closeModalBtnGameFormElement = gameFormModalElement.querySelector('.close-game-form');
+    gameFormLegendElement = getElem('gameFormLegend'); // Ya obtenías la referencia aquí
+    titleInputInGameForm = getElem('title'); 
 
-    // 2. Añadimos listeners para detectar cualquier cambio en el formulario
-    if (gameFormElement) {
-        gameFormElement.addEventListener('input', setFormDirty);
-        gameFormElement.addEventListener('change', setFormDirty); // Para selects y checkboxes
-    }
+    const clearBtnInModal = getElem('clearFormBtnInModal');
+    const cancelBtnInModal = getElem('cancelFormBtnInModal');
 
-    closeButtons.forEach(btn => btn.addEventListener('click', () => {
-        // Verificamos si hay cambios antes de cerrar con el botón
-        if (isFormDirty) {
-            if (confirm(getText('gameForm_confirmCloseDirty'))) {
-                closeGameFormModal();
-            }
-        } else {
-            closeGameFormModal();
-        }
-    }));
-
-    gameFormModal.addEventListener('click', (event) => {
-        if (event.target === gameFormModal) {
-            // 3. Verificamos si hay cambios antes de cerrar haciendo clic fuera
-            if (isFormDirty) {
-                if (confirm(getText('gameForm_confirmCloseDirty'))) {
-                    closeGameFormModal();
-                }
-            } else {
-                closeGameFormModal();
-            }
-        }
+    if (closeModalBtnGameFormElement) closeModalBtnGameFormElement.addEventListener('click', closeGameFormModal);
+    gameFormModalElement.addEventListener('click', (event) => {
+        if (event.target === gameFormModalElement) closeGameFormModal();
     });
+
+    if (typeof clearFormCb === 'function') {
+        clearAndResetGameFormCallbackForModal = clearFormCb;
+    }
+    if (clearBtnInModal) {
+        clearBtnInModal.addEventListener('click', () => {
+            if (typeof clearAndResetGameFormCallbackForModal === 'function') {
+                clearAndResetGameFormCallbackForModal();
+            }
+        });
+    }
+    if (cancelBtnInModal) cancelBtnInModal.addEventListener('click', closeGameFormModal);
+
+    console.log("Game Form Modal Controller Initialized");
 }
 
 export function openGameFormModal(isEditing = false) {
-    if (!gameFormModal || !gameFormLegend) return;
+    if (!gameFormModalElement) { console.error("ERROR: gameFormModalElement es null."); return; }
     
-    resetFormDirtyState(); // 4. Reseteamos el estado al abrir el modal
-
-    const legendKey = isEditing ? 'gameForm_legend_edit' : 'gameForm_legend_add';
-    gameFormLegend.textContent = getText(legendKey);
-    
-    // Si la función para actualizar campos de formato existe, la llamamos
-    if (typeof gameFormModal.updateFormatFields === 'function') {
-        gameFormModal.updateFormatFields();
+    // --- MODIFICACIÓN PARA TRADUCIR TEXTOS DINÁMICOS ---
+    if (gameFormLegendElement) {
+        gameFormLegendElement.textContent = isEditing ? getText('gameForm_legend_update') : getText('gameForm_legend_addNew');
     }
+    
+    const submitButton = gameFormModalElement.querySelector('#submitGameFormBtn');
+    if (submitButton) {
+        const img = submitButton.querySelector('img');
+        if (img) {
+            // La imagen en sí no cambia, pero su 'alt' text sí
+            img.alt = isEditing ? getText('gameForm_altSubmit_edit') : getText('gameForm_altSubmit_add');
+        }
+        // El 'title' del botón (tooltip) también cambia
+        submitButton.title = isEditing ? getText('gameForm_titleSubmit_edit') : getText('gameForm_titleSubmit_add');
+    }
+    // --- FIN DE MODIFICACIÓN ---
 
-    gameFormModal.style.display = 'block';
+    gameFormModalElement.style.display = 'flex';
+    const modalContent = gameFormModalElement.querySelector('.modal-content');
+    if (modalContent) modalContent.scrollTop = 0;
+
+    if (titleInputInGameForm) {
+        setTimeout(() => {
+            titleInputInGameForm.focus();
+        }, 100); 
+    }
+    console.log(`Game Form Modal Opened (Editing: ${isEditing})`);
 }
 
 export function closeGameFormModal() {
-    if (!gameFormModal) return;
-    
-    gameFormModal.style.display = 'none';
-    clearFormCallback();
-    resetFormDirtyState(); // 5. Reseteamos el estado al cerrar
+    if (gameFormModalElement) gameFormModalElement.style.display = 'none';
+    else console.error("ERROR: closeGameFormModal llamada, pero gameFormModalElement es null.");
+    console.log("Game Form Modal Closed");
 }
