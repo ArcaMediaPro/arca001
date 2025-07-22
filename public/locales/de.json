@@ -50,6 +50,7 @@
   "footer_appName": "Videospiel-Katalogisierer",
   "gameForm_closeBtnTitle": "Schließen",
   "gameForm_legend": "Spiel hinzufügen/bearbeiten",
+  "gameForm_confirmCloseDirty": "Sie haben ungespeicherte Änderungen im Formular. Sind Sie sicher, dass Sie schließen und diese Änderungen verlieren möchten?", 
   "gameForm_labelTitle": "Titel:",
   "gameForm_labelPlatform": "Plattform:",
   "gameForm_optPlatformDefault": "Plattform",

@@ -50,6 +50,7 @@
   "footer_appName": "Каталогизатор видеоигр",
   "gameForm_closeBtnTitle": "Закрыть",
   "gameForm_legend": "Добавить/Редактировать игру",
+  "gameForm_confirmCloseDirty": "У вас есть несохраненные изменения в форме. Вы уверены, что хотите закрыть и потерять эти изменения?",
   "gameForm_labelTitle": "Название:",
   "gameForm_labelPlatform": "Платформа:",
   "gameForm_optPlatformDefault": "Платформа",

@@ -50,6 +50,7 @@
     "footer_appName": "Catalogador de Videogames",
     "gameForm_closeBtnTitle": "Fechar",
     "gameForm_legend": "Adicionar/Editar Jogo",
+    "gameForm_confirmCloseDirty": "Você tem alterações não salvas no formulário. Tem certeza de que deseja fechar e perder essas alterações?",
     "gameForm_labelTitle": "Título:",
     "gameForm_labelPlatform": "Plataforma:",
     "gameForm_optPlatformDefault": "Plataforma",

@@ -50,6 +50,7 @@
   "footer_appName": "ビデオゲームカタロガー",
   "gameForm_closeBtnTitle": "閉じる",
   "gameForm_legend": "ゲームの追加/編集",
+  "gameForm_confirmCloseDirty": "フォームに未保存の変更があります。閉じてこれらの変更を破棄してもよろしいですか？",
   "gameForm_labelTitle": "タイトル:",
   "gameForm_labelPlatform": "プラットフォーム:",
   "gameForm_optPlatformDefault": "プラットフォーム",

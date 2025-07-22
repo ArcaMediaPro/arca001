@@ -50,6 +50,7 @@
   "footer_appName": "वीडियो गेम कैटलॉगर",
   "gameForm_closeBtnTitle": "बंद करें",
   "gameForm_legend": "खेल जोड़ें/संपादित करें",
+  "gameForm_confirmCloseDirty": "फॉर्म में आपके द्वारा किए गए बदलाव सहेजे नहीं गए हैं। क्या आप वाकई बंद करना और इन बदलावों को खोना चाहते हैं?",
   "gameForm_labelTitle": "शीर्षक:",
   "gameForm_labelPlatform": "प्लेटफार्म:",
   "gameForm_optPlatformDefault": "प्लेटफार्म",

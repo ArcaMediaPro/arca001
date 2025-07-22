@@ -50,6 +50,7 @@
   "footer_appName": "视频游戏编目器",
   "gameForm_closeBtnTitle": "关闭",
   "gameForm_legend": "添加/编辑游戏",
+  "gameForm_confirmCloseDirty": "表单中有未保存的更改。您确定要关闭并丢失这些更改吗？",
   "gameForm_labelTitle": "标题:",
   "gameForm_labelPlatform": "平台:",
   "gameForm_optPlatformDefault": "平台",

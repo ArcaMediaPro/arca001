@@ -50,6 +50,7 @@
     "footer_appName": "Video Game Cataloger",
     "gameForm_closeBtnTitle": "Close",
     "gameForm_legend": "Add/Edit Game",
+    "gameForm_confirmCloseDirty": "You have unsaved changes in the form. Are you sure you want to close and lose these changes?",
     "gameForm_labelTitle": "Title:",
     "gameForm_labelPlatform": "Platform:",
     "gameForm_optPlatformDefault": "Platform",
