@@ -1,27 +1,41 @@
-// routes/subscriptionRoutes.js
+// routes/subscriptionRoutes.js (CORREGIDO)
 
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middleware/auth');
+const authMiddleware = require('../middleware/authMiddleware'); // Asegúrate de que la ruta a tu middleware de autenticación sea correcta.
 
-// --- Importamos los controladores ---
-const { 
-    createStripeSession, 
-    createMercadoPagoPreference,
-    getStripeSessionStatus,
-    cancelStripeSubscription // <-- 1. IMPORTAMOS LA NUEVA FUNCIÓN DE CANCELACIÓN
-} = require('../controllers/subscriptionController');
+// Importa el controlador completo.
+const subscriptionController = require('../controllers/subscriptionController');
 
-// Rutas para crear sesiones de pago
-router.post('/create-stripe-session', authMiddleware, createStripeSession);
-router.post('/create-mercadopago-preference', authMiddleware, createMercadoPagoPreference);
+// --- RUTAS PARA LA GESTIÓN DE SUSCRIPCIONES ---
 
-// Ruta para que el frontend verifique el estado de un pago y obtenga un nuevo token
-router.get('/stripe-session-status', authMiddleware, getStripeSessionStatus);
+// Ruta para crear una sesión de pago con Stripe
+router.post(
+    '/create-stripe-session',
+    authMiddleware,
+    subscriptionController.createStripeSession
+);
 
-// --- INICIO: NUEVA RUTA DE CANCELACIÓN ---
-// Esta ruta recibirá la petición del frontend para cancelar la suscripción
-router.post('/cancel-stripe-subscription', authMiddleware, cancelStripeSubscription);
-// --- FIN: NUEVA RUTA DE CANCELACIÓN ---
+// Ruta para crear una preferencia de pago con Mercado Pago
+router.post(
+    '/create-mercadopago-preference',
+    authMiddleware,
+    subscriptionController.createMercadoPagoPreference
+);
+
+// Ruta para que el frontend verifique el estado de una sesión de Stripe después del pago
+router.get(
+    '/stripe-session-status',
+    subscriptionController.getStripeSessionStatus
+);
+
+// Ruta para que un usuario autenticado cancele su propia suscripción
+// Esta es la ruta que probablemente estaba causando el error en la línea 24.
+router.post(
+    '/cancel-subscription',
+    authMiddleware,
+    subscriptionController.cancelSubscription
+);
+
 
 module.exports = router;
