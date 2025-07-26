@@ -1,7 +1,15 @@
-// controllers/webhookController.js (CON DEPURACIÓN MEJORADA)
+// controllers/webhookController.js (CON LÓGICA FUNCIONAL PARA MERCADO PAGO)
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const mercadopago = require('mercadopago'); // <-- AÑADIDO SDK de Mercado Pago
 const User = require('../models/User');
+
+// --- CONFIGURACIÓN DE MERCADO PAGO ---
+// Asegúrate de tener MERCADOPAGO_ACCESS_TOKEN en tus variables de entorno (.env)
+mercadopago.configure({
+    access_token: process.env.MERCADOPAGO_ACCESS_TOKEN,
+});
+
 
 /**
  * Maneja los eventos entrantes de los webhooks de Stripe.
@@ -30,44 +38,90 @@ exports.handleStripeWebhook = async (req, res) => {
             case 'checkout.session.completed':
                 const session = event.data.object;
                 console.log(`✅ Webhook 'checkout.session.completed' recibido para la sesión: ${session.id}`);
-                await activateSubscription(session);
+                await activateStripeSubscription(session);
                 break;
             case 'customer.subscription.updated':
                 const subscriptionUpdated = event.data.object;
                 console.log(`🔔 Webhook 'customer.subscription.updated' recibido para la suscripción: ${subscriptionUpdated.id}`);
-                await updateSubscriptionStatus(subscriptionUpdated);
+                await updateStripeSubscriptionStatus(subscriptionUpdated);
                 break;
             case 'customer.subscription.deleted':
                 const subscriptionDeleted = event.data.object;
                 console.log(`🗑️ Webhook 'customer.subscription.deleted' recibido para la suscripción: ${subscriptionDeleted.id}`);
-                await cancelSubscription(subscriptionDeleted);
+                await cancelStripeSubscription(subscriptionDeleted);
                 break;
             default:
                 console.log(`Evento de Stripe no manejado: ${event.type}`);
         }
-        // Si todo va bien, respondemos a Stripe con un 200
         res.status(200).json({ received: true });
     } catch (error) {
-        // --- INICIO DE LA CORRECCIÓN ---
-        // Si alguna de las funciones auxiliares (como activateSubscription) falla,
-        // capturamos el error aquí y le informamos a Stripe que algo salió mal.
         console.error(`❌ Error al procesar el webhook '${event.type}':`, error);
         res.status(500).json({ error: 'Error interno del servidor al procesar el webhook.' });
-        // --- FIN DE LA CORRECCIÓN ---
     }
 };
 
-// --- Funciones auxiliares para manejar la lógica de la base de datos ---
+/**
+ * Maneja los eventos entrantes de los webhooks de Mercado Pago.
+ */
+exports.handleMercadoPagoWebhook = async (req, res) => {
+    console.log('🔔 Webhook de Mercado Pago recibido.');
+    const notification = req.body;
 
-async function activateSubscription(session) {
+    try {
+        // Las notificaciones de suscripciones de MP suelen tener type: 'subscription' y un 'action'
+        if (notification.type === 'subscription' && notification.data && notification.data.id) {
+            console.log(`Procesando notificación para la suscripción de MP ID: ${notification.data.id}`);
+
+            // 1. Consultamos la suscripción a la API de Mercado Pago para obtener su estado real
+            const mpSubscription = await mercadopago.preapproval.findById(notification.data.id);
+            const subData = mpSubscription.body;
+
+            if (!subData) {
+                throw new Error('No se pudo obtener la información de la suscripción de Mercado Pago.');
+            }
+
+            // 2. Buscamos al usuario en nuestra base de datos que corresponda a esta suscripción
+            // NOTA: Tu modelo de Usuario debe tener un campo como 'mercadoPagoSubscriptionId'
+            const user = await User.findOne({ mercadoPagoSubscriptionId: subData.id });
+
+            if (!user) {
+                console.warn(`⚠️ Usuario no encontrado para la suscripción de MP ID: ${subData.id}`);
+                // Respondemos 200 para que MP no siga enviando la notificación.
+                return res.status(200).json({ message: 'Usuario no encontrado, pero notificación recibida.' });
+            }
+
+            // 3. Verificamos el estado y actualizamos nuestra base de datos
+            if (subData.status === 'cancelled') {
+                await cancelMercadoPagoSubscription(user);
+            } else {
+                // También puedes manejar otros estados si lo necesitas (ej. 'authorized', 'paused')
+                user.subscriptionStatus = subData.status;
+                await user.save();
+                console.log(`✅ Estado de suscripción de MP actualizado a '${subData.status}' para el usuario: ${user._id}`);
+            }
+        } else {
+            console.log('Notificación de Mercado Pago recibida, pero no es de tipo suscripción o no tiene un ID válido.');
+        }
+
+        // 4. Respondemos a Mercado Pago para confirmar la recepción
+        res.status(200).json({ received: true });
+
+    } catch (error) {
+        console.error('❌ Error al procesar el webhook de Mercado Pago:', error.message);
+        res.status(500).json({ error: 'Error interno del servidor al procesar el webhook.' });
+    }
+};
+
+
+// --- Funciones auxiliares para Stripe ---
+
+async function activateStripeSubscription(session) {
     const userId = session.metadata.userId;
     const stripeSubscriptionId = session.subscription;
 
     if (!userId || !stripeSubscriptionId) {
         throw new Error(`Error crítico en el webhook: Faltan datos en la sesión. UserID: ${userId}, SubscriptionID: ${stripeSubscriptionId}`);
     }
-    console.log(`Intentando activar suscripción para UserID: ${userId} con StripeSubID: ${stripeSubscriptionId}`);
-    
     const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
     const user = await User.findById(userId);
     if (!user) {
@@ -80,38 +134,44 @@ async function activateSubscription(session) {
     user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
     
     const priceId = subscription.items.data[0].price.id;
-    console.log(`Price ID recibido de Stripe: ${priceId}`);
-    
     if (priceId === process.env.STRIPE_PRICE_ID_MEDIUM) {
         user.subscriptionPlan = 'medium';
-        console.log('Plan asignado: medium');
     } else if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
         user.subscriptionPlan = 'premium';
-        console.log('Plan asignado: premium');
-    } else {
-        console.warn('ADVERTENCIA: El Price ID recibido no coincide con ningún plan configurado.');
     }
-
     await user.save();
-    console.log(`✅ Suscripción activada y guardada en la BD para el usuario: ${userId}`);
+    console.log(`✅ Suscripción de Stripe activada para el usuario: ${userId}`);
 }
 
-async function updateSubscriptionStatus(subscription) {
+async function updateStripeSubscriptionStatus(subscription) {
     const user = await User.findOne({ stripeSubscriptionId: subscription.id });
     if (user) {
         user.subscriptionStatus = subscription.status;
         user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
         await user.save();
-        console.log(`Estado de suscripción actualizado para el usuario: ${user._id}`);
+        console.log(`Estado de suscripción de Stripe actualizado para el usuario: ${user._id}`);
     }
 }
 
-async function cancelSubscription(subscription) {
+async function cancelStripeSubscription(subscription) {
     const user = await User.findOne({ stripeSubscriptionId: subscription.id });
     if (user) {
         user.subscriptionStatus = 'canceled';
         user.subscriptionPlan = 'free';
         await user.save();
-        console.log(`Suscripción cancelada en la base de datos para el usuario: ${user._id}`);
+        console.log(`Suscripción de Stripe cancelada en la BD para el usuario: ${user._id}`);
     }
+}
+
+// --- NUEVA Función auxiliar para Mercado Pago ---
+
+async function cancelMercadoPagoSubscription(user) {
+    console.log(`Iniciando cancelación de suscripción de MP para el usuario: ${user._id}`);
+    user.subscriptionStatus = 'canceled';
+    user.subscriptionPlan = 'free';
+    user.subscriptionProvider = 'none'; // O mantener 'mercadopago' según tu lógica
+    // Opcional: Limpiar el ID de la suscripción si ya no es relevante
+    // user.mercadoPagoSubscriptionId = null; 
+    await user.save();
+    console.log(`🗑️ Suscripción de Mercado Pago cancelada en la BD para el usuario: ${user._id}`);
 }
