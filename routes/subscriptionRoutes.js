@@ -9,7 +9,7 @@ const {
     createStripeSession, 
     createMercadoPagoPreference,
     getStripeSessionStatus,
-    cancelStripeSubscription // <-- IMPORTAMOS LA NUEVA FUNCIÓN DE CANCELACIÓN
+    cancelStripeSubscription // <-- 1. IMPORTAMOS LA NUEVA FUNCIÓN DE CANCELACIÓN
 } = require('../controllers/subscriptionController');
 
 // Rutas para crear sesiones de pago
@@ -20,6 +20,7 @@ router.post('/create-mercadopago-preference', authMiddleware, createMercadoPagoP
 router.get('/stripe-session-status', authMiddleware, getStripeSessionStatus);
 
 // --- INICIO: NUEVA RUTA DE CANCELACIÓN ---
+// Esta ruta recibirá la petición del frontend para cancelar la suscripción
 router.post('/cancel-stripe-subscription', authMiddleware, cancelStripeSubscription);
 // --- FIN: NUEVA RUTA DE CANCELACIÓN ---
 

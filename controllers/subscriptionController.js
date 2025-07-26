@@ -107,7 +107,7 @@ exports.createMercadoPagoPreference = async (req, res) => {
         };
 
         const response = await preferenceClient.create({ body: preferenceData });
-        res.json({ redirectUrl: response.init_point });
+        res.json({ redirectUrl: response.body.init_point });
 
     } catch (error) {
         console.error("Error creando preferencia de Mercado Pago:", error);
@@ -115,14 +115,6 @@ exports.createMercadoPagoPreference = async (req, res) => {
     }
 };
 
-
-// =================================================================
-// === INICIO: NUEVA FUNCIÓN PARA SINCRONIZAR LA SESIÓN          ===
-// =================================================================
-
-/**
- * Verifica el estado de una sesión de Checkout de Stripe y devuelve un nuevo token.
- */
 exports.getStripeSessionStatus = async (req, res) => {
     const { session_id } = req.query;
 
@@ -133,43 +125,36 @@ exports.getStripeSessionStatus = async (req, res) => {
 
         const session = await stripe.checkout.sessions.retrieve(session_id);
         
-        // Verificamos que la sesión de pago fue exitosa
         if (session.payment_status !== 'paid') {
             return res.status(402).json({ message: 'El pago no ha sido completado.' });
         }
 
-        // Buscamos al usuario asociado a esta sesión
         const user = await User.findOne({ stripeCustomerId: session.customer });
 
         if (!user) {
             return res.status(404).json({ message: 'Usuario no encontrado.' });
         }
 
-        // Creamos un nuevo token con la información actualizada del usuario
         const payload = {
             id: user._id,
             username: user.username,
             role: user.role,
             email: user.email,
-            plan: user.subscriptionPlan, // Usamos el plan actualizado de la BD
+            plan: user.subscriptionPlan,
         };
 
         const token = jwt.sign(payload, process.env.JWT_SECRET, {
-            expiresIn: '1h', // O la duración que prefieras
+            expiresIn: '1h',
         });
         
-        // Devolvemos el nuevo token al frontend
-        res.json({ token });
+        res.cookie('authToken', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'Lax', maxAge: 3600000 });
+        res.json({ message: 'Sesión sincronizada' });
 
     } catch (error) {
         console.error("Error verificando la sesión de Stripe:", error);
         res.status(500).json({ message: 'Error al verificar el estado del pago.' });
     }
 };
-// =================================================================
-// === FIN: NUEVA FUNCIÓN                                        ===
-// =================================================================
-
 
 // =================================================================
 // === INICIO: NUEVA FUNCIÓN PARA CANCELAR LA SUSCRIPCIÓN        ===
@@ -186,7 +171,7 @@ exports.cancelStripeSubscription = async (req, res) => {
         }
 
         // Le decimos a Stripe que cancele la suscripción al final del período actual.
-        // El usuario mantendrá el acceso hasta la fecha de vencimiento.
+        // El usuario mantendrá el acceso hasta la fecha que ya pagó.
         await stripe.subscriptions.update(user.stripeSubscriptionId, {
             cancel_at_period_end: true,
         });
@@ -207,7 +192,7 @@ exports.cancelStripeSubscription = async (req, res) => {
 // =================================================================
 
 
-
+// --- INICIO: CÓDIGO RESTAURADO ---
 // --- Funciones auxiliares para manejar los webhooks ---
 
 // Se añade la función handleStripeWebhook que faltaba
@@ -320,3 +305,4 @@ async function cancelSubscription(subscription) {
         console.error(`Error al cancelar la suscripción ${subscription.id}:`, error);
     }
 }
+// --- FIN: CÓDIGO RESTAURADO ---
