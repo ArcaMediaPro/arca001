@@ -155,10 +155,11 @@ exports.cancelSubscription = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
 
-        // --- CORRECCIÓN ---
-        // Se ha modificado la condición. En lugar de verificar si el estado es 'active',
-        // ahora se comprueba si el usuario tiene un ID de suscripción de Stripe o Mercado Pago.
-        // Esto es más robusto y permite la cancelación incluso si el webhook de activación falló.
+        // --- INICIO: DEPURACIÓN AÑADIDA ---
+        console.log('--- INTENTO DE CANCELACIÓN DE SUSCRIPCIÓN ---');
+        console.log('Usuario encontrado:', user); // Esto nos mostrará el objeto de usuario completo.
+        // --- FIN: DEPURACIÓN AÑADIDA ---
+
         if (!user || (!user.stripeSubscriptionId && !user.mercadoPagoSubscriptionId)) {
             return res.status(400).json({ message: 'No se encontró una suscripción activa para cancelar.' });
         }
