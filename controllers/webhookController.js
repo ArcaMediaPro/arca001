@@ -1,14 +1,7 @@
-// controllers/webhookController.js (CORREGIDO CON EXPORTACIÓN FALTANTE)
+// controllers/webhookController.js (CON DEPURACIÓN MEJORADA)
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const { MercadoPagoConfig, Preference } = require('mercadopago');
 const User = require('../models/User');
-
-const mpClient = new MercadoPagoConfig({
-    accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN,
-});
-
-// ... (el resto del código se mantiene igual) ...
 
 /**
  * Maneja los eventos entrantes de los webhooks de Stripe.
@@ -31,112 +24,94 @@ exports.handleStripeWebhook = async (req, res) => {
         return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
-    // Maneja el evento
-    switch (event.type) {
-        case 'checkout.session.completed':
-            const session = event.data.object;
-            console.log('✅ Checkout Session completada:', session.id);
-            await activateSubscription(session);
-            break;
-        case 'customer.subscription.updated':
-            const subscriptionUpdated = event.data.object;
-            console.log('🔔 Suscripción actualizada:', subscriptionUpdated.id);
-            await updateSubscriptionStatus(subscriptionUpdated);
-            break;
-        case 'customer.subscription.deleted':
-            const subscriptionDeleted = event.data.object;
-            console.log('🗑️ Suscripción cancelada:', subscriptionDeleted.id);
-            await cancelSubscription(subscriptionDeleted);
-            break;
-        default:
-            console.log(`Evento de Stripe no manejado: ${event.type}`);
+    try {
+        // Maneja el evento
+        switch (event.type) {
+            case 'checkout.session.completed':
+                const session = event.data.object;
+                console.log(`✅ Webhook 'checkout.session.completed' recibido para la sesión: ${session.id}`);
+                await activateSubscription(session);
+                break;
+            case 'customer.subscription.updated':
+                const subscriptionUpdated = event.data.object;
+                console.log(`🔔 Webhook 'customer.subscription.updated' recibido para la suscripción: ${subscriptionUpdated.id}`);
+                await updateSubscriptionStatus(subscriptionUpdated);
+                break;
+            case 'customer.subscription.deleted':
+                const subscriptionDeleted = event.data.object;
+                console.log(`🗑️ Webhook 'customer.subscription.deleted' recibido para la suscripción: ${subscriptionDeleted.id}`);
+                await cancelSubscription(subscriptionDeleted);
+                break;
+            default:
+                console.log(`Evento de Stripe no manejado: ${event.type}`);
+        }
+        // Si todo va bien, respondemos a Stripe con un 200
+        res.status(200).json({ received: true });
+    } catch (error) {
+        // --- INICIO DE LA CORRECCIÓN ---
+        // Si alguna de las funciones auxiliares (como activateSubscription) falla,
+        // capturamos el error aquí y le informamos a Stripe que algo salió mal.
+        console.error(`❌ Error al procesar el webhook '${event.type}':`, error);
+        res.status(500).json({ error: 'Error interno del servidor al procesar el webhook.' });
+        // --- FIN DE LA CORRECCIÓN ---
     }
-
-    res.status(200).json({ received: true });
 };
-
-/**
- * Maneja las notificaciones de Mercado Pago.
- */
-// --- INICIO DE LA CORRECCIÓN ---
-// Se añade 'exports.' para que la función pueda ser importada desde otros archivos.
-exports.handleMercadoPagoWebhook = async (req, res) => {
-// --- FIN DE LA CORRECCIÓN ---
-    console.log('🔔 Notificación de Mercado Pago recibida:');
-    console.log(req.query); 
-
-    // Aquí iría la lógica para verificar y procesar la notificación de Mercado Pago.
-    res.status(200).send('OK');
-};
-
 
 // --- Funciones auxiliares para manejar la lógica de la base de datos ---
 
 async function activateSubscription(session) {
     const userId = session.metadata.userId;
     const stripeSubscriptionId = session.subscription;
-    
-    try {
-        const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
-        
-        const user = await User.findById(userId);
-        if (user) {
-            user.stripeSubscriptionId = stripeSubscriptionId;
-            user.subscriptionProvider = 'stripe';
-            user.subscriptionStatus = 'active';
-            user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
-            
-            const priceId = subscription.items.data[0].price.id;
 
-            // --- INICIO DE LA DEPURACIÓN AVANZADA ---
-            console.log('--- Depuración de Webhook de Activación ---');
-            console.log(`Price ID recibido de Stripe: ->|${priceId}|<-`);
-            console.log(`Price ID para MEDIUM (desde .env): ->|${process.env.STRIPE_PRICE_ID_MEDIUM}|<-`);
-            console.log(`Price ID para PREMIUM (desde .env): ->|${process.env.STRIPE_PRICE_ID_PREMIUM}|<-`);
-            // --- FIN DE LA DEPURACIÓN AVANZADA ---
-
-            if (priceId === process.env.STRIPE_PRICE_ID_MEDIUM) {
-                user.subscriptionPlan = 'medium';
-                console.log('Plan asignado: medium');
-            } else if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
-                user.subscriptionPlan = 'premium';
-                console.log('Plan asignado: premium');
-            } else {
-                console.warn('ADVERTENCIA: El Price ID recibido no coincide con ningún plan configurado.');
-            }
-
-            await user.save();
-            console.log(`Suscripción activada para el usuario: ${userId}`);
-        }
-    } catch (error) {
-        console.error(`Error al activar la suscripción para el usuario ${userId}:`, error);
+    if (!userId || !stripeSubscriptionId) {
+        throw new Error(`Error crítico en el webhook: Faltan datos en la sesión. UserID: ${userId}, SubscriptionID: ${stripeSubscriptionId}`);
     }
+    console.log(`Intentando activar suscripción para UserID: ${userId} con StripeSubID: ${stripeSubscriptionId}`);
+    
+    const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new Error(`Error en el webhook: No se encontró al usuario con ID: ${userId}`);
+    }
+
+    user.stripeSubscriptionId = stripeSubscriptionId;
+    user.subscriptionProvider = 'stripe';
+    user.subscriptionStatus = 'active';
+    user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
+    
+    const priceId = subscription.items.data[0].price.id;
+    console.log(`Price ID recibido de Stripe: ${priceId}`);
+    
+    if (priceId === process.env.STRIPE_PRICE_ID_MEDIUM) {
+        user.subscriptionPlan = 'medium';
+        console.log('Plan asignado: medium');
+    } else if (priceId === process.env.STRIPE_PRICE_ID_PREMIUM) {
+        user.subscriptionPlan = 'premium';
+        console.log('Plan asignado: premium');
+    } else {
+        console.warn('ADVERTENCIA: El Price ID recibido no coincide con ningún plan configurado.');
+    }
+
+    await user.save();
+    console.log(`✅ Suscripción activada y guardada en la BD para el usuario: ${userId}`);
 }
 
 async function updateSubscriptionStatus(subscription) {
-    try {
-        const user = await User.findOne({ stripeSubscriptionId: subscription.id });
-        if (user) {
-            user.subscriptionStatus = subscription.status;
-            user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
-            await user.save();
-            console.log(`Estado de suscripción actualizado para el usuario: ${user._id}`);
-        }
-    } catch (error) {
-        console.error(`Error al actualizar la suscripción ${subscription.id}:`, error);
+    const user = await User.findOne({ stripeSubscriptionId: subscription.id });
+    if (user) {
+        user.subscriptionStatus = subscription.status;
+        user.subscriptionEndDate = new Date(subscription.current_period_end * 1000);
+        await user.save();
+        console.log(`Estado de suscripción actualizado para el usuario: ${user._id}`);
     }
 }
 
 async function cancelSubscription(subscription) {
-    try {
-        const user = await User.findOne({ stripeSubscriptionId: subscription.id });
-        if (user) {
-            user.subscriptionStatus = 'canceled';
-            user.subscriptionPlan = 'free';
-            await user.save();
-            console.log(`Suscripción cancelada en la base de datos para el usuario: ${user._id}`);
-        }
-    } catch (error) {
-        console.error(`Error al cancelar la suscripción ${subscription.id}:`, error);
+    const user = await User.findOne({ stripeSubscriptionId: subscription.id });
+    if (user) {
+        user.subscriptionStatus = 'canceled';
+        user.subscriptionPlan = 'free';
+        await user.save();
+        console.log(`Suscripción cancelada en la base de datos para el usuario: ${user._id}`);
     }
 }
