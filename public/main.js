@@ -16,7 +16,8 @@ import {
     currentUserLanguage,
     currentUserPlanName,
     initiateSubscription,
-    resetSessionTimer
+    resetSessionTimer,
+    fetchAuthenticated // <-- 1. IMPORTAMOS LA FUNCIÓN NECESARIA
 } from './authClient.js';
 import {
     initGameManager,
@@ -209,16 +210,33 @@ function prepareSubscriptionTab() {
     }
 }
 
+// --- INICIO: LÓGICA DE CANCELACIÓN CORREGIDA ---
 async function handleCancelSubscription() {
     if (!confirm(getText('subscription_cancel_confirm'))) return;
+
     notificationService.info('Procesando cancelación...');
     try {
-        notificationService.success('Función de cancelación en desarrollo.');
+        const response = await fetchAuthenticated('/api/subscriptions/cancel-stripe-subscription', { 
+            method: 'POST' 
+        });
+        
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || 'Error en la respuesta del servidor.');
+        }
+
+        notificationService.success(data.message);
+        
+        // Recargamos la página para que se reflejen los cambios en el estado del usuario.
+        setTimeout(() => window.location.reload(), 3000);
+
     } catch (error) {
         console.error("Error al cancelar la suscripción:", error);
         notificationService.error(error.message || 'No se pudo cancelar la suscripción.');
     }
 }
+// --- FIN: LÓGICA DE CANCELACIÓN CORREGIDA ---
 
 // --- FUNCIONES GENERALES Y DE INICIALIZACIÓN ---
 function setupFooter() {
@@ -472,12 +490,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             configureUIAfterAuth();
         } else {
             showAuthUI();
-            // --- INICIO DE LA CORRECCIÓN ---
-            // Ya no mostramos un segundo toast aquí, solo registramos el error en la consola.
             if (authStatus.error) {
                 console.error("Error en el chequeo inicial de estado (silenciado para el usuario):", authStatus.error);
             }
-            // --- FIN DE LA CORRECCIÓN ---
         }
     } catch (error) {
         console.error("Error fatal durante la inicialización:", error);
