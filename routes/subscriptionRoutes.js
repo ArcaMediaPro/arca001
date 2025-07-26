@@ -62,8 +62,11 @@ router.get(
 );
 
 // Ruta para que un usuario autenticado cancele su propia suscripción
+// --- CORRECCIÓN: Se actualiza el nombre de la ruta para que coincida con la llamada del frontend ---
+// El error 404 ocurría porque el frontend llamaba a '/cancel-stripe-subscription'
+// mientras que la ruta estaba definida como '/cancel-subscription'.
 router.post(
-    '/cancel-subscription',
+    '/cancel-stripe-subscription', // <-- RUTA ACTUALIZADA
     authMiddleware,
     subscriptionController.cancelSubscription
 );
